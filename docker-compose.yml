@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+
+  #DB Service
+  khipu-db:
+    image: mysql:8.0.26
+    container_name: khipu-db
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./docker/tmp/data:/var/lib/mysql
+    ports:
+      - "13309:3306"
+    networks:
+      - app-network
+
+  #Web Service
+  khipu-web:
+    depends_on:
+      - khipu-db
+    image: registry.flowdevelopers.cl/flow/php8.1-laravel10:0.0.3
+    container_name: khipu-web
+    ports:
+      - "9200:80"
+    volumes:
+      - ./web:/var/www/html
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+    name: khipu_network

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="Flow-Khipu" default=""  xmlns:sonar="antlib:org.sonar.ant">
+	<property name="libs.dir" value="libs" />
+	<property file="sonar.properties" />
+
+	<!-- SONAR START -->
+    <target name="sonar">
+        <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+            <classpath path="${libs.dir}/sonarqube-ant-task-2.7.0.1612.jar " />
+        </taskdef>
+        <sonar:sonar />
+    </target>
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath path="${libs.dir}/ant-contrib-1.0b3.jar" />
+    </taskdef>
+	<!-- SONAR END -->
+
+</project>

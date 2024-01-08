@@ -1,0 +1,145 @@
+version: 0.2
+
+env:
+  parameter-store:
+    ECR_REPOSITORY: "/PARAMETER_ENVIRONMENT/SharedEKS/ECRRepository"
+    EKS_ROLE: "/PARAMETER_ENVIRONMENT/SharedEKS/EKSRole"
+    EKS_CLUSTER_NAMESPACE: "/PARAMETER_ENVIRONMENT/SharedEKS/EKSClusterNamespace"
+    EKS_CLUSTER_NAME: "/PARAMETER_ENVIRONMENT/SharedEKS/EKSClusterName"
+    EKS_NODE_GROUP: "/PARAMETER_ENVIRONMENT/SharedEKS/EKSNodeGroup"
+    AWS_DEFAULT_REGION: "/PARAMETER_ENVIRONMENT/SharedEKS/EKSRegion"
+    CERT_ARN: "/PARAMETER_ENVIRONMENT/SharedEKS/CertificateArn"
+    ZONE_ID: "/PARAMETER_ENVIRONMENT/SharedEKS/HostedZoneId"
+    ELB_ZONE_ID: "/PARAMETER_ENVIRONMENT/SharedEKS/ELBHostedZoneId"
+    DOMAIN: "/PARAMETER_ENVIRONMENT/SharedEKS/Domain"
+  secrets-manager:
+    ECR_APPNAME: "/SECRET_ENVIRONMENT/khipu:ECR_APPNAME"
+    SECRET_APP_ENV: "/SECRET_ENVIRONMENT/khipu:SECRET_APP_ENV"
+    SECRET_LOG_CHANNEL: "/SECRET_ENVIRONMENT/khipu:SECRET_LOG_CHANNEL"
+    SECRET_LOG_LEVEL: "/SECRET_ENVIRONMENT/khipu:SECRET_LOG_LEVEL"
+    SECRET_DB_HOST: "/SECRET_ENVIRONMENT/khipu:SECRET_DB_HOST"
+    SECRET_DB_PORT: "/SECRET_ENVIRONMENT/khipu:SECRET_DB_PORT"
+    SECRET_DB_DATABASE: "/SECRET_ENVIRONMENT/khipu:SECRET_DB_DATABASE"
+    SECRET_DB_USERNAME: "/SECRET_ENVIRONMENT/khipu:SECRET_DB_USERNAME"
+    SECRET_DB_PASSWORD: "/SECRET_ENVIRONMENT/khipu:SECRET_DB_PASSWORD"
+    SECRET_KAFKA_PORT: "/SECRET_ENVIRONMENT/khipu:SECRET_KAFKA_PORT"
+    SECRET_KAFKA_BROKERS: "/SECRET_ENVIRONMENT/khipu:SECRET_KAFKA_BROKERS"
+    SECRET_KAFKA_DEBUG: "/SECRET_ENVIRONMENT/khipu:SECRET_KAFKA_DEBUG"
+    SECRET_KAFKA_SASL_USERNAME: "/SECRET_ENVIRONMENT/khipu:SECRET_KAFKA_SASL_USERNAME"
+    SECRET_KAFKA_SASL_PASSWORD: "/SECRET_ENVIRONMENT/khipu:SECRET_KAFKA_SASL_PASSWORD"
+    NR_LICENSE_KEY: "/SECRET_ENVIRONMENT/newrelic:LICENSE_KEY"
+
+phases:
+  pre_build:
+      commands:
+        # Loading variables
+        - echo "Loading env variables"
+        - source ./build.env
+        - echo "Tag $TAG"
+        - REPOSITORY_URI=$ECR_REPOSITORY/$ECR_APPNAME:$TAG
+        - echo "REPOSITORY_URI $REPOSITORY_URI"
+
+        # Updating Docker Image tag in your Kubernetes Deployment Manifest        
+        - echo "Update Image tag in kubernetes manifest"
+        - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/02-Khipu-Migrations.yaml
+        - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/04-Khipu-Deployment.yaml
+        - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/05-Khipu-Deployment-Resolve.yaml
+        - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/06-Khipu-Deployment-Notification.yaml
+
+        - echo "Update Node group"
+        - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/04-Khipu-Deployment.yaml
+        - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/05-Khipu-Deployment-Resolve.yaml
+        - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/06-Khipu-Deployment-Notification.yaml
+
+        - echo "App configuration in kubernetes manifest"
+        - sed -i 's@SECRET_APP_ENV@'"$SECRET_APP_ENV"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_LOG_CHANNEL@'"$SECRET_LOG_CHANNEL"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_LOG_LEVEL@'"$SECRET_LOG_LEVEL"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_DB_HOST@'"$SECRET_DB_HOST"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_DB_PORT@'"$SECRET_DB_PORT"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_DB_DATABASE@'"$SECRET_DB_DATABASE"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_DB_USERNAME@'"$SECRET_DB_USERNAME"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_DB_PASSWORD@'"$SECRET_DB_PASSWORD"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_KAFKA_PORT@'"$SECRET_KAFKA_PORT"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_KAFKA_BROKERS@'"$SECRET_KAFKA_BROKERS"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_KAFKA_DEBUG@'"$SECRET_KAFKA_DEBUG"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_KAFKA_SASL_USERNAME@'"$SECRET_KAFKA_SASL_USERNAME"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@SECRET_KAFKA_SASL_PASSWORD@'"$SECRET_KAFKA_SASL_PASSWORD"'@' ./kube-manifiests/01-Khipu-Secrets.yaml
+        - sed -i 's@CERT_ARN@'"$CERT_ARN"'@' ./kube-manifiests/07-Khipu-Service-Internal.yaml
+
+        - echo "Updating dockerfile with ECR"
+        - sed -i "s/FROM [^\/]*/FROM $ECR_REPOSITORY/" ./Dockerfile
+
+        # Check AWS CLI Version        
+        - echo "Checking AWS CLI Version..."
+        - aws --version
+
+        # Login to ECR Registry 
+        - echo "Login in to Amazon ECR Registry"
+        - aws ecr get-login-password | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
+  build:
+    commands:
+      # Building Docker Image
+      - echo "Docker build started on `date`"
+      - echo "Building the Docker image..."
+      - docker build --build-arg NR_LICENSE_KEY=$NR_LICENSE_KEY --build-arg NR_APP_NAME=khipu-service -t $REPOSITORY_URI .
+  post_build:
+    commands:
+      # Push Docker Image to ECR Repository
+      - echo "Docker build completed on `date`"
+      - echo "Pushing the Docker image to ECR Repository $REPOSITORY_URI"
+      - docker push $REPOSITORY_URI
+      
+      # Apply changes to K8s
+      - echo "Update Kube Config configuration"  
+      - aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --role-arn ${EKS_ROLE}
+     
+      # Delete migration job to force re-exec
+      - |
+        if kubectl get job khipu-app-migrations -n ${EKS_CLUSTER_NAMESPACE} &> /dev/null; then
+          # Si existe, eliminar el Job
+          echo "Delete job 'khipu-app-migrations'"
+          kubectl delete job khipu-app-migrations -n ${EKS_CLUSTER_NAMESPACE}
+        fi
+
+      # Apply manifiests
+      - echo "Apply changes to kube manifests"
+      - kubectl apply -f ./kube-manifiests -n ${EKS_CLUSTER_NAMESPACE}
+
+      # Force restart on latest
+      - |
+        if [ "$TAG" == *-rc* ]; then
+          echo "Version 'latest', force restart deployments..."
+          kubectl rollout restart deployment/khipu-app -n ${EKS_CLUSTER_NAMESPACE}
+          kubectl rollout restart deployment/khipu-app-resolve -n ${EKS_CLUSTER_NAMESPACE}
+          kubectl rollout restart deployment/khipu-app-notification -n ${EKS_CLUSTER_NAMESPACE}
+        fi
+      - echo "Wait for service to be up and runing"
+      - sleep 3
+      - SVC_HOSTNAME=$(kubectl get services khipu-service-internal -n ${EKS_CLUSTER_NAMESPACE} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+      - APP_URL=khipu-app.$DOMAIN
+      - |
+        cat <<EOF > zone.json
+        {
+          "Comment": "Add or update domain",
+          "Changes": [
+            {
+              "Action": "UPSERT",
+              "ResourceRecordSet": {
+                "Name": "${APP_URL}",
+                "Type": "A",
+                "AliasTarget": {
+                  "HostedZoneId": "${ELB_ZONE_ID}",
+                  "DNSName": "${SVC_HOSTNAME}",
+                  "EvaluateTargetHealth": true
+                }
+              }
+            }
+          ]
+        }
+        EOF
+      - aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch file://zone.json
+artifacts:
+  files: 
+    - kube-manifiests/*
+    - zone.json

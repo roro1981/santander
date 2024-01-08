@@ -1,0 +1,544 @@
+openapi: 3.0.0
+info:
+  version: 0.0.1
+  title: Servicio Khipu
+  contact:
+    email: soporte@flow.cl
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: health
+    description : 'Permite comprobar el funcionamiento del servicio'
+  - name: order
+    description: 'Permite gestionar órdenes de pago'
+  - name: webhook
+    description: 'Permite actualizar estados de órdenes de pago'
+  - name: refund
+    description: 'Permite gestionar los reembolsos de las órdenes de pago'
+paths:
+  /api/v1/health:
+    get:
+      tags:
+        - health
+      summary: Comprobar funcionamiento del servicio
+      description: 'Este método se utiliza para comprobar el funcionamiento del servicio.'
+      responses:
+        '200':
+          description: 'Objeto Health'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthOk'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /api/v1/order/create:
+    post:
+      tags:
+        - order
+      summary: Crear orden de pago
+      description: Este método se utiliza para crear una nueva orden
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          description: Objeto Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrderResponse'
+        '400':
+          $ref: '#/components/responses/BusinessError'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /api/v1/order/{id}/notify:
+    post:
+      tags:
+        - webhook
+      summary: Notificación de pago consolidado
+      description: Recibe una notificación cuando el pago se ha realizado en Khipu
+      parameters:
+        - name: id
+          in: path
+          description: UUID de la orden en servicio integración Khipu
+          required: true
+          schema:
+            type: string
+            example: 46c9d190-a244-4e2d-8c44-baf74ec90528
+          style: simple
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookNotifyRequest'
+      responses:
+        '200':
+          description: Ok
+        '400':
+          $ref: '#/components/responses/BusinessError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /api/v1/order/{id}/cancel:
+    get:
+      tags:
+        - webhook
+      summary: Notificación de pago anulado
+      description: Recibe una notificación cuando el pagador abandona el pago
+      parameters:
+        - name: id
+          in: path
+          description: UUID de la orden en servicio integración Khipu
+          required: true
+          schema:
+            type: string
+            example: 46c9d190-a244-4e2d-8c44-baf74ec90528
+          style: simple
+      responses:
+        '200':
+          description: Url de retorno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookCancelResponse'
+        '400':
+          $ref: '#/components/responses/BusinessError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /api/v1/refund/create:
+    post:
+      tags:
+        - refund
+      summary: Crear un reembolso
+      description: Permite crear un reembolso de una orden
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRefundRequest'
+      responses:
+        '200':
+          description: Objeto Refund
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRefundResponse'
+        '400':
+          $ref: '#/components/responses/BusinessError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /api/v1/refund/isrefundable:
+    get:
+      tags:
+        - refund
+      summary: Confirma si orden es reembolsable
+      description: Permite consultar si es posible reembolsar una orden
+      parameters:
+        - name: external_id
+          required: true
+          description: ID de Khipu de la orden a consultar.
+          in: query
+          example: oca1k8nhhigb
+          schema:
+            type: string
+        - name: amount
+          required: true
+          description: Monto de la reversa.
+          in: query
+          example: 5000
+          schema:
+            type: number
+        - name: payment_type
+          required: true
+          description: Método de pago.
+          in: query
+          example: Crédito
+          schema:
+            type: string
+        - name: currency
+          required: true
+          description: Moneda para realizar la reversa.
+          in: query
+          example: PEN
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Objeto IsRefundable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IsRefundableResponse'
+        '400':
+          $ref: '#/components/responses/BusinessError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+
+        
+
+components:
+  responses:
+    BusinessError:
+      description: 'Error de formato o negocio'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BusinessError'
+    NotFound:
+      description: 'Servicio o recurso no encontrado'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+    InternalServer:
+      description: 'Error interno'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+  schemas:
+    HealthOk:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Respuesta exitosa
+          example: 'Ok'
+    CreateOrderRequest:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Identificador único de request
+          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
+          nullable: false
+        order:
+          type: object
+          description: Información de la orden
+          nullable: false
+          properties:
+            id:
+              type: integer
+              description: Id de la orden
+              example: 800130
+              nullable: false
+            product_id:
+              type: integer
+              description: Id del producto
+              example: 150
+              nullable: false
+            method_id:
+              type: integer
+              description: Id del medio de pago
+              example: 150
+              nullable: false
+            url_confirmation:
+              type: string
+              description: Url de confirmacion
+              example: "https://flow.cl/confirmacion.php"
+              nullable: false
+            url_return:
+              type: string
+              description: url de retorno
+              example: "https://flow.cl/retorno.php"
+              nullable: false
+            attempt_number:
+              type: integer
+              description: Número de intento de pago
+              example: 5
+              nullable: false
+            amount:
+              type: number
+              description: Monto de la orden
+              example: 10000
+              nullable: false
+            currency:
+              type: string
+              description: Moneda de la orden
+              example: "PEN"
+              nullable: false
+            subject:
+              type: string
+              description: Asunto del pago
+              example: "Test integracion"
+              nullable: false
+            expiration: 
+              type: integer
+              description: tiempo de expiracion de la url de pago
+              example: 1703174767
+              nullable: false
+            email_paid:
+              type: string
+              description: Email de pagador
+              example: test@flow.cl
+            extra_params:
+              type: array
+              nullable: true
+              description: Los parámetros adicionales de la transacción de pago
+              items:
+                $ref: '#/components/schemas/Metadata'
+        user:
+          type: object
+          description: Detalles del usuario (comercio)
+          properties:
+            id:
+              type: integer
+              description: ID del usuario
+              example: 200
+              nullable: false
+            email:
+              type: string
+              description: Email del usuario
+              example: "test@flow.cl"
+              nullable: false
+            legal_name:
+              type: string
+              description: Razón social o nombre legal del comercio.
+              example: "FLOW S.A"
+              nullable: false
+            tax_id:
+              type: string
+              description: Identificador tributario
+              example: "99999999-9"
+              nullable: false
+            address:
+              type: string
+              description: Dirección tributaria de la empresa
+              example: "Providencia"
+              nullable: false
+            fantasy_name:
+              type: string
+              description: Nombre de fantasía.
+              example: "Pasarela de pago FLOW."
+              nullable: true
+    CreateOrderResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Identificador único de la respuesta
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        payment_uuid:
+          type: string
+          maxLength: 12
+          description: ID de la orden
+          example: "oca1k8nhhigb"
+        provider_id:
+          type: string
+          description: ID de Khipu
+          example: "000400"
+        type:
+          type: string
+          enum: 
+            - "QR_CODE"
+            - "REDIRECT"
+          description: Tipo de respuesta, puede ser REDIRECT o QR_CODE
+          example: "REDIRECT"
+        amount:
+          type: number
+          description: Monto de la orden
+          example: 10000.00
+        currency:
+          type: string
+          description: Moneda de la orden
+          example: "PEN"
+        url:
+          type: string
+          description: QR o Redirect URL
+          example: "https://khipu.com/payment/info/oca1k8nhhigb"
+        expire_time:
+          type: number
+          description: Tiempo de expiración del QR
+          example: 300
+        expire_date:
+          type: string
+          description: Fecha de expiración del QR
+          example: "2023-09-29 08:55:53"
+        fields:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Metadata'
+    WebhookNotifyRequest:
+      type: object
+      properties:
+        notification_token:
+          type: string
+          maxLength: 64
+          description: Token de notificación de la orden
+          example: '03c7dd5edc6bfed5a333282c89c581c27866ba3c2f12fe0f4912abbcf595aeae'
+        api_version:
+          type: string
+          maxLength: 5
+          description: Versión de la API de notificación
+          example: '1.3'
+    WebhookCancelResponse:
+      type: object
+      properties:
+        return_url:
+          type: string
+          description: Url de retorno de orden
+          example: https://local.tuxidev.cl:9101/app/pgw/return.php?token=423E9D4A34B6D53E302DE1A4CAF908992931998Z
+    CreateRefundRequest:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Identificador único de la request.
+          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
+          nullable: false
+        refund:
+          type: object
+          description: Información del reembolso
+          nullable: false
+          properties:
+            external_id:
+              type: string
+              description: ID Khipu de transacción
+              example: "oca1k8nhhigb"
+              nullable: false
+            amount:
+              type: number
+              description: Monto solicitado para reembolsar
+              example: 109000
+              nullable: false
+            currency:
+              type: string
+              description: Moneda de pago
+              example: "PEN"
+              nullable: false
+            subject:
+              type: string
+              description: Descripción del motivo de la reversa
+              example: "Rembolso por compra de productos"
+              nullable: false
+            payment_type:
+              type: string
+              description: Método de pago utilizado DEBIT ó CREDIT valores aceptados
+              example: "DEBIT"
+              nullable: false
+            email_paid:
+              type: string
+              description: Email del solicitante de la reversa
+              example: "example@flow.cl"
+              nullable: false
+            create_date:
+              type: string
+              description: Fecha de la creación de la reversa, formato Tz
+              example: "2023-12-31T23:59:59Z"
+              nullable: false
+    CreateRefundResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Identificador único de la respuesta
+          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
+          nullable: false
+        refund_uuid:
+          type: string
+          description: ID del reembolso
+          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
+          nullable: false
+        authorization_code:
+          type: string
+          description: Identificador de la autorización de la orden
+          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
+          nullable: false
+        status:
+          type: string
+          description: Status del reembolso
+          example: "REFUNDED"
+          nullable: false
+    IsRefundableResponse:
+      type: object
+      properties:
+        is_refundable:
+          type: boolean
+          description: Respuesta de verificación si la orden es reembolsable.
+          example: false
+          nullable: false
+        description:
+          type: string
+          description: Respuesta de salida
+          example: "La orden no es reembolsable."
+          nullable: false
+    Metadata:
+      type: object
+      properties:
+        key: 
+          type: string
+          maxLength: 100
+          description: Identificador del campo
+          example: Número de factura
+        value:
+          type: string
+          maxLength: 1024
+          description: Valor del campo
+          example: "23598"
+      required: [key, value]
+    BusinessError:
+      type: object
+      properties:
+        code:
+          type: number
+          description: Código de error
+          example: 400
+        message:
+          type: string
+          description: Mensaje de error
+          example: Bad Request
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessErrorDetail'
+    BusinessErrorDetail:
+      type: object
+      properties:
+        rule:
+          type: string
+          description: Nombre de la regla de validación
+          example: Required
+        field:
+          type: string
+          description: Campo en que se produjo el error 
+          example: uuid
+        message:
+          type: string
+          description: Detalle del error en el campo 
+          example: The uuid field is required
+    NotFoundError:
+      type: object
+      properties:
+        code:
+          type: number
+          description: Código de error
+          example: 404
+        error:
+          type: string
+          description: Mensaje de error
+          example: Not Found
+    InternalServerError:
+      type: object
+      properties:
+        code:
+          type: number
+          description: Código de error
+          example: 500
+        message:
+          type: string
+          description: Mensaje de error
+          example: 'Internal Server Error'
