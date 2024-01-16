@@ -2,9 +2,9 @@ version: "3.8"
 services:
 
   #DB Service
-  khipu-db:
+  santander-db:
     image: mysql:8.0.26
-    container_name: khipu-db
+    container_name: santander-db
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
@@ -19,11 +19,11 @@ services:
       - app-network
 
   #Web Service
-  khipu-web:
+  santander-web:
     depends_on:
-      - khipu-db
+      - santander-db
     image: registry.flowdevelopers.cl/flow/php8.1-laravel10:0.0.3
-    container_name: khipu-web
+    container_name: santander-web
     ports:
       - "9200:80"
     volumes:
@@ -35,4 +35,4 @@ services:
 networks:
   app-network:
     driver: bridge
-    name: khipu_network
+    name: santander_network

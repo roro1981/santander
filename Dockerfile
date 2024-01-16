@@ -1,6 +1,6 @@
 FROM 079258014335.dkr.ecr.us-west-2.amazonaws.com/php-8.1-prod:0.0.3
 
-ARG NR_LICENSE_KEY=''
+ARG NR_LICENSE_KEY=' '
 ARG NR_APP_NAME=''
 
 # Copy application files
