@@ -22,15 +22,14 @@ class OrderController extends Controller
         }
         
         try { 
-            //$cart = CartUtil::saveOrder($uuid, $orderRequest, $user);
-            $client=new SantanderClient();
-            $response = client::getBearerToken();
-           
+            $cart = CartUtil::saveOrder($uuid, $orderRequest, $user);
+            $response=new SantanderClient($cart->toArray());
+            
         } catch (\Exception $e) {
             Log::error("Error al crear orden " . $e->getMessage());
             $response = response()->json([
                 'error' => 500,
-                'message' => "Error al crear orden " . $e->getMessage()
+                'message' => $e->getMessage()
             ], 500);
         }
 

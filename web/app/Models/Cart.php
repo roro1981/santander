@@ -16,6 +16,7 @@ class Cart extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'car_id',
         'car_uuid',
         'car_id_transaction',
         'car_flow_currency',
@@ -37,10 +38,6 @@ class Cart extends Model
         'car_flow_subject',
         'car_flow_email_paid',
         'car_created_at'
-     ];
-
-     protected $hidden = [
-        'car_id'
      ];
 
      /**

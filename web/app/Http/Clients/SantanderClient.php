@@ -4,20 +4,25 @@ namespace App\Http\Clients;
 
 use Illuminate\Support\Facades\Http;
 use App\Http\Utils\Constants;
+use App\Traits\ApiResponser;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 
 class SantanderClient
 {
+    use ApiResponser;
+
     private $baseUrl;
     private $bearerToken;
 
-    public function __construct()
+    public function __construct($cartData)
     {
         // Configurar la URL base de la API de Santander
-        $this->baseUrl = Constants::PARAM_SANTANDER_TOKEN_URL;
-
+        $this->baseUrl = Constants::PARAM_SANTANDER_URL;
         // Obtener el Bearer Token al inicializar la clase
-        $this->bearerToken = $this->getBearerToken();
+        //$this->bearerToken = $this->getBearerToken();
+        $this->enrollCart($cartData);
     }
 
     /**
@@ -25,32 +30,22 @@ class SantanderClient
      *
      * @return string|null
      */
-    private function getBearerToken()
+    public function getBearerToken()
     {
         try {
-            // Parámetros para la solicitud de token
-            $headers = ['Content-Type' => 'application/json'];
-            $body = '{"company": "768300143", "username": "768300143", "password": "Ax4o5idb_h"}';
-            $response = Http::withHeaders($headers)->get('https://paymentbutton-bsan-cert.e-pagos.cl/auth/basic/token', json_decode($body, true));
-            dd($headers, $body, json_decode($body, true), $response);
-            // $credentials = [
-            //     'company' =>  Constants::PARAM_SANTANDER_TOKEN_COMPANY,
-            //     'username' => Constants::PARAM_SANTANDER_TOKEN_USERNAME,
-            //     'password' => Constants::PARAM_SANTANDER_TOKEN_PASSWORD,
-            // ];
-            // // Realizar la solicitud para obtener el token
-            // $response = Http::get($this->baseUrl."/auth/basic/token", $credentials);
-            // dd($response,$credentials,$this->baseUrl."/auth/basic/token");
-            // // Verificar si la solicitud fue exitosa
-            // if ($response->successful()) {
-            //     return $response->json('access_token');
-            // }
+            $credentials = [
+                'company' =>  Constants::PARAM_SANTANDER_TOKEN_COMPANY,
+                'username' => Constants::PARAM_SANTANDER_TOKEN_USERNAME,
+                'password' => Constants::PARAM_SANTANDER_TOKEN_PASSWORD,
+            ];
+            $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
+            
+            if ($response->successful()) {
+                return $response->json('token_type')." ".$response->json('access_token');
+            }
 
-            // Manejar el caso en que la solicitud no fue exitosa
-            throw new Exception('Error al obtener el Bearer Token: ' . $response->status());
         } catch (Exception $e) {
-            dd($e);
-            throw new Exception('Error al obtener el Bearer Token: ' . $e->getMessage());
+            return $this->errorResponse($e,'Error al obtener el Bearer Token: ' . $e->getMessage());
         }
     }
 
@@ -62,26 +57,45 @@ class SantanderClient
      */
     public function enrollCart(array $cartData)
     {
+
+        $authorizationToken = $this->getBearerToken();
+        
         try {
-            // Realizar la solicitud para inscribir el carro
-            $response = Http::withToken($this->bearerToken)
-                ->post("{$this->baseUrl}/enroll-cart", $cartData);
+           
+            $client = new Client();
 
-            // Verificar si la solicitud fue exitosa
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            // Manejar el caso en que la solicitud no fue exitosa
-            throw new Exception('Error al inscribir el carro: ' . $response->status());
+            $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $authorizationToken
+            ];
+    
+            $body = '{
+            "idTransaction": '.$cartData['car_id'].',
+            "currency": "'.$cartData['car_flow_currency'].'",
+            "amount": "'.$cartData['car_flow_amount'].'",
+            "agreement": "955464798",
+            "url": "'.$cartData['car_url_return'].'",
+            "itemsNumber": 1,
+            "additionalData": [],
+            "details": [
+                {
+                "description": "'.$cartData['car_flow_subject'].'",
+                "amount": "'.$cartData['car_flow_amount'].'",
+                "number": 1
+                }
+            ],
+            "collector": "BSAN"
+            }';
+            $request = new Request('POST', $this->baseUrl.'/auth/apiboton/carro/inscribir', $headers, $body);
+          
+            $res = $client->sendAsync($request)->wait();
+          
+            echo $res->getBody();
+            
         } catch (Exception $e) {
             // Manejar errores
             throw new Exception('Error al inscribir el carro: ' . $e->getMessage());
         }
     }
 
-    private static function createSantanderClient($bankId)
-    {
-        return new SantanderClient($bankId);
-    }
 }

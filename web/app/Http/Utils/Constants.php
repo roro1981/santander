@@ -12,7 +12,7 @@ abstract class Constants
     const PARAM_SANTANDER_TOKEN_COMPANY = '768300143';
     const PARAM_SANTANDER_TOKEN_USERNAME = '768300143';
     const PARAM_SANTANDER_TOKEN_PASSWORD = 'Ax4o5idb_h';
-    const PARAM_SANTANDER_TOKEN_URL = 'https://paymentbutton-bsan-cert.e-pagos.cl';
+    const PARAM_SANTANDER_URL = 'https://paymentbutton-bsan-cert.e-pagos.cl';
 
     const STATUS_CREATED = 'CREATED';
     const STATUS_PREAUTHORIZED = 'PRE-AUTHORIZED';
