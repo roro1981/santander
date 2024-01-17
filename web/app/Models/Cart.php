@@ -13,15 +13,17 @@ class Cart extends Model
     protected $table = 'bbs_cart';
     protected $primaryKey = 'car_id';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'car_uuid',
         'car_id_transaction',
-        'car_currency',
-        'car_amount',
+        'car_flow_currency',
+        'car_flow_amount',
         'car_description',
         'car_agreement',
         'car_url',
-        'car__items_number',
+        'car_items_number',
         'car_collector',
         'car_status',
         'car_url_return',
@@ -29,8 +31,11 @@ class Cart extends Model
         'car_sent_kafka',
         'car_fail_code',
         'car_fail_motive',
-        'car_created_at',
-        'car_updated_at'
+        'car_flow_id',
+        'car_flow_attempt_number',
+        'car_flow_product_id',
+        'car_flow_subject',
+        'car_flow_email_paid'
      ];
 
      protected $hidden = [
@@ -50,15 +55,6 @@ class Cart extends Model
     /**
      * Relationships
      */
-    public function cart_details()
-    {
-        return $this->hasMany(Cart_detail::class, 'car_id', 'car_id');
-    }
-
-    public function cart_additional_data()
-    {
-        return $this->hasMany(Cart_additional_data::class, 'car_id', 'car_id');
-    }
 
     public function cart_status()
     {

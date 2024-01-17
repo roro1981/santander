@@ -15,8 +15,8 @@ return new class extends Migration
             $table->uuid('idp_uuid')->comment('Identificador único');
             $table->longText('idp_response')->comment('Response API POST');
             $table->string('idp_httpcode', 3)->comment('HTTP Status Code API POST');
-            $table->timestamp('idp_created_at')->comment('Fecha creación');
-            $table->timestamp('idp_updated_at')->comment('Fecha modificacion');
+            $table->timestamp('idp_created_at')->nullable()->comment('Fecha creación');
+            $table->timestamp('idp_updated_at')->nullable()->comment('Fecha modificacion');
         });
     }
 

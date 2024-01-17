@@ -12,7 +12,10 @@ class Idempotency extends Model
     protected $table = 'bbs_idempotency';
     protected $primaryKey = 'idp_uuid';
 
+    public $timestamps = false;
+
     protected $fillable = [
+        'idp_uuid',
         'idp_response',
         'idp_httpcode',
         'idp_created_at',

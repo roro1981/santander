@@ -12,7 +12,10 @@ class Cart_status extends Model
     protected $table = 'bbs_cart_status';
     protected $primaryKey = 'cas_id';
 
+    public $timestamps = false;
+
     protected $fillable = [
+        'car_id',
         'cas_status',
         'cas_created_at'
     ];
@@ -33,7 +36,8 @@ class Cart_status extends Model
     {
         return Cart_status::create([
             'car_id' => $cart->car_id,
-            'car_status' => $cart->car_status
+            'cas_status' => $cart->car_status,
+            'cas_created_at' => now()
         ]);
     }
 }

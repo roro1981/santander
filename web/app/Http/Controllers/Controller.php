@@ -38,11 +38,13 @@ class Controller extends BaseController
     protected function saveIdempotency($uuid, $response, $httpCode)
     {
         $idempotency = Idempotency::find($uuid);
+    
         if (!$idempotency) {
             Idempotency::create([
                 'idp_uuid' => $uuid,
                 'idp_response' => $response !== "" ? json_encode($response) : "",
-                'idp_httpcode' => $httpCode
+                'idp_httpcode' => $httpCode,
+                'idp_created_at' => now()
             ]);
         }
     }

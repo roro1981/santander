@@ -20,4 +20,25 @@ class Api_log extends Model
         'alg_status_code',
         'alg_created_at'
     ];
+    /**
+     * Functions
+     */
+    public static function storeLog($orderFlowId, $bankId, $url, $request)
+    {
+        return store::create([
+            'alg_external_id' => $orderFlowId,
+            'alg_bank_id' => $bankId,
+            'alg_url' => $url,
+            'alg_request' => json_encode($request),
+        ]);
+    }
+
+    public function updateLog($response, $status, $bankId = null)
+    {
+        $this->update([
+            'alg_response' => json_encode($response),
+            'alg_status_code' => $status,
+            'alg_bank_id' => $bankId ?? $this->alg_bank_id
+        ]);
+    }
 }
