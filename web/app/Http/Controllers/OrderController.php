@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Utils\CartUtil;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\CreateOrderRequest;
-use App\Http\Clients\SantanderClient;
+use App\Http\Responses\CreateOrderResponse;
+
 
 class OrderController extends Controller
 {
@@ -23,8 +24,7 @@ class OrderController extends Controller
         
         try { 
             $cart = CartUtil::saveOrder($uuid, $orderRequest, $user);
-            $response=new SantanderClient($cart->toArray());
-            
+            $response=CreateOrderResponse::generate($cart);
         } catch (\Exception $e) {
             Log::error("Error al crear orden " . $e->getMessage());
             $response = response()->json([

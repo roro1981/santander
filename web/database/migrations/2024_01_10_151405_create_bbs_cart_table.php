@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('car_description', 100)->nullable()->comment('Descripción del ítem del carro');
             $table->string('car_agreement', 20)->nullable()->comment('Codigo de convenio asociado al comercio');
             $table->string('car_url', 600)->comment('URL para redireccionamiento autorización de pago');
+            $table->unsignedBigInteger('car_expires_at')->comment('Tiempo expiracion codigo QR');
             $table->integer('car_items_number')->comment('Cantidad de detalles a informar');
             $table->string('car_collector', 20)->nullable()->comment('Codigo identificador del recaudador');
             $table->enum('car_status', ['CREATED', 'PRE-AUTHORIZED', 'AUTHORIZED', 'FAILED'])->comment('Estado del cobro');

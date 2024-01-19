@@ -24,6 +24,7 @@ class Cart extends Model
         'car_description',
         'car_agreement',
         'car_url',
+        'car_expires_at',
         'car_items_number',
         'car_collector',
         'car_status',

@@ -62,7 +62,7 @@ class SantanderClient
         
         try {
            
-            $client = new Client();
+            //$client = new Client();
 
             $headers = [
             'Content-Type' => 'application/json',
@@ -73,7 +73,7 @@ class SantanderClient
             "idTransaction": '.$cartData['car_id'].',
             "currency": "'.$cartData['car_flow_currency'].'",
             "amount": "'.$cartData['car_flow_amount'].'",
-            "agreement": "955464798",
+            "agreement": "9570",
             "url": "'.$cartData['car_url_return'].'",
             "itemsNumber": 1,
             "additionalData": [],
@@ -84,13 +84,17 @@ class SantanderClient
                 "number": 1
                 }
             ],
-            "collector": "BSAN"
+            "collector": "7683001403"
             }';
-            $request = new Request('POST', $this->baseUrl.'/auth/apiboton/carro/inscribir', $headers, $body);
+            $response = Http::withHeaders($headers)
+                ->post($this->baseUrl.'/auth/apiboton/carro/inscribir', json_decode($body, true));
+            
+            return $response->body();
+            /*$request = new Request('POST', $this->baseUrl.'/auth/apiboton/carro/inscribir', $headers, $body);
           
             $res = $client->sendAsync($request)->wait();
-          
-            echo $res->getBody();
+           //dd($res->getBody()->getContents());
+            return $res->getBody()->getContents();*/
             
         } catch (Exception $e) {
             // Manejar errores
