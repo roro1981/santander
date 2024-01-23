@@ -19,11 +19,13 @@ class OrderControllerTest extends TestCase
     use RefreshDatabase;
 
     private $mockRequestData;
+    private $mockCartStatus;
     private $method;
 
     public function setUp(): void
     {
         parent::setUp();
+        $this->mockCartStatus = Mockery::mock('overload:' . Cart_status::class);
         $this->seed();
         $this->method = Constants::PARAM_PAY_METHOD;
         $this->mockRequestData = [
@@ -68,10 +70,6 @@ class OrderControllerTest extends TestCase
         ]);
     }
 
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
     public function testCreateOrder()
     {
         $mockRequest = Mockery::mock(CreateOrderRequest::class);
@@ -84,6 +82,16 @@ class OrderControllerTest extends TestCase
             'urlBanco' => 'https://paymentbutton-bsan-cert.e-pagos.cl/DummyBanco-0.0.2/?IdCom=690006904960&IdCarro=167814',
             'idTrxComercio' => '48'
         ];
+
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andReturnUsing(function ($cart) {
+            return new Cart_status([
+                'car_id' => $cart->car_id,
+                'cas_status' => $cart->car_status,
+                'cas_created_at' => now(),
+            ]);
+        });
+        $this->instance(Cart_status::class, $this->mockCartStatus);
+
         $mockSantanderClient = Mockery::mock('overload:' . SantanderClient::class);
         $mockSantanderClient->shouldReceive('enrollCart')->andReturn($mockSantanderResponse);
         $this->instance(SantanderClient::class, $mockSantanderClient);
@@ -93,11 +101,6 @@ class OrderControllerTest extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
     public function testCreateOrderException()
     {
         $mockRequest = Mockery::mock(CreateOrderRequest::class);
@@ -115,8 +118,7 @@ class OrderControllerTest extends TestCase
         $mockSantanderClient->shouldReceive('enrollCart')->andReturn($mockSantanderResponse);
         $this->instance(SantanderClient::class, $mockSantanderClient);
 
-        $mockCartStatus = Mockery::mock('overload:' . Cart_status::class);
-        $mockCartStatus->shouldReceive('saveCurrentStatus')->andThrow('Exception', 'Test error');
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andThrow('Exception', 'Test error');
 
         $response = $this->post('/api/v1/order/create', $this->mockRequestData);
         $this->assertNotNull($response);

@@ -15,7 +15,6 @@ class ApiLogModelTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        //Cart::factory()->create();
         DB::table('bbs_api_log')->insert([
             'alg_id' => 1,
             'alg_external_id' => 1,

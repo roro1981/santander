@@ -65,7 +65,7 @@ class SantanderClient
             'Content-Type' => 'application/json',
             'Authorization' => $authorizationToken
             ];
-    
+       
             $body = '{
             "idTransaction": '.$cartData['car_id'].',
             "currency": "'.$cartData['car_flow_currency'].'",
@@ -92,7 +92,6 @@ class SantanderClient
             return $arrayContent;
             
         } catch (Exception $e) {
-            // Manejar errores
             throw new Exception('Error al inscribir el carro: ' . $e->getMessage());
         }
     }
