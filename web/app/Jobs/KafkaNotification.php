@@ -46,19 +46,19 @@ class KafkaNotification implements ShouldQueue
         $body = [
             'uuid' => Uuid::uuid4(),
             'id' => $this->order->ord_flow_id,
-            'external_id' => $this->order->ord_khipu_id,
+            'external_id' => $this->order->car_id,
             'product_id' => $this->order->ord_flow_product,
             'payer_email' => $this->order->ord_payer_email,
             'date_notification' => Carbon::now(),
             'amount_paid' => floatval($this->order->ord_amount),
             'currency_paid' => $this->order->ord_currency,
             'payment_detail' => json_encode([
-                'type' => ParamUtil::getParam(Constants::PARAM_KAFKA_PAYMENT_TYPE)
+                'type' => Constants::PARAM_KAFKA_PAYMENT_TYPE
             ], true),
-            'status' => $this->order->ord_status == Constants::STATUS_PAID ? 'PAY' : 'REJ'
+            'status' => $this->order->ord_status
         ];
 
-        if ($body['status'] === 'REJ')
+        /*if ($body['status'] === 'REJ')
         {
             $rej_detail = [
                 'code' => $this->order->ord_status == Constants::STATUS_CANCELED ? '501' : '502',
@@ -67,12 +67,12 @@ class KafkaNotification implements ShouldQueue
                     $this->order->ord_khipu_status_detail
             ];
             $body['rej_detail'] = json_encode($rej_detail, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
+        }*/
 
         Log::debug('Mensaje: ' . json_encode($body));
         $message = new Message(
-            topicName: ParamUtil::getParam(Constants::KAFKA_NOTIFICATION_TOPIC),
-            key: $body['status'] === 'PAY' ? 'notificación de pago' : 'notificación de rechazo',
+            topicName: Constants::KAFKA_NOTIFICATION_TOPIC,
+            key: $body['status'],
             body: $body,
         );
 

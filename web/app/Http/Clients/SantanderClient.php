@@ -16,13 +16,10 @@ class SantanderClient
     private $baseUrl;
     private $bearerToken;
 
-    public function __construct($cartData)
+    public function __construct()
     {
-        // Configurar la URL base de la API de Santander
         $this->baseUrl = Constants::PARAM_SANTANDER_URL;
-        // Obtener el Bearer Token al inicializar la clase
-        //$this->bearerToken = $this->getBearerToken();
-        $this->enrollCart($cartData);
+        
     }
 
     /**
@@ -62,7 +59,7 @@ class SantanderClient
         
         try {
            
-            //$client = new Client();
+            $client = new Client();
 
             $headers = [
             'Content-Type' => 'application/json',
@@ -86,15 +83,13 @@ class SantanderClient
             ],
             "collector": "7683001403"
             }';
-            $response = Http::withHeaders($headers)
-                ->post($this->baseUrl.'/auth/apiboton/carro/inscribir', json_decode($body, true));
-            
-            return $response->body();
-            /*$request = new Request('POST', $this->baseUrl.'/auth/apiboton/carro/inscribir', $headers, $body);
+          
+            $request = new Request('POST', $this->baseUrl.'/auth/apiboton/carro/inscribir', $headers, $body);
           
             $res = $client->sendAsync($request)->wait();
-           //dd($res->getBody()->getContents());
-            return $res->getBody()->getContents();*/
+            $jsonContent = $res->getBody()->getContents();
+            $arrayContent = json_decode($jsonContent, true);
+            return $arrayContent;
             
         } catch (Exception $e) {
             // Manejar errores

@@ -29,10 +29,10 @@ class CartUtil
             'car_created_at' => now()
         ]);
         Cart_status::saveCurrentStatus($order);
-        $cart_inscription=new SantanderClient($order->toArray());
-        dd($cart_inscription);
+        $cartInscription = new SantanderClient();
+        $response = $cartInscription->enrollCart($order->toArray());
         $cart_update = Cart::find($order->car_id);
-        $order->update(['car_url_return' => $cart_inscription['urlBanco']]);
+        $order->update(['car_url_return' => $response['urlBanco']]);
 
         return $order;
     }

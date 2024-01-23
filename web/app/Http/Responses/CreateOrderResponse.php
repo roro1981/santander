@@ -12,8 +12,8 @@ class CreateOrderResponse
     {
         return response()->json([
             'uuid' => Uuid::uuid4(),
-            'payment_uuid' => $cart->car_id,
-            'provider_id' => Constants::PROVIDER_ID,
+            'payment_uuid' => $cart->car_id_transaction,
+            'provider_id' => $cart->car_id, 
             'type' => 'REDIRECT',
             'amount' => $cart->car_flow_amount,
             'currency' => $cart->car_flow_currency,

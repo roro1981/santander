@@ -1,0 +1,38 @@
+<?php
+
+namespace Database\Factories;
+use Ramsey\Uuid\Uuid;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
+ */
+class CartFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'car_id_transaction' => Uuid::uuid4(),
+            'car_flow_currency' => 'CLP',
+            'car_flow_amount' => '2.0000',
+            'car_url' => 'https://flow.cl/retorno.php',
+            'car_expires_at' => '1699569123',
+            'car_items_number' => 1,
+            'car_status' => 'CREATED',
+            'car_url_return' => 'https://flow.cl/retorno.php',
+            'car_sent_kafka' => 0,
+            'car_flow_id' => 1,
+            'car_flow_attempt_number' => 1,
+            'car_flow_product_id' => 1,
+            'car_flow_email_paid' => 'rpanes@tuxpan.com',
+            'car_flow_subject' => 'Test integracion',
+            'car_created_at' => now()
+        ];
+    }
+}
