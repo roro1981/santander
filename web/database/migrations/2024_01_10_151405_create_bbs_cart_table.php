@@ -6,13 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+   
     public function up(): void
     {
         Schema::create('bbs_cart', function (Blueprint $table) {
-            $table->bigIncrements('car_id')->comment('Id carro registrado');
+            $table->bigIncrements('car_id')->autoIncrementStartingFrom(1000)->comment('Id carro registrado');
             $table->uuid('car_uuid')->comment('Uuid carro registrado');
             $table->string('car_id_transaction', 36)->comment('Identificador transaccion');
             $table->string('car_flow_currency', 3)->comment('Moneda del cobro');
@@ -39,9 +37,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::dropIfExists('bbs_cart');

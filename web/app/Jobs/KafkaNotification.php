@@ -3,8 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
-use App\Models\Order;
+use App\Models\Cart;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -24,22 +23,18 @@ class KafkaNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $order;
+    private $topic;
     private $saslUsername;
     private $saslPassword;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(Order $order)
+    public function __construct(Cart $order, String $topic)
     {
         $this->order = $order;
+        $this->topic = $topic;
         $this->saslUsername = config('kafka.sasl.username') ?? 'user';
         $this->saslPassword = config('kafka.sasl.password') ?? 'password';
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         Log::info('Iniciando job envio a Kafka');
@@ -58,20 +53,9 @@ class KafkaNotification implements ShouldQueue
             'status' => $this->order->ord_status
         ];
 
-        /*if ($body['status'] === 'REJ')
-        {
-            $rej_detail = [
-                'code' => $this->order->ord_status == Constants::STATUS_CANCELED ? '501' : '502',
-                'message' => $this->order->ord_status == Constants::STATUS_CANCELED ?
-                    'anulada' :
-                    $this->order->ord_khipu_status_detail
-            ];
-            $body['rej_detail'] = json_encode($rej_detail, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }*/
-
         Log::debug('Mensaje: ' . json_encode($body));
         $message = new Message(
-            topicName: Constants::KAFKA_NOTIFICATION_TOPIC,
+            topicName: $this->topic,
             key: $body['status'],
             body: $body,
         );

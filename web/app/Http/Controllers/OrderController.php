@@ -6,6 +6,7 @@ use App\Http\Utils\CartUtil;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Responses\CreateOrderResponse;
+use App\Jobs\KafkaNotification;
 
 
 class OrderController extends Controller
@@ -25,7 +26,7 @@ class OrderController extends Controller
         try { 
             $cart = CartUtil::saveOrder($uuid, $orderRequest, $user);
             $response=CreateOrderResponse::generate($cart);
-            KafkaNotification::dispatch($this->order)->onQueue('kafkaNotification');
+            KafkaNotification::dispatch($cart,'first_topic')->onQueue('kafkaNotification');
         } catch (\Exception $e) {
             Log::error("Error al crear orden " . $e->getMessage());
             $response = response()->json([

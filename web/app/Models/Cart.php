@@ -47,8 +47,12 @@ class Cart extends Model
      public static function boot()
     {
         parent::boot();
+
         self::creating(function ($model) {
             $model->car_uuid = (string) Str::uuid();
+        });
+        static::creating(function ($model) {
+            $model->car_id = 1000;
         });
     }   
     /**

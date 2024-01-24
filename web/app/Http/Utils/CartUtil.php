@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Utils;
-use GuzzleHttp\Client;
 use App\Models\Cart;
 use App\Models\Cart_status;
 use App\Http\Clients\SantanderClient;

@@ -10,7 +10,7 @@ abstract class Constants
     const MAX_ORDER_EXPIRATION = 31536000;
     const PARAM_EXPIRATION_TIME = 900;
     const PARAM_PAY_METHOD = 150;
-    const KAFKA_NOTIFICATION_TOPIC='order_change';
+    const KAFKA_NOTIFICATION_TOPIC='first_topic';
     const PARAM_KAFKA_PAYMENT_TYPE='BC';
 
     const PARAM_SANTANDER_TOKEN_COMPANY = '768300143';
