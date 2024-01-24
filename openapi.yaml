@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: 0.0.1
-  title: Servicio Khipu
+  title: Servicio Santander
   contact:
     email: soporte@flow.cl
   license:
@@ -60,11 +60,11 @@ paths:
       tags:
         - webhook
       summary: Notificación de pago consolidado
-      description: Recibe una notificación cuando el pago se ha realizado en Khipu
+      description: Recibe una notificación cuando el pago se ha realizado en Santander
       parameters:
         - name: id
           in: path
-          description: UUID de la orden en servicio integración Khipu
+          description: UUID de la orden en servicio integración Santander
           required: true
           schema:
             type: string
@@ -94,7 +94,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: UUID de la orden en servicio integración Khipu
+          description: UUID de la orden en servicio integración Santander
           required: true
           schema:
             type: string
@@ -147,7 +147,7 @@ paths:
       parameters:
         - name: external_id
           required: true
-          description: ID de Khipu de la orden a consultar.
+          description: ID de Santander de la orden a consultar.
           in: query
           example: oca1k8nhhigb
           schema:
@@ -338,7 +338,7 @@ components:
           example: "oca1k8nhhigb"
         provider_id:
           type: string
-          description: ID de Khipu
+          description: ID de Santander
           example: "000400"
         type:
           type: string
@@ -407,7 +407,7 @@ components:
           properties:
             external_id:
               type: string
-              description: ID Khipu de transacción
+              description: ID Santander de transacción
               example: "oca1k8nhhigb"
               nullable: false
             amount:
