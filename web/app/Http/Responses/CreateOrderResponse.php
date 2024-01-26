@@ -16,7 +16,7 @@ class CreateOrderResponse
             'type' => 'REDIRECT',
             'amount' => $cart->car_flow_amount,
             'currency' => $cart->car_flow_currency,
-            'url' => $cart->car_url_return,
+            'url' => $cart->car_url,
             'expire_time' => $cart->car_expires_at,
             'expire_date' => date('c', $cart->car_expires_at),
             'fields' => []

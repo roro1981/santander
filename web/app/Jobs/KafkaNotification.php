@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 use App\Models\Cart;
 use Carbon\Carbon;
 use Exception;
@@ -23,14 +24,14 @@ class KafkaNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $order;
-    private $topic;
+    private $sant;
     private $saslUsername;
     private $saslPassword;
 
-    public function __construct(Cart $order, String $topic)
+    public function __construct(Cart $order, $sant)
     {
         $this->order = $order;
-        $this->topic = $topic;
+        $this->sant = $sant;
         $this->saslUsername = config('kafka.sasl.username') ?? 'user';
         $this->saslPassword = config('kafka.sasl.password') ?? 'password';
     }
@@ -40,22 +41,22 @@ class KafkaNotification implements ShouldQueue
         Log::info('Iniciando job envio a Kafka');
         $body = [
             'uuid' => Uuid::uuid4(),
-            'id' => $this->order->ord_flow_id,
-            'external_id' => $this->order->car_id,
-            'product_id' => $this->order->ord_flow_product,
-            'payer_email' => $this->order->ord_payer_email,
+            'id' => $this->order->car_id,
+            'external_id' => $this->sant,
+            'product_id' => $this->order->car_flow_product_id,
+            'payer_email' => $this->order->car_flow_email_paid,
             'date_notification' => Carbon::now(),
-            'amount_paid' => floatval($this->order->ord_amount),
-            'currency_paid' => $this->order->ord_currency,
+            'amount_paid' => floatval($this->order->car_flow_amount),
+            'currency_paid' => 'CLP',
             'payment_detail' => json_encode([
-                'type' => Constants::PARAM_KAFKA_PAYMENT_TYPE
+                'type' => ParamUtil::getParam(Constants::PARAM_KAFKA_PAYMENT_TYPE)
             ], true),
-            'status' => $this->order->ord_status
+            'status' => $this->order->car_status == Constants::STATUS_AUTHORIZED ? 'PAY' : 'REJ'
         ];
 
         Log::debug('Mensaje: ' . json_encode($body));
         $message = new Message(
-            topicName: $this->topic,
+            topicName: ParamUtil::getParam(Constants::KAFKA_NOTIFICATION_TOPIC),
             key: $body['status'],
             body: $body,
         );

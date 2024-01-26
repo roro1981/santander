@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\OrderController;
 
 
@@ -10,4 +10,6 @@ Route::get('/v1/health', function () {
 });
 
 Route::post('/v1/order/create', [OrderController::class, 'create']);
+Route::post('/v1/santander/notify', [OrderController::class, 'notify']);
+Route::get('/v1/santander/redirect', [OrderController::class, 'mpfin']);
 

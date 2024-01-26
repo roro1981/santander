@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
 use App\Rules\IntegerBetween;
 use App\Rules\IsInteger;
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -31,7 +32,7 @@ class CustomFormRequest extends FormRequest
             function ($attribute, $value, $fail) {
                 if (is_int($value))
                 {
-                    $maxLength = Constants::MAX_INTEGER_LENGTH;
+                    $maxLength = ParamUtil::getParam(Constants::MAX_INTEGER_LENGTH);
                     if(strlen(str($value)) > $maxLength)
                     {
                         $fail("The $attribute field must not have more than $maxLength digits.");

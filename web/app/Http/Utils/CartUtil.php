@@ -9,7 +9,6 @@ class CartUtil
 {
     public static function saveOrder($uuid, $orderRequest, $userRequest)
     {
- 
         $order = Cart::create([
             'car_id_transaction' => $uuid,
             'car_flow_currency' => $orderRequest['currency'],
@@ -18,7 +17,7 @@ class CartUtil
             'car_expires_at' => self::validateExpirationTime($orderRequest['expiration']),
             'car_items_number' => 1,
             'car_status' => Constants::STATUS_CREATED,
-            'car_url_return' => $orderRequest['url_return'],
+            'car_url_return' => ParamUtil::getParam(Constants::PARAM_URL_RETORNO),
             'car_sent_kafka' => 0,
             'car_flow_id' => $orderRequest['id'],
             'car_flow_attempt_number' => $orderRequest['attempt_number'],
@@ -27,12 +26,15 @@ class CartUtil
             'car_flow_subject' => $orderRequest['subject'],
             'car_created_at' => now()
         ]);
+
         Cart_status::saveCurrentStatus($order);
         $cartInscription = new SantanderClient();
         $response = $cartInscription->enrollCart($order->toArray());
-        $cart_update = Cart::find($order->car_id);
-        $order->update(['car_url_return' => $response['urlBanco']]);
-
+        
+        if($response['codeError']=="0"){
+            $order->update(['car_url' => $response['urlBanco'],'car_status' =>'PRE-AUTHORIZED']);
+            Cart_status::saveCurrentStatus($order);
+        }    
         return $order;
     }
 

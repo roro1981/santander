@@ -27,7 +27,7 @@ class OrderControllerTest extends TestCase
         parent::setUp();
         $this->mockCartStatus = Mockery::mock('overload:' . Cart_status::class);
         $this->seed();
-        $this->method = Constants::PARAM_PAY_METHOD;
+        $this->method = 149;
         $this->mockRequestData = [
             'uuid' => Uuid::uuid4(),
             'order' => [

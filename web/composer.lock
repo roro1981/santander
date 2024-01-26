@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3606d8df8864650917668acbe6ef2602",
+    "content-hash": "01954075f5ec7753d8080e899486888e",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -2269,6 +2269,54 @@
                 }
             ],
             "time": "2024-01-09T20:58:39+00:00"
+        },
+        {
+            "name": "midnite81/xml2array",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/midnite81/xml2array.git",
+                "reference": "7b09af7c2730581e4bd86959af26c19d2b857389"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/midnite81/xml2array/zipball/7b09af7c2730581e4bd86959af26c19d2b857389",
+                "reference": "7b09af7c2730581e4bd86959af26c19d2b857389",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-json": "*",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.0",
+                "php-coveralls/php-coveralls": "^2.5",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "package",
+            "autoload": {
+                "psr-4": {
+                    "Midnite81\\Xml2Array\\": "src/",
+                    "Midnite81\\Xml2Array\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Simon Rogers",
+                    "email": "webdev@midnite.uk"
+                }
+            ],
+            "description": "A package to convert XML to an Array with the inbuilt ability to convert to Json, Laravel Collection and Serialize",
+            "support": {
+                "issues": "https://github.com/midnite81/xml2array/issues",
+                "source": "https://github.com/midnite81/xml2array/tree/v2.0.0"
+            },
+            "time": "2022-07-19T02:58:39+00:00"
         },
         {
             "name": "monolog/monolog",

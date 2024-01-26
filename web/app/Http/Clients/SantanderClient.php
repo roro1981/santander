@@ -4,21 +4,20 @@ namespace App\Http\Clients;
 
 use Illuminate\Support\Facades\Http;
 use App\Http\Utils\Constants;
-use App\Traits\ApiResponser;
+use App\Http\Utils\ParamUtil;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 
 class SantanderClient
 {
-    use ApiResponser;
 
     private $baseUrl;
     private $bearerToken;
 
     public function __construct()
     {
-        $this->baseUrl = Constants::PARAM_SANTANDER_URL;
+        $this->baseUrl = ParamUtil::getParam(Constants::PARAM_SANTANDER_URL);
         
     }
 
@@ -31,10 +30,11 @@ class SantanderClient
     {
         try {
             $credentials = [
-                'company' =>  Constants::PARAM_SANTANDER_TOKEN_COMPANY,
-                'username' => Constants::PARAM_SANTANDER_TOKEN_USERNAME,
-                'password' => Constants::PARAM_SANTANDER_TOKEN_PASSWORD,
+                'company' =>  ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_COMPANY),
+                'username' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_USERNAME),
+                'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
             ];
+            
             $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
             
             if ($response->successful()) {
@@ -42,7 +42,11 @@ class SantanderClient
             }
 
         } catch (Exception $e) {
-            return $this->errorResponse($e,'Error al obtener el Bearer Token: ' . $e->getMessage());
+            $response = response()->json([
+                'error' => 500,
+                'message' => 'Error al obtener el Bearer Token '.$e->getMessage()
+            ], 500);
+            return $response;
         }
     }
 
@@ -56,7 +60,7 @@ class SantanderClient
     {
 
         $authorizationToken = $this->getBearerToken();
-        
+       
         try {
            
             $client = new Client();

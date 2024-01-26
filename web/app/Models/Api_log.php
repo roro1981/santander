@@ -20,7 +20,8 @@ class Api_log extends Model
         'alg_request',
         'alg_response',
         'alg_status_code',
-        'alg_created_at'
+        'alg_created_at',
+        'alg_updated_at'
     ];
     /**
      * Functions
@@ -40,6 +41,7 @@ class Api_log extends Model
         $this->update([
             'alg_response' => json_encode($response),
             'alg_status_code' => $status,
+            'alg_updated_at' =>now()
         ]);
     }
 }
