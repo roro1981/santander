@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." name="Flow-Khipu" default=""  xmlns:sonar="antlib:org.sonar.ant">
+<project basedir="." name="Flow-Santander" default=""  xmlns:sonar="antlib:org.sonar.ant">
 	<property name="libs.dir" value="libs" />
 	<property file="sonar.properties" />
 
