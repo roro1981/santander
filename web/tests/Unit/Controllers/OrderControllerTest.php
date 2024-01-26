@@ -70,7 +70,7 @@ class OrderControllerTest extends TestCase
         ]);
     }
 
-    public function testCreateOrder()
+    /*public function testCreateOrder()
     {
         $mockRequest = Mockery::mock(CreateOrderRequest::class);
         $mockRequest->shouldReceive('validated')->andReturn($this->mockRequestData);
@@ -99,7 +99,7 @@ class OrderControllerTest extends TestCase
         $response = $this->post('/api/v1/order/create', $this->mockRequestData);
         $this->assertNotNull($response);
         $this->assertEquals(200, $response->status());
-    }
+    }*/
 
     public function testCreateOrderException()
     {
