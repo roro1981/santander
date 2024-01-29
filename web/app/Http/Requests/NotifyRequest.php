@@ -9,6 +9,7 @@ class NotifyRequest extends CustomFormRequest
     {
         
         return [
+            'TX' => 'required|array',
             'TX.CODRET' => 'required|numeric',
             'TX.DESCRET' => 'required|string',
             'TX.IDCOM' => 'required|string',
@@ -26,7 +27,7 @@ class NotifyRequest extends CustomFormRequest
         $rawBody = file_get_contents("php://input");
         $body=str_replace("TX=","",$rawBody);
         $bodyArray = $this->convertXmlToArray($body);
-        
+
         $this->merge(['TX' => $bodyArray]);
         $request = $this->request->all();
         $txData = $request['TX'];

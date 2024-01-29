@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('car_items_number')->comment('Cantidad de detalles a informar');
             $table->string('car_collector', 20)->nullable()->comment('Codigo identificador del recaudador');
             $table->enum('car_status', ['CREATED', 'PRE-AUTHORIZED', 'AUTHORIZED', 'FAILED'])->comment('Estado del cobro');
-            $table->string('car_url_return', 600)->comment('URL de retorno tras pago exitoso');
+            $table->string('car_url_return', 600)->nullable()->comment('URL de retorno tras pago exitoso');
             $table->string('car_authorization_uuid', 255)->nullable()->comment('Codigo autorización de orden entregada por el webhook');
             $table->tinyInteger('car_sent_kafka')->length(1)->comment('Verifica si carro fue enviado a kafka');
             $table->string('car_fail_code', 255)->nullable()->comment('Codigo error webhook');

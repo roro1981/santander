@@ -1,0 +1,92 @@
+<?php
+
+namespace Tests\Unit\Models;
+
+use App\Models\Cart;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CartModelTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function testCartModel()
+    {
+        $cart = Cart::create([
+        'car_id_transaction' => '00100',
+        'car_flow_currency' => 'CLP',
+        'car_flow_amount' => '100.00',
+        'car_description' => 'Descripción de la transacción',
+        'car_agreement' => '9570',
+        'car_url' => 'https://ejemplo.com/pago',
+        'car_expires_at' => 1706292011,
+        'car_items_number' => 3,
+        'car_collector' => '958488',
+        'car_status' => 'CREATED',
+        'car_url_return' => 'https://ejemplo.com/retorno',
+        'car_authorization_uuid' => 'a9bc8b5a-c019-4acf-9b54-c08260d04f6a',
+        'car_sent_kafka' => 0,
+        'car_fail_code' => 'FALLO',
+        'car_fail_motive' => 'Motivo del fallo',
+        'car_flow_id' => '000100',
+        'car_flow_attempt_number' => 1,
+        'car_flow_product_id' => '00200',
+        'car_flow_subject' => 'Subject test',
+        'car_flow_email_paid' => 'rpanes@ejemplo.com',
+        'car_created_at' => '2024-01-26T19:35:24',
+        ]);
+       
+        $this->assertInstanceOf(Cart::class, $cart);
+
+        $this->assertEquals('00100', $cart->car_id_transaction);
+        $this->assertEquals('CLP', $cart->car_flow_currency);
+        $this->assertEquals('100.00', $cart->car_flow_amount);
+        $this->assertEquals('Descripción de la transacción', $cart->car_description);
+        $this->assertEquals('9570', $cart->car_agreement);
+        $this->assertEquals('https://ejemplo.com/pago', $cart->car_url);
+        $this->assertEquals(1706292011, $cart->car_expires_at);
+        $this->assertEquals(3, $cart->car_items_number);
+        $this->assertEquals('958488', $cart->car_collector);
+        $this->assertEquals('CREATED', $cart->car_status);
+        $this->assertEquals('https://ejemplo.com/retorno', $cart->car_url_return);
+        $this->assertEquals('a9bc8b5a-c019-4acf-9b54-c08260d04f6a', $cart->car_authorization_uuid);
+        $this->assertEquals(0, $cart->car_sent_kafka);
+        $this->assertEquals('FALLO', $cart->car_fail_code);
+        $this->assertEquals('Motivo del fallo', $cart->car_fail_motive);
+        $this->assertEquals('000100', $cart->car_flow_id);
+        $this->assertEquals(1, $cart->car_flow_attempt_number);
+        $this->assertEquals('00200', $cart->car_flow_product_id);
+        $this->assertEquals('Subject test', $cart->car_flow_subject);
+        $this->assertEquals('rpanes@ejemplo.com', $cart->car_flow_email_paid);
+        $this->assertEquals('2024-01-26T19:35:24', $cart->car_created_at);
+
+        $this->assertContains('car_id', $cart->getFillable());
+        $this->assertContains('car_uuid', $cart->getFillable());
+        $this->assertContains('car_id_transaction', $cart->getFillable());
+        $this->assertContains('car_flow_currency', $cart->getFillable());
+        $this->assertContains('car_flow_amount', $cart->getFillable());
+        $this->assertContains('car_description', $cart->getFillable());
+        $this->assertContains('car_agreement', $cart->getFillable());
+        $this->assertContains('car_url', $cart->getFillable());
+        $this->assertContains('car_expires_at', $cart->getFillable());
+        $this->assertContains('car_items_number', $cart->getFillable());
+        $this->assertContains('car_collector', $cart->getFillable());
+        $this->assertContains('car_status', $cart->getFillable());
+        $this->assertContains('car_url_return', $cart->getFillable());
+        $this->assertContains('car_authorization_uuid', $cart->getFillable());
+        $this->assertContains('car_sent_kafka', $cart->getFillable());
+        $this->assertContains('car_fail_code', $cart->getFillable());
+        $this->assertContains('car_fail_motive', $cart->getFillable());
+        $this->assertContains('car_flow_id', $cart->getFillable());
+        $this->assertContains('car_flow_attempt_number', $cart->getFillable());
+        $this->assertContains('car_flow_product_id', $cart->getFillable());
+        $this->assertContains('car_flow_subject', $cart->getFillable());
+        $this->assertContains('car_flow_email_paid', $cart->getFillable());
+        $this->assertContains('car_created_at', $cart->getFillable());
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+    }
+}

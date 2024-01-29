@@ -22,6 +22,7 @@ class OrderController extends Controller
         $uuid = $validated['uuid'];
         $orderRequest = $validated['order'];
         $user = $validated['user'];
+        $apiLog = new Api_log();
 
         $responseIdp = $this->idempotencyResponse($uuid);
         if ($responseIdp) {
@@ -40,7 +41,7 @@ class OrderController extends Controller
             $cart = CartUtil::saveOrder($uuid, $orderRequest, $user);
             $response=CreateOrderResponse::generate($cart);
             $apiLog->updateLog((array) $response, 200);
-            
+
         } catch (\Exception $e) {
             Log::error("Error al crear orden " . $e->getMessage());
             $response = response()->json([

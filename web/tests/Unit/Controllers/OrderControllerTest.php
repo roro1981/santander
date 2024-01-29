@@ -7,6 +7,7 @@ use App\Http\Requests\CreateOrderRequest;
 use App\Http\Utils\Constants;
 use App\Models\Idempotency;
 use App\Models\Cart_status;
+use App\Models\Api_log;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -70,13 +71,15 @@ class OrderControllerTest extends TestCase
         ]);
     }
 
-    /*public function testCreateOrder()
+    public function testCreateOrder()
     {
         $mockRequest = Mockery::mock(CreateOrderRequest::class);
         $mockRequest->shouldReceive('validated')->andReturn($this->mockRequestData);
+        $mockRequest->shouldReceive('url')->andReturn('https://ejemplo.com');
+    
         $this->instance(CreateOrderRequest::class, $mockRequest);
         $mockSantanderResponse = [
-            'codError' => '0',
+            'codeError' => '0',
             'descError' => 'Carro inscrito exitosamente',
             'tokenBanco' => null,
             'urlBanco' => 'https://paymentbutton-bsan-cert.e-pagos.cl/DummyBanco-0.0.2/?IdCom=690006904960&IdCarro=167814',
@@ -99,7 +102,7 @@ class OrderControllerTest extends TestCase
         $response = $this->post('/api/v1/order/create', $this->mockRequestData);
         $this->assertNotNull($response);
         $this->assertEquals(200, $response->status());
-    }*/
+    }
 
     public function testCreateOrderException()
     {

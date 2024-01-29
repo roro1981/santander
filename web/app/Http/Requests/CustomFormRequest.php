@@ -19,7 +19,7 @@ class CustomFormRequest extends FormRequest
     const EMAIL = 'email:rfc,dns';
     const URL = 'url:http,https';
 
-    protected function getNumericRules()
+    public function getNumericRules()
     {
         return [
             self::REQUIRED,
@@ -48,7 +48,7 @@ class CustomFormRequest extends FormRequest
         ];
     }
 
-    protected function getAmountRules($minAmount, $maxAmount)
+    public function getAmountRules($minAmount, $maxAmount)
     {
         return [
             self::REQUIRED,

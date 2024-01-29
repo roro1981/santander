@@ -8,6 +8,7 @@ use App\Http\Utils\ParamUtil;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Facades\Log;
 
 class SantanderClient
 {
@@ -87,7 +88,7 @@ class SantanderClient
             ],
             "collector": "7683001403"
             }';
-          
+       
             $request = new Request('POST', $this->baseUrl.'/auth/apiboton/carro/inscribir', $headers, $body);
           
             $res = $client->sendAsync($request)->wait();
@@ -96,6 +97,7 @@ class SantanderClient
             return $arrayContent;
             
         } catch (Exception $e) {
+            Log::debug($e->getMessage());
             throw new Exception('Error al inscribir el carro: ' . $e->getMessage());
         }
     }

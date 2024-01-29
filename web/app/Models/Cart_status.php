@@ -15,6 +15,7 @@ class Cart_status extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'cas_id',
         'car_id',
         'cas_status',
         'cas_created_at'
@@ -27,7 +28,6 @@ class Cart_status extends Model
     {
         return $this->belongsTo(Cart::class, 'car_id', 'car_id');
     }
-
 
     /**
      * Functions
