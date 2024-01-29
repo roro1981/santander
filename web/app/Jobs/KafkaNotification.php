@@ -39,6 +39,7 @@ class KafkaNotification implements ShouldQueue
     public function handle(): void
     {
         Log::info('Iniciando job envio a Kafka');
+
         $body = [
             'uuid' => Uuid::uuid4(),
             'id' => $this->order->car_id,
@@ -53,7 +54,6 @@ class KafkaNotification implements ShouldQueue
             ], true),
             'status' => $this->order->car_status == Constants::STATUS_AUTHORIZED ? 'PAY' : 'REJ'
         ];
-
         Log::debug('Mensaje: ' . json_encode($body));
         $message = new Message(
             topicName: ParamUtil::getParam(Constants::KAFKA_NOTIFICATION_TOPIC),
