@@ -22,11 +22,6 @@ class SantanderClient
         
     }
 
-    /**
-     * Obtener el Bearer Token de la API de Santander
-     *
-     * @return string|null
-     */
     public function getBearerToken()
     {
         try {
@@ -51,12 +46,6 @@ class SantanderClient
         }
     }
 
-    /**
-     * Inscribir un carro en la API de Santander
-     *
-     * @param array $cartData Datos del carro a inscribir
-     * @return array
-     */
     public function enrollCart(array $cartData)
     {
 
