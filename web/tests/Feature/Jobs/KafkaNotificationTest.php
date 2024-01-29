@@ -56,7 +56,6 @@ class KafkaNotificationTest extends TestCase
         $kafkaJob = new KafkaNotification($order,$san);
         $kafkaJob->handle();
 
-        $order = Cart::where(['car_id' => 1])->first();
         $this->assertEquals(0, $order->car_sent_kafka);
     }
 
@@ -91,8 +90,6 @@ class KafkaNotificationTest extends TestCase
    
         $kafkaJob = new KafkaNotification($order,$san);
         $kafkaJob->handle();
-        
-        //$order = Cart::where(['car_id' => 1])->first();
         
         $this->assertEquals(1, $order->car_sent_kafka);
     }
