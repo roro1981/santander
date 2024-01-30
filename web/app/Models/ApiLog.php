@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Api_log extends Model
+class ApiLog extends Model
 {
     use HasFactory;
 
@@ -28,7 +28,7 @@ class Api_log extends Model
      */
     public static function storeLog($orderFlowId, $url, $request)
     {
-        return api_log::create([
+        return ApiLog::create([
             'alg_external_id' => $orderFlowId,
             'alg_url' => $url,
             'alg_request' => json_encode($request),

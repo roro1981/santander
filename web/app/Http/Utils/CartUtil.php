@@ -2,7 +2,7 @@
 
 namespace App\Http\Utils;
 use App\Models\Cart;
-use App\Models\Cart_status;
+use App\Models\CartStatus;
 use App\Http\Clients\SantanderClient;
 
 class CartUtil
@@ -27,13 +27,13 @@ class CartUtil
             'car_created_at' => now()
         ]);
 
-        Cart_status::saveCurrentStatus($order);
+        CartStatus::saveCurrentStatus($order);
         $cartInscription = new SantanderClient();
         $response = $cartInscription->enrollCart($order->toArray());
         
         if($response['codeError']=="0"){
             $order->update(['car_url' => $response['urlBanco'],'car_status' =>'PRE-AUTHORIZED']);
-            Cart_status::saveCurrentStatus($order);
+            CartStatus::saveCurrentStatus($order);
         }    
         return $order;
     }

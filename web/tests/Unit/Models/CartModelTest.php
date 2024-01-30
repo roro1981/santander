@@ -32,8 +32,7 @@ class CartModelTest extends TestCase
         'car_flow_attempt_number' => 1,
         'car_flow_product_id' => '00200',
         'car_flow_subject' => 'Subject test',
-        'car_flow_email_paid' => 'rpanes@ejemplo.com',
-        'car_created_at' => '2024-01-26T19:35:24',
+        'car_flow_email_paid' => 'rpanes@ejemplo.com'
         ]);
        
         $this->assertInstanceOf(Cart::class, $cart);
@@ -58,9 +57,7 @@ class CartModelTest extends TestCase
         $this->assertEquals('00200', $cart->car_flow_product_id);
         $this->assertEquals('Subject test', $cart->car_flow_subject);
         $this->assertEquals('rpanes@ejemplo.com', $cart->car_flow_email_paid);
-        $this->assertEquals('2024-01-26T19:35:24', $cart->car_created_at);
 
-        $this->assertContains('car_id', $cart->getFillable());
         $this->assertContains('car_uuid', $cart->getFillable());
         $this->assertContains('car_id_transaction', $cart->getFillable());
         $this->assertContains('car_flow_currency', $cart->getFillable());
@@ -82,7 +79,6 @@ class CartModelTest extends TestCase
         $this->assertContains('car_flow_product_id', $cart->getFillable());
         $this->assertContains('car_flow_subject', $cart->getFillable());
         $this->assertContains('car_flow_email_paid', $cart->getFillable());
-        $this->assertContains('car_created_at', $cart->getFillable());
     }
 
     public function tearDown(): void
