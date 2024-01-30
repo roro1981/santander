@@ -12,11 +12,10 @@ class Cart extends Model
 
     protected $table = 'bbs_cart';
     protected $primaryKey = 'car_id';
-
-    public $timestamps = false;
+    const CREATED_AT = 'car_created_at';
+    const UPDATED_AT = 'car_updated_at';
 
     protected $fillable = [
-        'car_id',
         'car_uuid',
         'car_id_transaction',
         'car_flow_currency',
@@ -37,8 +36,7 @@ class Cart extends Model
         'car_flow_attempt_number',
         'car_flow_product_id',
         'car_flow_subject',
-        'car_flow_email_paid',
-        'car_created_at'
+        'car_flow_email_paid'
      ];
 
      /**
@@ -59,8 +57,8 @@ class Cart extends Model
      * Relationships
      */
 
-    public function cart_status()
+    public function cartStatus()
     {
-        return $this->hasMany(Cart_status::class, 'car_id', 'car_id');
+        return $this->hasMany(CartStatus::class, 'car_id', 'car_id');
     }
 }

@@ -9,7 +9,7 @@ use App\Http\Requests\NotifyRequest;
 use App\Http\Requests\MpfinRequest;
 use App\Http\Responses\CreateOrderResponse;
 use App\Jobs\KafkaNotification;
-use App\Models\Api_log;
+use App\Models\ApiLog;
 use App\Models\Cart;
 
 use Illuminate\Http\Request;
@@ -22,7 +22,7 @@ class OrderController extends Controller
         $uuid = $validated['uuid'];
         $orderRequest = $validated['order'];
         $user = $validated['user'];
-        $apiLog = new Api_log();
+        $apiLog = new ApiLog();
 
         $responseIdp = $this->idempotencyResponse($uuid);
         if ($responseIdp) {
@@ -32,7 +32,7 @@ class OrderController extends Controller
         try { 
             $urlActual = $request->url();
 
-            $apiLog = Api_log::storeLog(
+            $apiLog = ApiLog::storeLog(
                 $orderRequest['id'],
                 $urlActual,
                 $orderRequest

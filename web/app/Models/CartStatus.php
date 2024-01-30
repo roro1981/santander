@@ -5,20 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Cart_status extends Model
+class CartStatus extends Model
 {
     use HasFactory;
 
     protected $table = 'bbs_cart_status';
     protected $primaryKey = 'cas_id';
 
+    const CREATED_AT = 'cas_created_at';
     public $timestamps = false;
 
     protected $fillable = [
-        'cas_id',
         'car_id',
-        'cas_status',
-        'cas_created_at'
+        'cas_status'
     ];
 
     /**
@@ -34,10 +33,9 @@ class Cart_status extends Model
      */ 
     public static function saveCurrentStatus($cart)
     {
-        return Cart_status::create([
+        return CartStatus::create([
             'car_id' => $cart->car_id,
-            'cas_status' => $cart->car_status,
-            'cas_created_at' => now()
+            'cas_status' => $cart->car_status
         ]);
     }
 }

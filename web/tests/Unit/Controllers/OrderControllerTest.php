@@ -6,8 +6,8 @@ use App\Http\Clients\SantanderClient;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Utils\Constants;
 use App\Models\Idempotency;
-use App\Models\Cart_status;
-use App\Models\Api_log;
+use App\Models\CartStatus;
+use App\Models\ApiLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -26,7 +26,7 @@ class OrderControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->mockCartStatus = Mockery::mock('overload:' . Cart_status::class);
+        $this->mockCartStatus = Mockery::mock('overload:' . CartStatus::class);
         $this->seed();
         $this->method = 149;
         $this->mockRequestData = [
@@ -87,13 +87,12 @@ class OrderControllerTest extends TestCase
         ];
 
         $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andReturnUsing(function ($cart) {
-            return new Cart_status([
+            return new CartStatus([
                 'car_id' => $cart->car_id,
-                'cas_status' => $cart->car_status,
-                'cas_created_at' => now(),
+                'cas_status' => $cart->car_status
             ]);
         });
-        $this->instance(Cart_status::class, $this->mockCartStatus);
+        $this->instance(CartStatus::class, $this->mockCartStatus);
 
         $mockSantanderClient = Mockery::mock('overload:' . SantanderClient::class);
         $mockSantanderClient->shouldReceive('enrollCart')->andReturn($mockSantanderResponse);

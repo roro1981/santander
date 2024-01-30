@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Api_log;
+use App\Models\ApiLog;
 use App\Models\Cart;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -28,8 +28,8 @@ class ApiLogModelTest extends TestCase
 
     public function testApiLogModel()
     {
-        $apiLog = Api_log::where('alg_id', 1)->first();
-        $this->assertInstanceOf(Api_log::class, $apiLog);
+        $apiLog = ApiLog::where('alg_id', 1)->first();
+        $this->assertInstanceOf(ApiLog::class, $apiLog);
 
         $this->assertEquals(1, $apiLog->alg_id);
         $this->assertEquals(1, $apiLog->alg_external_id);
@@ -48,7 +48,7 @@ class ApiLogModelTest extends TestCase
     public function testStoreLog()
     {
         $response = ['subject' => 'Test store'];
-        $apiLog = Api_log::storeLog(1, 'https://santander.com/api/2.0/payments', $response);
+        $apiLog = ApiLog::storeLog(1, 'https://santander.com/api/2.0/payments', $response);
         $this->assertNotNull($apiLog);
         $this->assertEquals(1, $apiLog->alg_external_id);
         $this->assertEquals('https://santander.com/api/2.0/payments', $apiLog->alg_url);
@@ -60,7 +60,7 @@ class ApiLogModelTest extends TestCase
     public function testUpdateLog()
     {
         $response = ['alg_response' => 'boagngwaoamh'];
-        $apiLog = Api_log::where('alg_id', 1)->first();
+        $apiLog = ApiLog::where('alg_id', 1)->first();
         $apiLog->updateLog(['alg_response' => 'boagngwaoamh'], 200);
         $this->assertEquals(json_encode($response), $apiLog->alg_response);
         $this->assertEquals(200, $apiLog->alg_status_code);

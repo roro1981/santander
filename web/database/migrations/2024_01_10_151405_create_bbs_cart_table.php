@@ -32,8 +32,8 @@ return new class extends Migration
             $table->string('car_flow_product_id', 6)->comment('Id del producto');
             $table->string('car_flow_email_paid', 255)->comment('Email usuario');
             $table->string('car_flow_subject', 255)->comment('Asunto de transaccion de pago');
-            $table->timestamp('car_created_at')->nullable()->comment('Fecha creación');
-            $table->timestamp('car_updated_at')->nullable()->comment('Fecha modificación');
+            $table->timestamp('car_created_at')->nullable()->default(\DB::raw('CURRENT_TIMESTAMP'))->comment('Fecha creación');
+            $table->timestamp('car_updated_at')->nullable()->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('Fecha modificación');
         });
     }
 
