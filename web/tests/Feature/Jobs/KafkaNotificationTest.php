@@ -3,6 +3,7 @@
 namespace Tests\Unit\Jobs;
 
 use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 use App\Jobs\KafkaNotification;
 use App\Models\Cart;
 use Exception;
@@ -11,7 +12,6 @@ use Illuminate\Support\Facades\Queue;
 use Junges\Kafka\Facades\Kafka;
 use Mockery;
 use Tests\TestCase;
-use Database\Seeders\ParameterSeeder;
 use Ramsey\Uuid\Uuid;
 
 class KafkaNotificationTest extends TestCase
@@ -26,7 +26,6 @@ class KafkaNotificationTest extends TestCase
 
     public function testKafkaNotification()
     {
-       // $this->seed(ParameterSeeder::class);
         $order = Cart::factory()->create([
             'car_id_transaction' => Uuid::uuid4(),
             'car_flow_currency' => 'CLP',
@@ -61,7 +60,6 @@ class KafkaNotificationTest extends TestCase
 
     public function testKafkaNotificationRejected()
     {
-        //$this->seed(ParameterSeeder::class);
         $order = Cart::factory()->create([
             'car_id_transaction' => Uuid::uuid4(),
             'car_flow_currency' => 'CLP',
