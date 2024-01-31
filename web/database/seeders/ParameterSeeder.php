@@ -63,6 +63,24 @@ class ParameterSeeder extends Seeder
                 'par_description' => 'Url de retorno',
                 'par_created_at' => now()
             ],
+            [
+                'par_code' => 'SFTP_HOST_SANTANDER',
+                'par_value' => '200.75.7.235',
+                'par_description' => 'Host SFTP SANTANDER',
+                'par_created_at' => now()
+            ],
+            [
+                'par_code' => 'SFTP_USERNAME_SANTANDER',
+                'par_value' => 'flowsa_bsan',
+                'par_description' => 'Username SFTP SANTANDER',
+                'par_created_at' => now()
+            ],
+            [
+                'par_code' => 'SFTP_PASSWORD_SANTANDER',
+                'par_value' => 'WXv+VC7G',
+                'par_description' => 'Password SFTP SANTANDER',
+                'par_created_at' => now()
+            ],
         ];
         Parameter::insertOrIgnore($data);
     }
