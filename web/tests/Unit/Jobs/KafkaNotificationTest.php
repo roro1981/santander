@@ -2,8 +2,6 @@
 
 namespace Tests\Unit\Jobs;
 
-use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
 use App\Jobs\KafkaNotification;
 use App\Models\Cart;
 use Exception;
@@ -124,7 +122,8 @@ class KafkaNotificationTest extends TestCase
 
     public function tearDown(): void
     {
-        Mockery::close();
+        
         parent::tearDown();
+        Mockery::close();
     }
 }

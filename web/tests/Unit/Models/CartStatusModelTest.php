@@ -2,15 +2,21 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\CartStatus;
 use App\Models\Cart;
+use App\Models\CartStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Mockery;
 
 class CartStatusModelTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+    }
     public function testCartStatusModel()
     {
         $cart = Cart::create([
@@ -33,10 +39,10 @@ class CartStatusModelTest extends TestCase
             'car_flow_attempt_number' => 1,
             'car_flow_product_id' => '00200',
             'car_flow_subject' => 'Subject test',
-            'car_flow_email_paid' => 'rpanes@ejemplo.com',
+            'car_flow_email_paid' => 'rpanes@ejemplo.com'
             ]);
-          
-       /* $cartStatus = CartStatus::saveCurrentStatus($cart);
+  
+        $cartStatus = CartStatus::saveCurrentStatus($cart);
         
         $this->assertInstanceOf(CartStatus::class, $cartStatus);
 
@@ -45,7 +51,7 @@ class CartStatusModelTest extends TestCase
         
 
         $this->assertContains('car_id', $cartStatus->getFillable());
-        $this->assertContains('cas_status', $cartStatus->getFillable());*/
+        $this->assertContains('cas_status', $cartStatus->getFillable());
     }
 
     public function tearDown(): void

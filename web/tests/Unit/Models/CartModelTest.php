@@ -9,7 +9,12 @@ use Tests\TestCase;
 class CartModelTest extends TestCase
 {
     use RefreshDatabase;
+    
+    public function setUp(): void
+    {
+        parent::setUp();
 
+    }
     public function testCartModel()
     {
         $cart = Cart::create([
@@ -85,4 +90,5 @@ class CartModelTest extends TestCase
     {
         parent::tearDown();
     }
+    
 }

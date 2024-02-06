@@ -171,9 +171,8 @@ class FtpConciliationController extends Controller
     }
 
     public function fileNameProcess($file){
-
         $existeArchivo = Conciliation::where('con_file_process', $file)->exists();
-
+        
         if ($existeArchivo) {
            return true;
         } else {

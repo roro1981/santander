@@ -15,6 +15,12 @@ class SantanderClientTest extends TestCase
 {
     public $token;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+    }
+
     public function testGetBearerToken()
     {
         $this->seed(ParameterSeeder::class);
@@ -68,6 +74,13 @@ class SantanderClientTest extends TestCase
         $santanderClient = new SantanderClient();
         $response = $santanderClient->enrollCart($order);
         $this->assertEquals($mockSantanderResponse, $response);
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
+        
     }
 
 }

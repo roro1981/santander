@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Utils\CartUtil;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\NotifyRequest;
 use App\Http\Requests\MpfinRequest;
-use App\Http\Responses\CreateOrderResponse;
 use App\Jobs\KafkaNotification;
 use App\Models\ApiLog;
 use App\Models\Cart;
+use Ramsey\Uuid\Uuid;
+use App\Models\CartStatus;
+use App\Http\Clients\SantanderClient;
+use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 
 use Illuminate\Http\Request;
 
@@ -38,8 +41,19 @@ class OrderController extends Controller
                 $orderRequest
             );
 
-            $cart = CartUtil::saveOrder($uuid, $orderRequest, $user);
-            $response=CreateOrderResponse::generate($cart);
+            $cart = $this->saveOrder($uuid, $orderRequest, $user);
+
+            $response=response()->json(['uuid' => Uuid::uuid4(),
+            'payment_uuid' => $cart->car_id_transaction,
+            'provider_id' => $cart->car_id, 
+            'type' => 'REDIRECT',
+            'amount' => $cart->car_flow_amount,
+            'currency' => $cart->car_flow_currency,
+            'url' => $cart->car_url,
+            'expire_time' => $cart->car_expires_at,
+            'expire_date' => date('c', $cart->car_expires_at),
+            'fields' => []]);
+
             $apiLog->updateLog((array) $response, 200);
 
         } catch (\Exception $e) {
@@ -74,9 +88,11 @@ class OrderController extends Controller
                 }elseif($txData['MONEDA'] != "CLP"){
                     throw new \Exception("Moneda total pagado inconsistente", true);
                 }
-                $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' =>$txData['IDTRXREC']]);
-                KafkaNotification::dispatch($cart, $id_trx_rec)->onQueue('kafkaNotification');
-                
+                $notKafka=KafkaNotification::dispatch($cart, $id_trx_rec)->onQueue('kafkaNotification');
+
+                if($notKafka){
+                    $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' =>$txData['IDTRXREC']]);
+                }
                 $response = response()->json([
                     'code' => $txData['CODRET'],
                     'dsc' => $txData['DESCRET']
@@ -100,12 +116,14 @@ class OrderController extends Controller
         
         try { 
             $idCarro =  $validated['IdCarro'];
-            $codRet  =  $validated['CodRet'];
-            $estado  =  $validated['Estado'];
             $mpfin   =  $validated['mpfin'];
 
             $cart = Cart::find($idCarro);
             
+            if($cart->car_sent_kafka == 1){
+                throw new \Exception("Carro ya fue notificado", true);
+            }
+
             if($cart){
                 $montoFormateado = (int) number_format($cart->car_flow_amount, 0, '.', '');
 
@@ -131,5 +149,47 @@ class OrderController extends Controller
         } 
         
         return $response;
+    }
+    private function saveOrder($uuid, $orderRequest, $userRequest){
+        $order = Cart::create([
+            'car_id_transaction' => $uuid,
+            'car_flow_currency' => $orderRequest['currency'],
+            'car_flow_amount' => $orderRequest['amount'],
+            'car_url' => $orderRequest['url_confirmation'],
+            'car_expires_at' => self::validateExpirationTime($orderRequest['expiration']),
+            'car_items_number' => 1,
+            'car_status' => Constants::STATUS_CREATED,
+            'car_url_return' => ParamUtil::getParam(Constants::PARAM_URL_RETORNO),
+            'car_sent_kafka' => 0,
+            'car_flow_id' => $orderRequest['id'],
+            'car_flow_attempt_number' => $orderRequest['attempt_number'],
+            'car_flow_product_id' => $orderRequest['product_id'],
+            'car_flow_email_paid' => $userRequest['email'],
+            'car_flow_subject' => $orderRequest['subject'],
+            'car_created_at' => now()
+        ]);
+
+        CartStatus::saveCurrentStatus($order);
+        $cartInscription = new SantanderClient();
+        $response = $cartInscription->enrollCart($order->toArray());
+        
+        if($response['codeError']=="0"){
+            $order->update(['car_url' => $response['urlBanco'],'car_status' =>'PRE-AUTHORIZED']);
+            CartStatus::saveCurrentStatus($order);
+        }    
+        return $order;
+    }
+
+    public static function validateExpirationTime(int $expiration)
+    {
+        $defaultExpirationTime = Constants::PARAM_EXPIRATION_TIME;
+        if ($expiration > time() + $defaultExpirationTime && $expiration < time() + Constants::MAX_ORDER_EXPIRATION)
+        {
+            return $expiration;
+        }
+        else
+        {
+            return time() + $defaultExpirationTime;
+        }
     }
 }

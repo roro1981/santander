@@ -12,6 +12,7 @@ trait SftpConnectionTrait
 
     public function testConnection()
     {
+        dd("ssss");
         $ftpHost = ParamUtil::getParam(Constants::PARAM_SANTANDER_SFTP_HOST);
         $ftpUsername = ParamUtil::getParam(Constants::PARAM_SANTANDER_SFTP_USERNAME);
         $ftpPassword = ParamUtil::getParam(Constants::PARAM_SANTANDER_SFTP_PASSWORD);
