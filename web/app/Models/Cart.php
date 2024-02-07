@@ -50,7 +50,7 @@ class Cart extends Model
             $model->car_uuid = (string) Str::uuid();
         });
         /*static::creating(function ($model) {
-            $model->car_id = 168390;
+            $model->car_id = 168401;
         });*/
     }   
     /**

@@ -65,7 +65,7 @@ class OrderController extends Controller
             $apiLog->updateLog($e, 500);
         }
 
-    $this->saveIdempotency($uuid, 'response', 'htt');
+    $this->saveIdempotency($uuid, $response->getData(), $response->status());
         return $response;
     }
 
@@ -81,6 +81,10 @@ class OrderController extends Controller
             $cart = Cart::find($cartId);
             $id_trx_rec = $txData['IDTRXREC'];
 
+            if($cart->car_sent_kafka == 1){
+                throw new \Exception("Carro ya fue notificado", true);
+            }
+
             if($cart && $codRet == "0000"){
                 $montoFormateado = (int) number_format($cart->car_flow_amount, 0, '.', '');
                 if((int)$txData['TOTAL'] != $montoFormateado){
@@ -88,16 +92,20 @@ class OrderController extends Controller
                 }elseif($txData['MONEDA'] != "CLP"){
                     throw new \Exception("Moneda total pagado inconsistente", true);
                 }
+
                 $notKafka=KafkaNotification::dispatch($cart, $id_trx_rec)->onQueue('kafkaNotification');
 
                 if($notKafka){
                     $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' =>$txData['IDTRXREC']]);
                 }
+
                 $response = response()->json([
                     'code' => $txData['CODRET'],
                     'dsc' => $txData['DESCRET']
                 ]);
-            }else{
+            }elseif($codRet != "0000"){
+                throw new \Exception("Codigo de retorno: ".$codRet." ".$txData['DESCRET'], true);
+            }else{  
                 throw new \Exception("Id de carro inexistente", true);
             }
         } catch (\Exception $e) {
@@ -131,11 +139,14 @@ class OrderController extends Controller
                     throw new \Exception("Monto total pagado inconsistente", true);
                 }
 
-                $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' => $mpfin['IDTRX']]);
-                KafkaNotification::dispatch($cart, $mpfin['IDTRX'])->onQueue('kafkaNotification');
+                $notKafka=KafkaNotification::dispatch($cart, $mpfin['IDTRX'])->onQueue('kafkaNotification');
+                if($notKafka){
+                    $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' => $mpfin['IDTRX']]);
+                }
                 
                 $response = response()->json([
-                    ['message' => 'Recepcion exitosa']
+                    ['message' => 'Recepcion exitosa',
+                    'url_return' => $cart->car_url_return]
                 ]); 
             }else{
                 throw new \Exception("Id de carro inexistente", true);
