@@ -17,7 +17,7 @@ tags:
   - name: redirect
     description: 'Permite notificar pago en Santander'  
   - name: refund
-    description: 'Permite gestionar los reembolsos de las órdenes de pago'
+    description: 'Permite gestionar los reembolsos de las órdenes de pago (No aplica)'
 paths:
   /api/v1/health:
     get:
