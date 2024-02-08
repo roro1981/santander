@@ -31,7 +31,7 @@ class CartStatus extends Model
     /**
      * Functions
      */ 
-    public static function saveCurrentStatus($cart)
+    public static function saveCurrentStatus(Cart $cart)
     {
         return CartStatus::create([
             'car_id' => $cart->car_id,

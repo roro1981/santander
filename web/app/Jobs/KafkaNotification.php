@@ -28,10 +28,9 @@ class KafkaNotification implements ShouldQueue
     private $saslUsername;
     private $saslPassword;
 
-    public function __construct(Cart $order, $sant)
+    public function __construct(Cart $order)
     {
         $this->order = $order;
-        $this->sant = $sant;
         $this->saslUsername = config('kafka.sasl.username') ?? 'user';
         $this->saslPassword = config('kafka.sasl.password') ?? 'password';
     }
@@ -42,11 +41,11 @@ class KafkaNotification implements ShouldQueue
 
         $body = [
             'uuid' => Uuid::uuid4(),
-            'id' => $this->order->car_id,
-            'external_id' => $this->sant,
+            'id' => $this->order->car_flow_id,
+            'external_id' => $this->order->car_id,
             'product_id' => $this->order->car_flow_product_id,
             'payer_email' => $this->order->car_flow_email_paid,
-            'date_notification' => Carbon::now(),
+            'date_notification' => $this->order->car_updated_at,
             'amount_paid' => floatval($this->order->car_flow_amount),
             'currency_paid' => 'CLP',
             'payment_detail' => json_encode([

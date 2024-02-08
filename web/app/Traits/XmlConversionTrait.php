@@ -4,7 +4,7 @@ namespace App\Traits;
 
 trait XmlConversionTrait
 {
-    public function convertXmlToArray($xml)
+    public function convertXmlToArray(String $xml)
     {
         $decodedXml = html_entity_decode($xml, ENT_QUOTES, 'UTF-8');
 

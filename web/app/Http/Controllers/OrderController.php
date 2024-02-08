@@ -62,7 +62,7 @@ class OrderController extends Controller
                 'error' => 500,
                 'message' => $e->getMessage()
             ], 500);
-            $apiLog->updateLog($e, 500);
+            $apiLog->updateLog($e->getMessage(), 500);
         }
 
     $this->saveIdempotency($uuid, $response->getData(), $response->status());
@@ -80,12 +80,18 @@ class OrderController extends Controller
             $codRet = $txData['CODRET'];
             $cart = Cart::find($cartId);
             $id_trx_rec = $txData['IDTRXREC'];
-
-            if($cart->car_sent_kafka == 1){
-                throw new \Exception("Carro ya fue notificado", true);
-            }
+            
+            $urlActual = $request->url();
 
             if($cart && $codRet == "0000"){
+                if($cart->car_sent_kafka == 1){
+                    throw new \Exception("Carro ya fue notificado", true);
+                }
+                $apiLog = ApiLog::storeLog(
+                    $cart->car_flow_id,
+                    $urlActual,
+                    $txData
+                );
                 $montoFormateado = (int) number_format($cart->car_flow_amount, 0, '.', '');
                 if((int)$txData['TOTAL'] != $montoFormateado){
                     throw new \Exception("Monto total pagado inconsistente", true);
@@ -93,7 +99,7 @@ class OrderController extends Controller
                     throw new \Exception("Moneda total pagado inconsistente", true);
                 }
 
-                $notKafka=KafkaNotification::dispatch($cart, $id_trx_rec)->onQueue('kafkaNotification');
+                $notKafka=KafkaNotification::dispatch($cart)->onQueue('kafkaNotification');
 
                 if($notKafka){
                     $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' =>$txData['IDTRXREC']]);
@@ -103,6 +109,7 @@ class OrderController extends Controller
                     'code' => $txData['CODRET'],
                     'dsc' => $txData['DESCRET']
                 ]);
+                $apiLog->updateLog($response, 200);
             }elseif($codRet != "0000"){
                 throw new \Exception("Codigo de retorno: ".$codRet." ".$txData['DESCRET'], true);
             }else{  
@@ -127,7 +134,15 @@ class OrderController extends Controller
             $mpfin   =  $validated['mpfin'];
 
             $cart = Cart::find($idCarro);
-            
+
+            $urlActual = $request->url();
+
+            $apiLog = ApiLog::storeLog(
+                $cart->car_flow_id,
+                $urlActual,
+                $validated
+            );
+
             if($cart->car_sent_kafka == 1){
                 throw new \Exception("Carro ya fue notificado", true);
             }
@@ -139,7 +154,7 @@ class OrderController extends Controller
                     throw new \Exception("Monto total pagado inconsistente", true);
                 }
 
-                $notKafka=KafkaNotification::dispatch($cart, $mpfin['IDTRX'])->onQueue('kafkaNotification');
+                $notKafka=KafkaNotification::dispatch($cart)->onQueue('kafkaNotification');
                 if($notKafka){
                     $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' => $mpfin['IDTRX']]);
                 }
@@ -148,6 +163,7 @@ class OrderController extends Controller
                     ['message' => 'Recepcion exitosa',
                     'url_return' => $cart->car_url_return]
                 ]); 
+                $apiLog->updateLog($response, 200);
             }else{
                 throw new \Exception("Id de carro inexistente", true);
             }
@@ -161,7 +177,7 @@ class OrderController extends Controller
         
         return $response;
     }
-    private function saveOrder($uuid, $orderRequest, $userRequest){
+    private function saveOrder(String $uuid, Array $orderRequest, Array $userRequest){
         $order = Cart::create([
             'car_id_transaction' => $uuid,
             'car_flow_currency' => $orderRequest['currency'],
@@ -182,16 +198,16 @@ class OrderController extends Controller
 
         CartStatus::saveCurrentStatus($order);
         $cartInscription = new SantanderClient();
-        $response = $cartInscription->enrollCart($order->toArray());
+        $response = $cartInscription->enrollCart($order->toArray(),$orderRequest['id']);
         
         if($response['codeError']=="0"){
-            $order->update(['car_url' => $response['urlBanco'],'car_status' =>'PRE-AUTHORIZED']);
+            $order->update(['car_url' => $response['urlBanco'],'car_status' =>'REGISTERED-CART']);
             CartStatus::saveCurrentStatus($order);
         }    
         return $order;
     }
 
-    public static function validateExpirationTime(int $expiration)
+    public static function validateExpirationTime(Int $expiration)
     {
         $defaultExpirationTime = Constants::PARAM_EXPIRATION_TIME;
         if ($expiration > time() + $defaultExpirationTime && $expiration < time() + Constants::MAX_ORDER_EXPIRATION)

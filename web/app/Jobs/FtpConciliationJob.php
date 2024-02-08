@@ -164,7 +164,7 @@ class FtpConciliationJob implements ShouldQueue
         return response()->json($resumen);
 
     }
-    private function insertData($array){
+    private function insertData(Array $array){
        
         try {
             DB::beginTransaction();

@@ -15,5 +15,6 @@ Route::post('/v1/santander/notify', [OrderController::class, 'notify']);
 Route::get('/v1/santander/redirect', [OrderController::class, 'mpfin']);
 
 
-Route::get('/v1/santander/conciliation', [FtpConciliationController::class, 'conciliation']);
+/*Route::get('/v1/santander/conciliation', [FtpConciliationController::class, 'conciliation']);
+FtpConciliationJob::dispatch();*/
 

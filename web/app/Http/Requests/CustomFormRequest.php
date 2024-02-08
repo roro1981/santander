@@ -48,7 +48,7 @@ class CustomFormRequest extends FormRequest
         ];
     }
 
-    public function getAmountRules($minAmount, $maxAmount)
+    public function getAmountRules(Int $minAmount, Int $maxAmount)
     {
         return [
             self::REQUIRED,

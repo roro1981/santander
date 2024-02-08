@@ -26,7 +26,7 @@ class ApiLog extends Model
     /**
      * Functions
      */
-    public static function storeLog($orderFlowId, $url, $request)
+    public static function storeLog(Int $orderFlowId, String $url, String $request)
     {
         return ApiLog::create([
             'alg_external_id' => $orderFlowId,
@@ -36,7 +36,7 @@ class ApiLog extends Model
         ]);
     }
 
-    public function updateLog($response, $status)
+    public function updateLog(String $response, Int $status)
     {
         $this->update([
             'alg_response' => json_encode($response),

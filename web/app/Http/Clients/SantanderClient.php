@@ -9,6 +9,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Log;
+use App\Models\ApiLog;
 
 class SantanderClient
 {
@@ -23,7 +24,7 @@ class SantanderClient
         
     }
 
-    public function getBearerToken()
+    public function getBearerToken(Int $orderId)
     {
 
         $intentos = 0;
@@ -37,15 +38,21 @@ class SantanderClient
                 ];
                 
                 $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
-                
+
+            $apiLog = ApiLog::storeLog(
+                $orderId,
+                $this->baseUrl."/auth/basic/token",
+                $credentials
+            );
                 if ($response->successful()) {
                     $responseToken = [
                         'token_type' => $response->json('token_type'),
                         'access_token' => $response->json('access_token'),
                     ];
+                    $apiLog->updateLog((array) $responseToken, 200);
                     return $responseToken;
                 }
-
+               
             } catch (Exception $e) {
                 $intentos++;
                 if ($intentos < $this->intentosMaximos) {
@@ -61,13 +68,14 @@ class SantanderClient
             'error' => 500,
             'message' => 'Error al obtener el Bearer Token después de '.$this->intentosMaximos.' intentos'
         ], 500);
+        $apiLog->updateLog((array) $response, 500);
         return $response;
     }
 
-    public function enrollCart(array $cartData)
+    public function enrollCart(array $cartData,Int $orderId)
     {
 
-        $authorizationToken = $this->getBearerToken();
+        $authorizationToken = $this->getBearerToken($orderId);
       
         if(!$authorizationToken){
             throw new Exception('Error al obtener token');
@@ -104,10 +112,15 @@ class SantanderClient
                 }';
         
                 $request = new Request('POST', $this->baseUrl.'/auth/apiboton/carro/inscribir', $headers, $body);
-            
+                $apiLog = ApiLog::storeLog(
+                    $orderId,
+                    $this->baseUrl.'/auth/apiboton/carro/inscribir',
+                    $body
+                );
                 $res = $client->sendAsync($request)->wait();
                 $jsonContent = $res->getBody()->getContents();
                 $arrayContent = json_decode($jsonContent, true);
+                $apiLog->updateLog((array) $arrayContent, 200);
                 return $arrayContent;
                 
             } catch (Exception $e) {
@@ -125,6 +138,7 @@ class SantanderClient
             'error' => 500,
             'message' => 'Error al inscribir el carro'
         ], 500);
+        $apiLog->updateLog((array) $response, 500);
         return $response;
     }
 
