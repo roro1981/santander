@@ -2,9 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\IntegerBetween;
-use App\Rules\IsInteger;
-
 class CreateOrderRequest extends CustomFormRequest
 {
     public function rules(): array
@@ -20,7 +17,7 @@ class CreateOrderRequest extends CustomFormRequest
             'order.attempt_number' => self::REQUIRED. '|' . self::NUMERIC,
             'order.amount' => self::REQUIRED. '|' . self::NUMERIC,
             'order.subject' => self::REQUIRED . '|' . self::STRING . '|' . self::MAX_255,
-            'order.expiration' => [self::REQUIRED, new IsInteger, new IntegerBetween],
+            'order.expiration' => self::REQUIRED. '|' . self::NUMERIC,
             'order.currency' => self::REQUIRED . '|' . self::STRING,
             'order.extra_params' => 'array|nullable',
             'user.id' => self::REQUIRED . '|' . self::STRING,
