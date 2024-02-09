@@ -2,13 +2,11 @@
 
 namespace App\Traits;
 
-use App\Traits\XmlConversionTrait;
 use App\Http\Utils\Constants;
 use App\Http\Utils\ParamUtil;
 
 trait SftpConnectionTrait
 {
-    use XmlConversionTrait;
 
     public function testConnection()
     {

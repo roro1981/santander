@@ -79,7 +79,6 @@ class OrderController extends Controller
             $cartId = $txData['IDTRX'];
             $codRet = $txData['CODRET'];
             $cart = Cart::find($cartId);
-            $id_trx_rec = $txData['IDTRXREC'];
             
             $urlActual = $request->url();
 

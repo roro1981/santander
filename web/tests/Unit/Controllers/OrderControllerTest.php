@@ -4,16 +4,13 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Clients\SantanderClient;
 use App\Http\Requests\CreateOrderRequest;
-use App\Http\Utils\Constants;
 use App\Models\Idempotency;
 use App\Models\CartStatus;
-use App\Models\ApiLog;
-use App\Models\Cart;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
-use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
+
 
 
 class OrderControllerTest extends TestCase
@@ -31,7 +28,7 @@ class OrderControllerTest extends TestCase
         $this->mockCartStatus = Mockery::mock('overload:' . CartStatus::class);
         $this->mockSantanderClient = Mockery::mock('overload:' . SantanderClient::class);
         $this->seed();
-        $this->method = 149;
+        $this->method = "149";
         $this->mockRequestData = [
             'uuid' => Uuid::uuid4(),
             'order' => [
@@ -105,6 +102,7 @@ class OrderControllerTest extends TestCase
        
         $this->assertNotNull($response);
         $this->assertEquals(200, $response->status());
+        
     }
     public function testSaveOrder(){
 
