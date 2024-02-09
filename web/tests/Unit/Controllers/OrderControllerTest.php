@@ -4,12 +4,20 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Clients\SantanderClient;
 use App\Http\Requests\CreateOrderRequest;
+use App\Http\Controllers\OrderController;
 use App\Models\Idempotency;
 use App\Models\CartStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Response;
 use Mockery;
 use Tests\TestCase;
 use Ramsey\Uuid\Uuid;
+use App\Http\Requests\NotifyRequest;
+use App\Http\Requests\MpfinRequest;
+use App\Models\Cart;
+use App\Jobs\KafkaNotification;
+use Illuminate\Support\Facades\Queue;
+
 
 
 
@@ -18,6 +26,8 @@ class OrderControllerTest extends TestCase
     use RefreshDatabase;
 
     private $mockRequestData;
+    private $requestNotify;
+    private $requestMpfin;
     private $mockCartStatus;
     private $mockSantanderClient;
     private $method;
@@ -69,6 +79,27 @@ class OrderControllerTest extends TestCase
             ]),
             'idp_httpcode' => 200
         ]);
+
+        $this->requestNotify = [
+            'TX' => [
+                'IDTRX' => '1',
+                'CODRET' => '0000',
+                'TOTAL' => 1199,
+                'MONEDA' =>'CLP',
+                'IDTRXREC' =>'1',
+                'DESCRET' => 'Transaccion OK'
+            ]
+        ];
+
+        $this->requestMpfin = [
+                'IdCarro' => '1',
+                'CodRet' => '000',
+                'Estado' => 'Aceptado',
+                'mpfin' => [
+                    'TOTAL' => 1199, 
+                    'IDTRX' => '000100' 
+                ]
+        ];
     }
     /**
      * @runInSeparateProcess
@@ -183,7 +214,51 @@ class OrderControllerTest extends TestCase
         $this->assertEquals('oca1k8nhhigb', $response['payment_uuid']);
         $this->assertEquals(10.23, $response['amount']);
     }
+    public function testNotifySuccess()
+    {
+   
+        Queue::fake();
+        
+        $requestMock = Mockery::mock(NotifyRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestNotify);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
 
+        $response = Response::json(['code' => '0000', 'dsc' => 'Transaccion OK'], 200);
+
+        $order = Cart::factory()->create();
+
+        $controller = new OrderController();
+        $result = $controller->notify($requestMock);
+      
+        $this->assertEquals($response->getContent(), $result->getContent());
+
+        Queue::assertPushed(KafkaNotification::class, function ($job) {
+            return true;
+        });
+    }
+
+    public function testMpfinSuccess()
+    {
+        Queue::fake();
+        $order = Cart::factory()->create();
+        $requestMock = Mockery::mock(MpfinRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestMpfin);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(MpfinRequest::class, $requestMock);
+
+        $response = Response::json(['message' => 'Recepcion exitosa', 'url_return' => 'https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect'], 200);
+
+        
+        $controller = new OrderController();
+        $result = $controller->mpfin($requestMock);
+        
+        $this->assertEquals($response->getContent(), $result->getContent());
+
+        Queue::assertPushed(KafkaNotification::class, function ($job) {
+            return true; 
+        });
+    }
     public function tearDown(): void
     {
         parent::tearDown();

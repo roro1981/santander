@@ -159,8 +159,8 @@ class OrderController extends Controller
                 }
                 
                 $response = response()->json([
-                    ['message' => 'Recepcion exitosa',
-                    'url_return' => $cart->car_url_return]
+                    'message' => 'Recepcion exitosa',
+                    'url_return' => $cart->car_url_return
                 ]); 
                 $apiLog->updateLog($response, 200);
             }else{
