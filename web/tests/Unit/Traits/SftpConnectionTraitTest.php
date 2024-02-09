@@ -2,8 +2,7 @@
 
 use Tests\TestCase;
 use App\Traits\SftpConnectionTrait;
-use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
+use Database\Seeders\ParameterSeeder;
 
 class SftpConnectionTraitTest extends TestCase
 {
@@ -11,8 +10,9 @@ class SftpConnectionTraitTest extends TestCase
 
     public function testSuccessfulSftpConnection()
     {
-       
+        $this->seed(ParameterSeeder::class);
         $sftp = $this->testConnection();
+        
         $this->assertInstanceOf(\phpseclib3\Net\SFTP::class, $sftp);
     }
 

@@ -70,7 +70,10 @@ class OrderControllerTest extends TestCase
             'idp_httpcode' => 200
         ]);
     }
-
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testCreateOrder()
     {
         $mockRequest = Mockery::mock(CreateOrderRequest::class);
@@ -98,12 +101,17 @@ class OrderControllerTest extends TestCase
         ->shouldReceive('enrollCart')
         ->once()
         ->andReturn($mockSantanderResponse);
+        
         $response = $this->post('/api/v1/order/create', $this->mockRequestData);
        
         $this->assertNotNull($response);
         $this->assertEquals(200, $response->status());
         
     }
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testSaveOrder(){
 
         $mockSantanderResponse = [
@@ -133,6 +141,10 @@ class OrderControllerTest extends TestCase
         $this->assertTrue(Mockery::getContainer()->mockery_getExpectationCount() > 0);
 
     }
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testCreateOrderException()
     {
         $mockRequest = Mockery::mock(CreateOrderRequest::class);
