@@ -1,6 +1,7 @@
 <?php
 
 namespace Tests\Unit\Models;
+namespace App\Models;
 
 use App\Models\Cart;
 use Illuminate\Foundation\Testing\RefreshDatabase;

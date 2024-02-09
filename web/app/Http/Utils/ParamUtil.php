@@ -17,11 +17,4 @@ class ParamUtil
         return $parameter;
     }
 
-    public static function getParams(array $codes)
-    {
-        return Cache::remember('parameters_' . implode('_', $codes), now()->addHours(6), function () use ($codes) {
-            return DB::table(Constants::PARAMETER_TABLE)->whereIn('par_code', $codes)
-                ->pluck('par_value', 'par_code');
-        });
-    }
 }

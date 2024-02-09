@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+
 class CustomFormRequest extends FormRequest
 {
     const REQUIRED = 'required';
@@ -15,4 +16,5 @@ class CustomFormRequest extends FormRequest
     const EMAIL = 'email:rfc,dns';
     const URL = 'url:http,https';
 
+   
 }
