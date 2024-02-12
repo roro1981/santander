@@ -64,7 +64,7 @@ class SantanderClient
         
         $response = response()->json([
             'error' => 500,
-            'message' => 'Error al obtener el Bearer Token después de '.$this->intentosMaximos.' intentos'
+            'message' => 'Error al obtener el Bearer Token'
         ], 500);
         $apiLog->updateLog((array) $response, 500);
         return $response;
@@ -130,7 +130,7 @@ class SantanderClient
         } while ($intentos < $this->intentosMaximos); 
         $response = response()->json([
             'error' => 500,
-            'message' => 'Error al inscribir el carro después de '.$this->intentosMaximos.' intentos'
+            'message' => 'Error al inscribir el carro'
         ], 500);
         $apiLog->updateLog((array) $response, 500);
         return $response;

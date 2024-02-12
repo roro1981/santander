@@ -77,7 +77,7 @@ class SantanderClientTest extends TestCase
         $responseData = json_decode($response->getContent(), true);
 
         $this->assertEquals(500, $response->getStatusCode());
-        $this->assertEquals('Error al obtener el Bearer Token después de 3 intentos', $responseData['message']);
+        $this->assertEquals('Error al obtener el Bearer Token', $responseData['message']);
     }
     /**
      * @runInSeparateProcess
