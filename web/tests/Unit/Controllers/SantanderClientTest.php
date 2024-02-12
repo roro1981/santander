@@ -52,7 +52,10 @@ class SantanderClientTest extends TestCase
         $this->assertEquals('test_token', $token['access_token']);
        
     }
-
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testGetBearerToken_Exception()
     {
         $this->seed(ParameterSeeder::class);
@@ -125,7 +128,51 @@ class SantanderClientTest extends TestCase
         $this->assertEquals(null, $response['tokenBanco']);
         $this->assertEquals($cart_id, $response['idTrxComercio']);
     }
-   
+    /*public function testEnrollCart_Exception()
+    {
+        $this->seed(ParameterSeeder::class);
+        $cart_id=random_int(168500,300000);
+        $service = new SantanderClient();
+
+        Http::fake([
+            '*' => Http::response([], 500)
+        ]);
+
+        $reflectionClass = new ReflectionClass($service);
+        $intentosMax = $reflectionClass->getProperty('intentosMaximos');
+        $intentosMax->setAccessible(true); 
+        $intentosMax->setValue($service, 3); 
+
+        $tiempo = $reflectionClass->getProperty('intervaloTiempo');
+        $tiempo->setAccessible(true); 
+        $tiempo->setValue($service, 5); 
+
+
+        $order = [
+            'car_id' => $cart_id,
+            'car_id_transaction' => Uuid::uuid4(),
+            'car_flow_currency' => ParamUtil::getParam(Constants::PARAM_CURRENCY),
+            'car_flow_amount' => '100.1',
+            'car_url' => 'www.flow.cl',
+            'car_expires_at' => 1693418602,
+            'car_items_number' => 1,
+            'car_status' => Constants::STATUS_CREATED,
+            'car_url_return' => ParamUtil::getParam(Constants::PARAM_URL_RETORNO),
+            'car_sent_kafka' => 0,
+            'car_flow_id' => '000100',
+            'car_flow_attempt_number' => 0,
+            'car_flow_product_id' => '100',
+            'car_flow_email_paid' => 'rpanes@tuxpan.com',
+            'car_flow_subject' => 'subject test',
+            'car_created_at' => now()
+        ];
+       
+        $response = $service->enrollCart($order,123,3);
+        $responseData = json_decode($response->getContent(), true);
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals('Error al inscribir el carro después de 3 intentos', $responseData['message']);
+    }*/
     public function tearDown(): void
     {
         parent::tearDown();
