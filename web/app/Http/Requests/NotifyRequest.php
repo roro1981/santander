@@ -28,6 +28,10 @@ class NotifyRequest extends CustomFormRequest
         $body=str_replace("TX=","",$rawBody);
         $bodyArray = $this->convertXmlToArray($body);
 
+        if ($bodyArray === false) {
+            throw new \Exception("Error al cargar la cadena XML. La cadena XML recibida es: " . $body);
+        }
+
         $this->merge(['TX' => $bodyArray]);
         $request = $this->request->all();
         $txData = $request['TX'];

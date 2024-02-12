@@ -5,10 +5,12 @@ namespace Tests\Unit\Requests;
 use App\Http\Requests\NotifyRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Traits\XmlConversionTrait;
 
 class NotifyRequestTest extends TestCase
 {
     use RefreshDatabase;
+    use XmlConversionTrait;
 
     public function testValidationPasses()
     {
@@ -67,4 +69,29 @@ class NotifyRequestTest extends TestCase
     $this->assertTrue($validator->fails(), 'La validación debería fallar sin el prefijo TX');
 }
 
+public function testConvertXmlToArray()
+    {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>
+            <root>
+                <item>
+                    <id>1</id>
+                    <name>valor1</name>
+                </item>
+                <item>
+                    <id>2</id>
+                    <name>valor2</name>
+                </item>
+            </root>';
+
+        $result = $this->convertXmlToArray($xml);
+
+        $expectedResult = [
+            'item' => [
+                ['id' => '1', 'name' => 'valor1'],
+                ['id' => '2', 'name' => 'valor2']
+            ]
+        ];
+
+        $this->assertEquals($expectedResult, $result);
+    }
 }
