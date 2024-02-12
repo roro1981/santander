@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 
 class NotifyRequest extends CustomFormRequest
 {
+
     public function rules(): array
     {
         
@@ -21,22 +22,34 @@ class NotifyRequest extends CustomFormRequest
             'TX.IDTRXREC' => 'required|string',
         ];
     }
-
-    protected function prepareForValidation()
+    public function prepareAndValidate($data)
+    {   
+        $this->prepareForValidation($data);
+        $this->validate();
+    }
+    protected function prepareForValidation($data=null)
     {
+     
         $rawBody = file_get_contents("php://input");
+        
         $body=str_replace("TX=","",$rawBody);
+        
         $bodyArray = $this->convertXmlToArray($body);
-
+        
         $this->merge(['TX' => $bodyArray]);
         $request = $this->request->all();
+        
         $txData = $request['TX'];
         $idTrx = (int)ltrim($txData['IDTRX'], '0');
         $bodyArray['IDTRX'] = $idTrx;
         $this->merge(['TX' => $bodyArray]);
     }
-    private function convertXmlToArray($xml)
+    public function convertXmlToArray($xml)
     {
+        if (empty($xml) || !is_string($xml)) {
+            return "La cadena XML está vacía o no es válida.";
+        }
+
         $decodedXml = html_entity_decode($xml, ENT_QUOTES, 'UTF-8');
 
         libxml_use_internal_errors(true);

@@ -23,13 +23,11 @@ class SantanderClient
         $this->baseUrl = ParamUtil::getParam(Constants::PARAM_SANTANDER_URL);
         
     }
-
-    public function getBearerToken(Int $orderId)
+    
+    public function getBearerToken(Int $orderId, $intentos=0)
     {
-
-        $intentos = 0;
-
         do {
+           
             try {
                 $credentials = [
                     'company' =>  ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_COMPANY),
@@ -55,10 +53,10 @@ class SantanderClient
                
             } catch (Exception $e) {
                 $intentos++;
-                if ($intentos < $this->intentosMaximos) {
+                if ( $intentos < $this->intentosMaximos) {
                     sleep($this->intervaloTiempo);
                 } else {
-                    throw $e;
+                    throw new \Exception('Error al obtener el Bearer Token después de '.$this->intentosMaximos.' intentos', 500);
                 }
             }
 
@@ -72,17 +70,14 @@ class SantanderClient
         return $response;
     }
 
-    public function enrollCart(array $cartData,Int $orderId)
+    public function enrollCart(array $cartData,Int $orderId, $intentos=0)
     {
-
-        $authorizationToken = $this->getBearerToken($orderId);
+        $authorizationToken = $this->getBearerToken($orderId, 0);
       
         if(!$authorizationToken){
             throw new Exception('Error al obtener token');
         }
         
-        $intentos = 0;
-
         do {
             try {
             
@@ -128,15 +123,14 @@ class SantanderClient
                 if ($intentos < $this->intentosMaximos) {
                     sleep($this->intervaloTiempo);
                 } else {
-                    Log::debug($e->getMessage());
-                    throw $e;
+                    throw new \Exception('Error al inscribir el carro después de '.$this->intentosMaximos.' intentos', 500);
                 }
             }
 
         } while ($intentos < $this->intentosMaximos); 
         $response = response()->json([
             'error' => 500,
-            'message' => 'Error al inscribir el carro'
+            'message' => 'Error al inscribir el carro después de '.$this->intentosMaximos.' intentos'
         ], 500);
         $apiLog->updateLog((array) $response, 500);
         return $response;

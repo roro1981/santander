@@ -9,6 +9,7 @@ use Ramsey\Uuid\Uuid;
 use Mockery;
 use Database\Seeders\ParameterSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use ReflectionClass;
 
 class SantanderClientTest extends TestCase
 {
@@ -32,15 +33,48 @@ class SantanderClientTest extends TestCase
     {
         $this->seed(ParameterSeeder::class);
         $santanderClient=new SantanderClient();
-        Http::fake([
-            '*/auth/basic/token' => Http::response(['token_type' => 'Bearer', 'access_token' => 'test_token'], 200)
-        ]);
 
-        $token = $santanderClient->getBearerToken($this->flow_id);
+        $reflectionClass = new ReflectionClass($santanderClient);
+        $intentosMax = $reflectionClass->getProperty('intentosMaximos');
+        $intentosMax->setAccessible(true); 
+        $intentosMax->setValue($santanderClient, 3); 
+
+        $tiempo = $reflectionClass->getProperty('intervaloTiempo');
+        $tiempo->setAccessible(true); 
+        $tiempo->setValue($santanderClient, 5); 
+
+        Http::fake(['*/auth/basic/token' => Http::response(['token_type' => 'Bearer', 'access_token' => 'test_token'], 200)
+        ]);
+        
+        $token = $santanderClient->getBearerToken($this->flow_id,0);
 
         $this->assertEquals('Bearer', $token['token_type']);
         $this->assertEquals('test_token', $token['access_token']);
        
+    }
+
+    public function testGetBearerToken_Exception()
+    {
+        $this->seed(ParameterSeeder::class);
+        
+        $service = new SantanderClient();
+
+        Http::fake(['*' => Http::response([], 500)]);
+
+        $reflectionClass = new ReflectionClass($service);
+        $intentosMax = $reflectionClass->getProperty('intentosMaximos');
+        $intentosMax->setAccessible(true); 
+        $intentosMax->setValue($service, 3); 
+
+        $tiempo = $reflectionClass->getProperty('intervaloTiempo');
+        $tiempo->setAccessible(true); 
+        $tiempo->setValue($service, 5); 
+
+        $response = $service->getBearerToken(123,3);
+        $responseData = json_decode($response->getContent(), true);
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals('Error al obtener el Bearer Token después de 3 intentos', $responseData['message']);
     }
     /**
      * @runInSeparateProcess
@@ -50,10 +84,21 @@ class SantanderClientTest extends TestCase
     {
         $this->seed(ParameterSeeder::class);
         $cart_id=random_int(168500,300000);
-        Http::fake([
+        $santanderClient=new SantanderClient();
+
+        $reflectionClass = new ReflectionClass($santanderClient);
+        $intentosMax = $reflectionClass->getProperty('intentosMaximos');
+        $intentosMax->setAccessible(true); 
+        $intentosMax->setValue($santanderClient, 3); 
+
+        $tiempo = $reflectionClass->getProperty('intervaloTiempo');
+        $tiempo->setAccessible(true); 
+        $tiempo->setValue($santanderClient, 5); 
+
+        Http::fake([ 
             '*/auth/apiboton/carro/inscribir' => Http::response(['codeError' => '0', 'descError' => 'Carro inscrito exitosamente', 'tokenBanco' => null, 'urlBanco' => 'https://paymentbutton-bsan-cert.e-pagos.cl/DummyBanco-0.0.2/?IdCom=690006904960&IdCarro=168400]', 'idTrxComercio' => $cart_id], 200),
         ]);
-        $santanderClient=new SantanderClient();
+        
         $order = [
             'car_id' => $cart_id,
             'car_id_transaction' => Uuid::uuid4(),
@@ -73,14 +118,14 @@ class SantanderClientTest extends TestCase
             'car_created_at' => now()
         ];
       
-        $response = $santanderClient->enrollCart($order, $this->flow_id);
+        $response = $santanderClient->enrollCart($order, $this->flow_id, 0);
         
         $this->assertEquals('0', $response['codeError']);
         $this->assertEquals('Carro inscrito exitosamente', $response['descError']);
         $this->assertEquals(null, $response['tokenBanco']);
         $this->assertEquals($cart_id, $response['idTrxComercio']);
     }
-
+   
     public function tearDown(): void
     {
         parent::tearDown();
