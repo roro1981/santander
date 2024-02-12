@@ -23,12 +23,6 @@ trait SftpConnectionTrait
                 return $sftp;
             }
             
-        } catch (\SFTPException $e) {
-            $response = response()->json([
-                'error' => 500,
-                'message' => 'Excepción SFTP: ' . $e->getMessage() . PHP_EOL
-            ], 500);
-            return $response;
         } catch (\Exception $e) {
             $response = response()->json([
                 'error' => 500,
