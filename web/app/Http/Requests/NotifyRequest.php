@@ -22,11 +22,6 @@ class NotifyRequest extends CustomFormRequest
             'TX.IDTRXREC' => 'required|string',
         ];
     }
-    public function prepareAndValidate($data)
-    {   
-        $this->prepareForValidation($data);
-        $this->validate();
-    }
     protected function prepareForValidation($data=null)
     {
      
