@@ -69,7 +69,7 @@ class NotifyRequestTest extends TestCase
 
         $this->assertTrue($validator->fails(), 'La validación debería fallar sin el prefijo TX');
     }
-
+   
     public function testConvertXmlToArray()
     {
         $xml = '<MPOUT><CODRET>0000</CODRET><DESCRET>Transaccion OK</DESCRET><IDCOM>7683001403</IDCOM><IDTRX>00000000000168403</IDTRX><TOTAL>1199</TOTAL><MONEDA>CLP</MONEDA><NROPAGOS>0</NROPAGOS><FECHATRX>24/01/2024 14:53:52</FECHATRX><IDTRXREC>168403</IDTRXREC></MPOUT>';

@@ -42,14 +42,14 @@ class SantanderClient
                 $this->baseUrl."/auth/basic/token",
                 $credentials
             );
-                if ($response->successful()) {
-                    $responseToken = [
-                        'token_type' => $response->json('token_type'),
-                        'access_token' => $response->json('access_token'),
-                    ];
-                    $apiLog->updateLog((array) $responseToken, 200);
-                    return $responseToken;
-                }
+            if ($response->successful()) {
+                $responseToken = [
+                    'token_type' => $response->json('token_type'),
+                    'access_token' => $response->json('access_token'),
+                ];
+                $apiLog->updateLog((array) $responseToken, 200);
+                return $responseToken;
+            }
                
             } catch (Exception $e) {
                 $intentos++;

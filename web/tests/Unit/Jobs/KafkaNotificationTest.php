@@ -115,11 +115,12 @@ class KafkaNotificationTest extends TestCase
         $mockKafka->shouldReceive('publishOn')->andThrow(Exception::class);
         $this->instance(Kafka::class, $mockKafka);
 
-        KafkaNotification::dispatch($order, $san);
+        $kafkaJob = new KafkaNotification($order);
+        $kafkaJob->handle();
 
         Queue::assertPushed(KafkaNotification::class);
     }
-
+    
     public function tearDown(): void
     {
         

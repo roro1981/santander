@@ -35,7 +35,7 @@ class NotifyRequest extends CustomFormRequest
         $body=str_replace("TX=","",$rawBody);
         
         $bodyArray = $this->convertXmlToArray($body);
-        
+        dd($bodyArray);
         $this->merge(['TX' => $bodyArray]);
         $request = $this->request->all();
         
