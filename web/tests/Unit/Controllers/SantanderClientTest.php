@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 namespace App\Http\Utils;
+use App\Models\ApiLog;
 use App\Http\Clients\SantanderClient;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -73,7 +74,12 @@ class SantanderClientTest extends TestCase
         $tiempo->setAccessible(true); 
         $tiempo->setValue($service, 5); 
 
+        $mockApiLog = Mockery::mock(ApiLog::class);
+        $mockApiLog->shouldReceive('storeLog')->andThrow(\Exception::class);
+        $this->instance(ApiLog::class, $mockApiLog);
+
         $response = $service->getBearerToken(123,3);
+      
         $responseData = json_decode($response->getContent(), true);
 
         $this->assertEquals(500, $response->getStatusCode());

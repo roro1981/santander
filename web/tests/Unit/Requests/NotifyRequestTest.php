@@ -92,4 +92,28 @@ class NotifyRequestTest extends TestCase
 
         $this->assertEquals($expectedArray, $result);
     }
+    public function testPrepareForValidation()
+    {
+        $xmlData = 'TX=<MPOUT><CODRET>200</CODRET>
+                <DESCRET>OK</DESCRET>
+                <IDCOM>123</IDCOM>
+                <IDTRX>123456</IDTRX>
+                <TOTAL>100.00</TOTAL>
+                <MONEDA>CLP</MONEDA>
+                <NROPAGOS>1</NROPAGOS>
+                <FECHATRX>2022-02-18 12:00:00</FECHATRX>
+                <IDTRXREC>789</IDTRXREC>
+            </MPOUT>';
+
+        $mpfinRequest = new NotifyRequest();
+
+        $mpfinRequest->prepareForValidation($xmlData);
+
+        $txData = $mpfinRequest->input('TX');
+
+        $this->assertNotNull($txData);
+        $this->assertEquals('123456', $txData['IDTRX']); 
+        $this->assertIsNumeric($txData['IDTRX']);
+        $this->assertEquals('CLP', $txData['MONEDA']);
+    }
 }

@@ -17,7 +17,7 @@ class MpfinRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $mpfinXml = $this->input('mpfin');
         $mpfinArray = json_decode(json_encode(simplexml_load_string($mpfinXml)), true);

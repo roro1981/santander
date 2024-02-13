@@ -34,4 +34,13 @@ class MpfinRequestTest extends TestCase
             'Estado' => 'ACEPTADO',
         ], $request->all());
     }
+
+    public function testPrepareForValidation()
+    {
+        $mpfinRequest = new MpfinRequest();
+        $mpfinRequest->prepareForValidation();
+
+        $this->assertFalse(is_array($mpfinRequest->input('mpfin')));
+    }
+
 }

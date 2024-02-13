@@ -22,22 +22,27 @@ class NotifyRequest extends CustomFormRequest
             'TX.IDTRXREC' => 'required|string',
         ];
     }
-    protected function prepareForValidation($data=null)
-    {
-     
-        $rawBody = file_get_contents("php://input");
+    public function prepareForValidation($data=null)
+    {   
+        if (isset($data)) {
+            $rawBody = $data;
+        }else{    
+            $rawBody = file_get_contents("php://input");
+        }
         
         $body=str_replace("TX=","",$rawBody);
         
         $bodyArray = $this->convertXmlToArray($body);
-        dd($bodyArray);
+        
         $this->merge(['TX' => $bodyArray]);
         $request = $this->request->all();
         
-        $txData = $request['TX'];
-        $idTrx = (int)ltrim($txData['IDTRX'], '0');
-        $bodyArray['IDTRX'] = $idTrx;
-        $this->merge(['TX' => $bodyArray]);
+        if ($request != []) {
+            $txData = $request['TX'];          
+            $idTrx = (int)ltrim($txData['IDTRX'], '0');
+            $bodyArray['IDTRX'] = $idTrx;
+            $this->merge(['TX' => $bodyArray]);
+        }    
     }
     public function convertXmlToArray($xml)
     {
