@@ -31,4 +31,13 @@ class XmlConversionTraitTest extends TestCase
 
         $this->assertEquals($expectedResult, $result);
     }
+
+    public function testConvertXmlToArrayError()
+    {
+        $xml = '<invalid-xml>';
+
+        $result = $this->convertXmlToArray($xml);
+
+        $this->assertNull($result);
+    }
 }
