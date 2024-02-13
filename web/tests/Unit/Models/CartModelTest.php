@@ -18,6 +18,10 @@ class CartModelTest extends TestCase
         parent::setUp();
 
     }
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testCartModel()
     {
         $cart = Cart::create([
@@ -88,6 +92,10 @@ class CartModelTest extends TestCase
         $this->assertContains('car_flow_subject', $cart->getFillable());
         $this->assertContains('car_flow_email_paid', $cart->getFillable());
     }
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testCartStatusMethod()
     {
         $cart = new Cart();
