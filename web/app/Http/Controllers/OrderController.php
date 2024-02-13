@@ -83,6 +83,7 @@ class OrderController extends Controller
             $urlActual = $request->url();
             
             if($cart && $codRet == "0000"){
+              
                 if($cart->car_sent_kafka == 1){
                     throw new \Exception("Carro ya fue notificado", true);
                 }

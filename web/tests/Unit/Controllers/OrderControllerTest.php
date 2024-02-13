@@ -27,6 +27,8 @@ class OrderControllerTest extends TestCase
 
     private $mockRequestData;
     private $requestNotify;
+    private $requestNotifyError;
+    private $requestNotifyCodRetError;
     private $requestMpfin;
     private $mockCartStatus;
     private $mockSantanderClient;
@@ -88,6 +90,28 @@ class OrderControllerTest extends TestCase
                 'MONEDA' =>'CLP',
                 'IDTRXREC' =>'1',
                 'DESCRET' => 'Transaccion OK'
+            ]
+        ];
+        
+        $this->requestNotifyError = [
+            'TX' => [
+                'IDTRX' => '1',
+                'CODRET' => '0000',
+                'TOTAL' => 1199,
+                'MONEDA' =>'USD',
+                'IDTRXREC' =>'1',
+                'DESCRET' => 'Transaccion OK'
+            ]
+        ];
+
+        $this->requestNotifyCodRetError = [
+            'TX' => [
+                'IDTRX' => '1',
+                'CODRET' => '0077',
+                'TOTAL' => 1199,
+                'MONEDA' =>'CLP',
+                'IDTRXREC' =>'1',
+                'DESCRET' => 'Transaccion 77'
             ]
         ];
 
@@ -237,7 +261,90 @@ class OrderControllerTest extends TestCase
             return true;
         });
     }
+    public function testCarroYaNotificado()
+    {
+        $requestMock = Mockery::mock(NotifyRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestNotify);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
+        
+        $cart = Cart::factory()->create(['car_sent_kafka' => 1]);
+        $response = Response::json(['error' => 500, 'message' => 'Carro ya fue notificado']);
 
+        $controller = new OrderController();
+    
+        $result = $controller->notify($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
+    }
+    public function testMontoInconsistente()
+    {
+        $requestMock = Mockery::mock(NotifyRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestNotify);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
+        
+        $cart = Cart::factory()->create(['car_flow_amount' => 7777]);
+        $response = Response::json(['error' => 500, 'message' => 'Monto total pagado inconsistente']);
+
+        $controller = new OrderController();
+    
+        $result = $controller->notify($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
+    }
+    public function testMonedaInconsistente()
+    {
+        $requestMock = Mockery::mock(NotifyRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestNotifyError);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
+      
+        $cart = Cart::factory()->create();
+        
+        $response = Response::json(['error' => 500, 'message' => 'Moneda total pagado inconsistente']);
+
+        $controller = new OrderController();
+        
+        $result = $controller->notify($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
+    }
+    public function testCodigoRetornoError()
+    {
+        $requestMock = Mockery::mock(NotifyRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestNotifyCodRetError);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
+       
+        $cart = Cart::factory()->create();
+        
+        $response = Response::json(['error' => 500, 'message' => 'Codigo de retorno: '.$this->requestNotifyCodRetError['TX']['CODRET']." ".$this->requestNotifyCodRetError['TX']['DESCRET']]);
+
+        $controller = new OrderController();
+        
+        $result = $controller->notify($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
+    }
+    public function testCarroInexistente()
+    {
+        $this->requestNotify['TX']['IDTRX']=5;
+        $requestMock = Mockery::mock(NotifyRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestNotify);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
+       
+        $cart = Cart::factory()->create();
+        
+        $response = Response::json(['error' => 500, 'message' => 'Id de carro inexistente']);
+
+        $controller = new OrderController();
+        
+        $result = $controller->notify($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
+    }
     public function testMpfinSuccess()
     {
         Queue::fake();
@@ -258,6 +365,38 @@ class OrderControllerTest extends TestCase
         Queue::assertPushed(KafkaNotification::class, function ($job) {
             return true; 
         });
+    }
+    public function testCarroYaNotificadoMpfin()
+    {
+        $requestMock = Mockery::mock(MpfinRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestMpfin);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
+        
+        $cart = Cart::factory()->create(['car_sent_kafka' => 1]);
+        $response = Response::json(['error' => 500, 'message' => 'Carro ya fue notificado']);
+
+        $controller = new OrderController();
+    
+        $result = $controller->mpfin($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
+    }
+    public function testMontoInconsistenteMpfin()
+    {
+        $requestMock = Mockery::mock(MpfinRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestMpfin);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
+        
+        $cart = Cart::factory()->create(['car_flow_amount' => 7777]);
+        $response = Response::json(['error' => 500, 'message' => 'Monto total pagado inconsistente']);
+
+        $controller = new OrderController();
+    
+        $result = $controller->mpfin($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
     }
     public function tearDown(): void
     {
