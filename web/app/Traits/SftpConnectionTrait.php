@@ -18,7 +18,7 @@ trait SftpConnectionTrait
             $sftp = new \phpseclib3\Net\SFTP($ftpHost);
         
             if (!$sftp->login($ftpUsername, $ftpPassword)) {
-                throw new \RuntimeException('Error de conexión: ' . implode(', ', $sftp->getSFTPErrors()));
+                throw new \Exception('Error de conexión');
             }else{
                 return $sftp;
             }
