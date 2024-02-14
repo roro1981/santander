@@ -89,6 +89,33 @@ class SantanderClientTest extends TestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
+    public function testGetBearerTokenExceptionCatch()
+    {
+        
+        $service = new SantanderClient();
+
+        Http::fake(['*' => Http::response([], 500)]);
+
+        $reflectionClass = new ReflectionClass($service);
+        $intentosMax = $reflectionClass->getProperty('intentosMaximos');
+        $intentosMax->setAccessible(true); 
+        $intentosMax->setValue($service, 3); 
+
+        $tiempo = $reflectionClass->getProperty('intervaloTiempo');
+        $tiempo->setAccessible(true); 
+        $tiempo->setValue($service, 5); 
+
+        $response = $service->getBearerToken(123,3);
+      
+        $responseData = json_decode($response->getContent(), true);
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals('Error al obtener el Bearer Token', $responseData['message']);
+    }
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testEnrollCart()
     {
         $this->seed(ParameterSeeder::class);

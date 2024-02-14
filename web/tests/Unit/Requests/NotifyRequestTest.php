@@ -116,4 +116,23 @@ class NotifyRequestTest extends TestCase
         $this->assertIsNumeric($txData['IDTRX']);
         $this->assertEquals('CLP', $txData['MONEDA']);
     }
+
+    public function testConvertXmlToArray_EmptyXmlString()
+    {
+        $notify = new NotifyRequest();
+        $xml = '';
+
+        $result = $notify->convertXmlToArray($xml);
+
+        $this->assertEquals("La cadena XML está vacía o no es válida.", $result);
+    }
+
+    public function testConvertXmlToArray_XmlLoadError()
+    {
+        $xml = '<invalid-xml>';
+        $notify = new NotifyRequest();
+        $result = $notify->convertXmlToArray($xml);
+
+        $this->assertNull($result);
+    }
 }

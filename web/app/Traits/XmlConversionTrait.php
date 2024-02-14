@@ -13,9 +13,6 @@ trait XmlConversionTrait
         libxml_use_internal_errors(false);
 
         if ($xmlObject === false) {
-            /*$errors = libxml_get_errors();
-            libxml_clear_errors();
-            throw new \Exception("Error al cargar la cadena XML. Detalles: " . print_r($errors, true));*/
             return null;
         }
 
