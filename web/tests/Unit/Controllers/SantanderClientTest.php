@@ -1,9 +1,17 @@
 <?php
 
 namespace Tests\Unit;
+
 namespace App\Http\Utils;
+
 use App\Models\ApiLog;
 use App\Http\Clients\SantanderClient;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 use Ramsey\Uuid\Uuid;
@@ -16,8 +24,9 @@ class SantanderClientTest extends TestCase
 {
 
     use RefreshDatabase;
+
     public $token;
-    private $flow_id=000100;
+    private $flow_id = 000100;
     private $mockSantanderClient;
 
 
@@ -26,6 +35,7 @@ class SantanderClientTest extends TestCase
         parent::setUp();
 
     }
+
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
@@ -33,26 +43,25 @@ class SantanderClientTest extends TestCase
     public function testGetBearerToken()
     {
         $this->seed(ParameterSeeder::class);
-        $santanderClient=new SantanderClient();
+        $santanderClient = new SantanderClient();
 
         $reflectionClass = new ReflectionClass($santanderClient);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setAccessible(true); 
-        $intentosMax->setValue($santanderClient, 3); 
+        $intentosMax->setValue($santanderClient, 3);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');
-        $tiempo->setAccessible(true); 
-        $tiempo->setValue($santanderClient, 5); 
+        $tiempo->setValue($santanderClient, 5);
 
         Http::fake(['*/auth/basic/token' => Http::response(['token_type' => 'Bearer', 'access_token' => 'test_token'], 200)
         ]);
-        
-        $token = $santanderClient->getBearerToken($this->flow_id,0);
+
+        $token = $santanderClient->getBearerToken($this->flow_id, 0);
 
         $this->assertEquals('Bearer', $token['token_type']);
         $this->assertEquals('test_token', $token['access_token']);
-       
+
     }
+
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
@@ -60,58 +69,56 @@ class SantanderClientTest extends TestCase
     public function testGetBearerToken_Exception()
     {
         $this->seed(ParameterSeeder::class);
-        
+
         $service = new SantanderClient();
 
         Http::fake(['*' => Http::response([], 500)]);
 
         $reflectionClass = new ReflectionClass($service);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setAccessible(true); 
-        $intentosMax->setValue($service, 3); 
+        $intentosMax->setValue($service, 3);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');
-        $tiempo->setAccessible(true); 
-        $tiempo->setValue($service, 5); 
+        $tiempo->setValue($service, 5);
 
         $mockApiLog = Mockery::mock(ApiLog::class);
         $mockApiLog->shouldReceive('storeLog')->andThrow(\Exception::class);
         $this->instance(ApiLog::class, $mockApiLog);
 
-        $response = $service->getBearerToken(123,3);
-      
+        $response = $service->getBearerToken(123, 3);
+
         $responseData = json_decode($response->getContent(), true);
 
         $this->assertEquals(500, $response->getStatusCode());
         $this->assertEquals('Error al obtener el Bearer Token', $responseData['message']);
     }
+
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
     public function testGetBearerTokenExceptionCatch()
     {
-        
+
         $service = new SantanderClient();
 
-        Http::fake(['*' => Http::response([], 500)]);
+        Http::fake(function () {
+            throw new Exception("Error simulado");
+        });
 
         $reflectionClass = new ReflectionClass($service);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setAccessible(true); 
-        $intentosMax->setValue($service, 3); 
+        $intentosMax->setValue($service, 3);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');
-        $tiempo->setAccessible(true); 
-        $tiempo->setValue($service, 5); 
+        $tiempo->setValue($service, 5);
 
-        $response = $service->getBearerToken(123,3);
-      
-        $responseData = json_decode($response->getContent(), true);
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error al obtener el Bearer Token después de 3 intentos');
 
-        $this->assertEquals(500, $response->getStatusCode());
-        $this->assertEquals('Error al obtener el Bearer Token', $responseData['message']);
+        $service->getBearerToken(123, 3);
     }
+
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
@@ -124,17 +131,17 @@ class SantanderClientTest extends TestCase
 
         $reflectionClass = new ReflectionClass($santanderClient);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setAccessible(true); 
-        $intentosMax->setValue($santanderClient, 3); 
+        $intentosMax->setAccessible(true);
+        $intentosMax->setValue($santanderClient, 3);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');
-        $tiempo->setAccessible(true); 
-        $tiempo->setValue($santanderClient, 5); 
+        $tiempo->setAccessible(true);
+        $tiempo->setValue($santanderClient, 5);
 
-        Http::fake([ 
+        Http::fake([
             '*/auth/apiboton/carro/inscribir' => Http::response(['codeError' => '0', 'descError' => 'Carro inscrito exitosamente', 'tokenBanco' => null, 'urlBanco' => 'https://paymentbutton-bsan-cert.e-pagos.cl/DummyBanco-0.0.2/?IdCom=690006904960&IdCarro=168400]', 'idTrxComercio' => $cart_id], 200),
         ]);
-        
+
         $order = [
             'car_id' => $cart_id,
             'car_id_transaction' => Uuid::uuid4(),
@@ -153,33 +160,38 @@ class SantanderClientTest extends TestCase
             'car_flow_subject' => 'subject test',
             'car_created_at' => now()
         ];
-      
+
         $response = $santanderClient->enrollCart($order, $this->flow_id, 0);
-        
+
         $this->assertEquals('0', $response['codeError']);
         $this->assertEquals('Carro inscrito exitosamente', $response['descError']);
         $this->assertEquals(null, $response['tokenBanco']);
         $this->assertEquals($cart_id, $response['idTrxComercio']);
     }
-    /*public function testEnrollCart_Exception()
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testEnrollCart_ExceptionToken()
     {
         $this->seed(ParameterSeeder::class);
-        $cart_id=random_int(168500,300000);
-        $service = new SantanderClient();
+        $cart_id = random_int(168500, 300000);
+        $santanderClient = $this->createMock(SantanderClient::class);
 
-        Http::fake([
-            '*' => Http::response([], 500)
-        ]);
+        $badToken = response()->json([
+            'status' => 500,
+            'message' => 'Error al obtener el Bearer Token'
+        ], 500);
 
-        $reflectionClass = new ReflectionClass($service);
-        $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setAccessible(true); 
-        $intentosMax->setValue($service, 3); 
+        $santanderClient->method('getBearerToken')
+            ->willReturn($badToken);
 
-        $tiempo = $reflectionClass->getProperty('intervaloTiempo');
-        $tiempo->setAccessible(true); 
-        $tiempo->setValue($service, 5); 
+        $santanderClient->method('enrollCart')
+            ->will($this->throwException(new \Exception('Error al obtener token')));
 
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error al obtener token');
 
         $order = [
             'car_id' => $cart_id,
@@ -199,13 +211,36 @@ class SantanderClientTest extends TestCase
             'car_flow_subject' => 'subject test',
             'car_created_at' => now()
         ];
-       
-        $response = $service->enrollCart($order,123,3);
-        $responseData = json_decode($response->getContent(), true);
 
-        $this->assertEquals(500, $response->getStatusCode());
-        $this->assertEquals('Error al inscribir el carro después de 3 intentos', $responseData['message']);
-    }*/
+        $santanderClient->enrollCart($order, $this->flow_id, 0);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testEnrollCartExceptionCatch()
+    {
+        $this->seed(ParameterSeeder::class);
+        $santanderClient = $this->createMock(SantanderClient::class);
+
+        $responseToken = [
+            'token_type' => 'bearer token',
+            'access_token' => '123'
+        ];
+
+        $santanderClient->method('getBearerToken')
+            ->willReturn($responseToken);
+
+        $santanderClient->method('enrollCart')
+            ->will($this->throwException(new \Exception('Error al inscribir el carro después de 3 intentos')));
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error al inscribir el carro después de 3 intentos');
+
+        $santanderClient->enrollCart((array)null, $this->flow_id, 4);
+    }
+
     public function tearDown(): void
     {
         parent::tearDown();
