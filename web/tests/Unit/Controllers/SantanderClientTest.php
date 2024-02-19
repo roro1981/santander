@@ -256,7 +256,7 @@ class SantanderClientTest extends TestCase
         $tiempo->setValue($serviceMock, 5);
 
         Http::fake([
-            '*/auth/apiboton/carro/inscribir' => Http::response(['codeError' => '20', 'descError' => 'Error interno']),
+            '*/auth/apiboton/carro/inscribir' => Http::response(['codeError' => '20', 'descError' => 'Error interno'], 500),
         ]);
 
         $order = [
