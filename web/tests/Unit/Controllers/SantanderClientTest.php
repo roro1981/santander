@@ -241,6 +241,11 @@ class SantanderClientTest extends TestCase
         $santanderClient->enrollCart((array)null, $this->flow_id, 4);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    
     public function tearDown(): void
     {
         parent::tearDown();
