@@ -35,10 +35,9 @@ class NotifyRequest extends CustomFormRequest
         $bodyArray = $this->convertXmlToArray($body);
         
         $this->merge(['TX' => $bodyArray]);
-        $request = $this->request->all();
-        
-        if ($request != []) {
-            $txData = $request['TX'];          
+      
+        if ($this->filled('TX')) {    
+            $txData = $this->input('TX');          
             $idTrx = (int)ltrim($txData['IDTRX'], '0');
             $bodyArray['IDTRX'] = $idTrx;
             $this->merge(['TX' => $bodyArray]);

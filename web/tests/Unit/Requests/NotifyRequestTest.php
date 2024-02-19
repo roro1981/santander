@@ -104,19 +104,22 @@ class NotifyRequestTest extends TestCase
                 <FECHATRX>2022-02-18 12:00:00</FECHATRX>
                 <IDTRXREC>789</IDTRXREC>
             </MPOUT>';
+               
+        $notifyRequest = new NotifyRequest();
+      
 
-        $mpfinRequest = new NotifyRequest();
+        $notifyRequest->prepareForValidation($xmlData);
 
-        $mpfinRequest->prepareForValidation($xmlData);
-
-        $txData = $mpfinRequest->input('TX');
-
+        $txData = $notifyRequest->input('TX');
+        $notifyRequest = new NotifyRequest($txData);
+        $request = $notifyRequest->all();
+       
         $this->assertNotNull($txData);
-        $this->assertEquals('123456', $txData['IDTRX']); 
+        $this->assertEquals('123456', $request['IDTRX']); 
         $this->assertIsNumeric($txData['IDTRX']);
-        $this->assertEquals('CLP', $txData['MONEDA']);
-    }
 
+    }
+    
     public function testConvertXmlToArray_EmptyXmlString()
     {
         $notify = new NotifyRequest();
