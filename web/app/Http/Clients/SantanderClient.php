@@ -7,6 +7,8 @@ use App\Http\Utils\Constants;
 use App\Http\Utils\ParamUtil;
 use Exception;
 use App\Models\ApiLog;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 class SantanderClient
 {
@@ -31,9 +33,9 @@ class SantanderClient
                     'username' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_USERNAME),
                     'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
                 ];
-
+                
                 $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
-
+              
             $apiLog = ApiLog::storeLog(
                 $orderId,
                 $this->baseUrl."/auth/basic/token",
@@ -70,55 +72,38 @@ class SantanderClient
     public function enrollCart(array $cartData,Int $orderId, $intentos=0)
     {
         $authorizationToken = $this->getBearerToken($orderId, 0);
-
+        
         if(!$authorizationToken){
             throw new Exception('Error al obtener token');
         }
 
         do {
             try {
-                $body = '{
-                "idTransaction": '.$cartData['car_id'].',
-                "currency": "'.$cartData['car_flow_currency'].'",
-                "amount": "'.$cartData['car_flow_amount'].'",
-                "agreement": "9570",
-                "url": "'.$cartData['car_url_return'].'",
-                "itemsNumber": 1,
-                "additionalData": [],
-                "details": [
-                    {
-                    "description": "'.$cartData['car_flow_subject'].'",
-                    "amount": "'.$cartData['car_flow_amount'].'",
-                    "number": 1
-                    }
-                ],
-                "collector": "7683001403"
-                }';
-
-                $response = Http::withHeaders([
+                $url=$this->baseUrl.'/auth/apiboton/carro/inscribir';
+                $headers = [
                     'Content-Type' => 'application/json',
-                    'Authorization' => $authorizationToken['token_type'].' '.$authorizationToken['access_token'],
-                ])->post($this->baseUrl.'/auth/apiboton/carro/inscribir', [
-                    'idTransaction' => $cartData['car_id'],
-                    'currency' => $cartData['car_flow_currency'],
-                    'amount' => $cartData['car_flow_amount'],
-                    'agreement' => '9570',
-                    'url' => $cartData['car_url_return'],
-                    'itemsNumber' => 1,
-                    'additionalData' => [],
-                    'details' => [
-                        [
-                            'description' => $cartData['car_flow_subject'],
-                            'amount' => $cartData['car_flow_amount'],
-                            'number' => 1,
-                        ],
+                    'Authorization' => $authorizationToken['token_type'] . ' ' . $authorizationToken['access_token'],
+                ];
+                $body=['idTransaction' => $cartData['car_id'],
+                'currency' => $cartData['car_flow_currency'],
+                'amount' => $cartData['car_flow_amount'],
+                'agreement' => '9570',
+                'url' => $cartData['car_url_return'],
+                'itemsNumber' => 1,
+                'additionalData' => [],
+                'details' => [
+                    [
+                        'description' => $cartData['car_flow_subject'],
+                        'amount' => $cartData['car_flow_amount'],
+                        'number' => 1,
                     ],
-                    'collector' => '7683001403',
-                ]);
-
+                ],
+                'collector' => '7683001403'];
+                $response = Http::withHeaders($headers)->post($url,$body);
+                
                 $apiLog = ApiLog::storeLog(
                     $orderId,
-                    $this->baseUrl.'/auth/apiboton/carro/inscribir',
+                    $url,
                     $body
                 );
 
