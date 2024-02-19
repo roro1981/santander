@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Utils\Constants;
 use App\Http\Utils\ParamUtil;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
 use App\Models\ApiLog;
 
 class SantanderClient
@@ -79,14 +77,6 @@ class SantanderClient
 
         do {
             try {
-
-                $client = new Client();
-
-                $headers = [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => $authorizationToken['token_type']." ".$authorizationToken['access_token']
-                ];
-
                 $body = '{
                 "idTransaction": '.$cartData['car_id'].',
                 "currency": "'.$cartData['car_flow_currency'].'",
@@ -105,18 +95,36 @@ class SantanderClient
                 "collector": "7683001403"
                 }';
 
-                $request = new Request('POST', $this->baseUrl.'/auth/apiboton/carro/inscribir', $headers, $body);
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => $authorizationToken['token_type'].' '.$authorizationToken['access_token'],
+                ])->post($this->baseUrl.'/auth/apiboton/carro/inscribir', [
+                    'idTransaction' => $cartData['car_id'],
+                    'currency' => $cartData['car_flow_currency'],
+                    'amount' => $cartData['car_flow_amount'],
+                    'agreement' => '9570',
+                    'url' => $cartData['car_url_return'],
+                    'itemsNumber' => 1,
+                    'additionalData' => [],
+                    'details' => [
+                        [
+                            'description' => $cartData['car_flow_subject'],
+                            'amount' => $cartData['car_flow_amount'],
+                            'number' => 1,
+                        ],
+                    ],
+                    'collector' => '7683001403',
+                ]);
+
                 $apiLog = ApiLog::storeLog(
                     $orderId,
                     $this->baseUrl.'/auth/apiboton/carro/inscribir',
                     $body
                 );
-                $res = $client->sendAsync($request)->wait();
-                $jsonContent = $res->getBody()->getContents();
-                $arrayContent = json_decode($jsonContent, true);
-                if($arrayContent['codeError'] != '0'){
-                    $apiLog->updateLog((array) $arrayContent, 200);
-                    return $arrayContent;
+
+                if($response->successful()){
+                    $apiLog->updateLog((array) $response, 200);
+                    return $response;
                 }
             } catch (Exception $e) {
                 $intentos++;
