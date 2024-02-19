@@ -9,7 +9,6 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use App\Models\ApiLog;
-use Illuminate\Support\Facades\Log;
 
 class SantanderClient
 {
@@ -115,9 +114,10 @@ class SantanderClient
                 $res = $client->sendAsync($request)->wait();
                 $jsonContent = $res->getBody()->getContents();
                 $arrayContent = json_decode($jsonContent, true);
-                $apiLog->updateLog((array) $arrayContent, 200);
-                return $arrayContent;
-
+                if($arrayContent['codeError'] != '0'){
+                    $apiLog->updateLog((array) $arrayContent, 200);
+                    return $arrayContent;
+                }
             } catch (Exception $e) {
                 $intentos++;
                 if ($intentos < $this->intentosMaximos) {
