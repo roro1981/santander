@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: santander-app
+spec:
+  replicas: 2
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: santander-app
+  template:
+    metadata: 
+      labels:
+        app: santander-app
+    spec:
+      containers:
+        - name: santander-app
+          image: APP_IMAGE
+          imagePullPolicy: Always
+          ports:
+            - name: tcp
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 80
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            limits:
+              memory: "1000Mi"
+              cpu: "1"
+            requests:
+              memory: "100Mi"
+              cpu: "50m"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 40"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /var/www/html/.env
+              subPath: .env
+              readOnly: true
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - santander-app
+              topologyKey: "kubernetes.io/hostname"
+      nodeSelector:
+        eks.amazonaws.com/nodegroup: NODE_GROUP
+      volumes:
+        - name: config-volume
+          secret:
+            secretName: santander-secret
