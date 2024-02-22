@@ -11,8 +11,8 @@ Route::get('/v1/health', function () {
 });
 
 Route::post('/v1/order/create', [OrderController::class, 'create']);
-Route::post('/v1/santander/notify', [OrderController::class, 'notify']);
-Route::get('/v1/santander/redirect', [OrderController::class, 'mpfin']);
+Route::post('/santander/v1/webhook/notify', [OrderController::class, 'notify']);
+Route::get('/santander/v1/redirect', [OrderController::class, 'mpfin']);
 
 
 /*Route::get('/v1/santander/conciliation', [FtpConciliationController::class, 'conciliation']);
