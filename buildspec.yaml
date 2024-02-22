@@ -43,13 +43,13 @@ phases:
         - echo "Update Image tag in kubernetes manifest"
         - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/02-Santander-Migrations.yaml
         - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/03-Santander-Deployment.yaml
-        - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/05-Santander-Deployment-Resolve.yaml
+        - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/05-Santander-Deployment-Notification.yaml
         - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/06-Santander-Deployment-Notification.yaml
 
         - echo "Update Node group"
         - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/03-Santander-Deployment.yaml
-        - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/05-Santander-Deployment-Resolve.yaml
-        - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/06-Santander-Deployment-Notification.yaml
+        - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/05-Santander-Deployment-Notification.yaml
+        - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/06-Santander-Service-Internal.yaml
 
         - echo "App configuration in kubernetes manifest"
         - sed -i 's@SECRET_APP_ENV@'"$SECRET_APP_ENV"'@' ./kube-manifiests/01-Santander-Secrets.yaml
@@ -65,7 +65,7 @@ phases:
         - sed -i 's@SECRET_KAFKA_DEBUG@'"$SECRET_KAFKA_DEBUG"'@' ./kube-manifiests/01-Santander-Secrets.yaml
         - sed -i 's@SECRET_KAFKA_SASL_USERNAME@'"$SECRET_KAFKA_SASL_USERNAME"'@' ./kube-manifiests/01-Santander-Secrets.yaml
         - sed -i 's@SECRET_KAFKA_SASL_PASSWORD@'"$SECRET_KAFKA_SASL_PASSWORD"'@' ./kube-manifiests/01-Santander-Secrets.yaml
-        - sed -i 's@CERT_ARN@'"$CERT_ARN"'@' ./kube-manifiests/07-Santander-Service-Internal.yaml
+        - sed -i 's@CERT_ARN@'"$CERT_ARN"'@' ./kube-manifiests/06-Santander-Service-Internal.yaml
 
         - echo "Updating dockerfile with ECR"
         - sed -i "s/FROM [^\/]*/FROM $ECR_REPOSITORY/" ./Dockerfile
