@@ -44,7 +44,7 @@ phases:
         - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/02-Santander-Migrations.yaml
         - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/03-Santander-Deployment.yaml
         - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/05-Santander-Deployment-Notification.yaml
-        - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/06-Santander-Deployment-Notification.yaml
+        - sed -i 's@APP_IMAGE@'"$REPOSITORY_URI"'@' ./kube-manifiests/06-Santander-Service-Internal.yaml
 
         - echo "Update Node group"
         - sed -i 's@NODE_GROUP@'"$EKS_NODE_GROUP"'@' ./kube-manifiests/03-Santander-Deployment.yaml
