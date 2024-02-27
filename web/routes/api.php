@@ -12,7 +12,7 @@ Route::get('/v1/health', function () {
 
 Route::post('/v1/order/create', [OrderController::class, 'create']);
 Route::post('/v1/webhook/notify', [OrderController::class, 'notify']);
-Route::get('/v1/redirect', [OrderController::class, 'mpfin']);
+Route::post('/v1/redirect', [OrderController::class, 'mpfin']);
 
 
 /*Route::get('/v1/santander/conciliation', [FtpConciliationController::class, 'conciliation']);
