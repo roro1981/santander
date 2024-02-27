@@ -33,9 +33,9 @@ class SantanderClient
                     'username' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_USERNAME),
                     'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
                 ];
-                dd($credentials);
-                $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
                 
+                $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
+                dd($response);
                 if(!$response){
                     throw new Exception('Error al obtener token');
                 }
