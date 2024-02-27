@@ -33,12 +33,12 @@ class SantanderClient
                     'username' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_USERNAME),
                     'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
                 ];
-                
+                if (empty($credentials['company']) || empty($credentials['username']) || empty($credentials['password'])) {
+                    echo "Error al obtener credenciales";
+                    exit;
+                } 
                 $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
                 
-                if(!$response){
-                    throw new Exception('Error al obtener token');
-                }
            
             $apiLog = ApiLog::storeLog(
                 $orderId,
@@ -76,10 +76,6 @@ class SantanderClient
     public function enrollCart(array $cartData,Int $orderId, $intentos=0)
     {
         $authorizationToken = $this->getBearerToken($orderId, 0);
-        
-        if(!$authorizationToken){
-            throw new Exception('Error al obtener token');
-        }
 
         do {
             try {
@@ -88,7 +84,7 @@ class SantanderClient
                     'Content-Type' => 'application/json',
                     'Authorization' => $authorizationToken['token_type'] . ' ' . $authorizationToken['access_token'],
                 ];
-                $body=['idTransaction' => $cartData['car_id'],
+                $body=['idTransaction' => 168699,  /*$cartData['car_id']*/
                 'currency' => $cartData['car_flow_currency'],
                 'amount' => $cartData['car_flow_amount'],
                 'agreement' => '9570',
@@ -103,7 +99,10 @@ class SantanderClient
                     ],
                 ],
                 'collector' => '7683001403'];
-                dd($headers,$url,$body);
+                if (empty($url)) {
+                    echo "Error al obtener url de servicio";
+                    exit;
+                } 
                 $response = Http::withHeaders($headers)->post($url,$body);
                 
                 $apiLog = ApiLog::storeLog(
