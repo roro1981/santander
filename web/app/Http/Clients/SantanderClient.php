@@ -33,7 +33,7 @@ class SantanderClient
                     'username' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_USERNAME),
                     'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
                 ];
-                
+                dd($credentials);
                 $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
                 
                 if(!$response){
