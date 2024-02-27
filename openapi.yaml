@@ -57,7 +57,7 @@ paths:
           $ref: '#/components/responses/BusinessError'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/santander/notify:
+  /api/v1/webhook/notify:
     post:
       tags:
         - notify
@@ -78,7 +78,7 @@ paths:
                 $ref: '#/components/schemas/NotifyResponse'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/santander/redirect:
+  /api/v1/redirect:
     get:
       tags:
         - redirect
