@@ -35,7 +35,11 @@ class SantanderClient
                 ];
                 
                 $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
-              
+                
+                if(!$response){
+                    throw new Exception('Error al obtener token');
+                }
+           
             $apiLog = ApiLog::storeLog(
                 $orderId,
                 $this->baseUrl."/auth/basic/token",
