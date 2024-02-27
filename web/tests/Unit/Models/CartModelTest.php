@@ -118,7 +118,7 @@ class CartModelTest extends TestCase
         $cart->save();
 
         $cartStatus1 = new CartStatus();
-        $cartStatus1->car_id=1;
+        $cartStatus1->car_id=168695;
         $cartStatus1->cas_status = 'CREATED';
          
         $cart->cartStatus()->save($cartStatus1);
