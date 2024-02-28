@@ -79,7 +79,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServer'
   /api/v1/redirect:
-    get:
+    post:
       tags:
         - redirect
       summary: Notificación de pago consolidado
