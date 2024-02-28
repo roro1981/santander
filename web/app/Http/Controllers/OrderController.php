@@ -134,20 +134,18 @@ class OrderController extends Controller
             $mpfin   =  $validated['mpfin'];
 
             $cart = Cart::find($idCarro);
-
+          
             $urlActual = $request->url();
 
-            $apiLog = ApiLog::storeLog(
-                $cart->car_flow_id,
-                $urlActual,
-                $validated
-            );
-
-            if($cart->car_sent_kafka == 1){
-                throw new \Exception("Carro ya fue notificado", true);
-            }
-
             if($cart){
+                if($cart->car_sent_kafka == 1){
+                    throw new \Exception("Carro ya fue notificado", true);
+                }
+                $apiLog = ApiLog::storeLog(
+                    $cart->car_flow_id,
+                    $urlActual,
+                    $validated
+                );
                 $montoFormateado = (int) number_format($cart->car_flow_amount, 0, '.', '');
 
                 if((int)$mpfin['TOTAL'] != $montoFormateado){
