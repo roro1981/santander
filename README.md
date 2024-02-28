@@ -18,23 +18,20 @@ El Servicio de Integración Santander permite realizar pagos desde Flow utilizan
 
 ## Integrations
 
-**Url base QA:** https://apisandbox.vnforappstest.com
+**Url base QA:** https://paymentbutton-bsan-cert.e-pagos.cl
 
-**Url base PROD:** https://apiprod.vnforapps.com
+**Url base PROD:** https://paymentbutton-bsan.e-pagos.cl
 
 | Name |Url|Http Return Code|
 |------|---|----------------|
-| API de Seguridad | /api.security/v1/security | 201 Created <br> 401 Unauthorized <br> 500 Internal Server Error |
-| API Yape | /api.yape/v2/yape/transaction/{merchantId} | 200 OK <br> 400 Bad Request <br> 401 Unauthorized <br> 406 Not Acceptable <br> 500 Internal Server Error |
-| API de Autorización | /api.authorization/v3/authorization/ecommerce/{merchantId} | 200 OK <br> 400 Bad Request <br> 401 Unauthorized <br> 406 Not Acceptable <br> 500 Internal Server Error |
-| API de Reversa | /api.authorization/v3/reverse/ecommerce/{merchantId} | 200 OK <br> 400 Bad Request <br> 401 Unauthorized <br> 500 Internal Server Error |
+| API para obtener token | /auth/basic/token | 200 Created <br> 401 Unauthorized <br> 500 Internal Server Error |
+| API para inscribir carro | /auth/apiboton/carro/inscribir | 200 OK <br> 400 Bad Request <br> 401 Unauthorized <br> 500 Internal Server Error |
 
 ## Tasks
 
 | Functionality |Description |
 |---------------|------------|
-| [Autorización de orden](https://gitlab.flowdevelopers.cl/core/integrations/yape/-/wikis/Autorizaci%C3%B3n-de-Orden) | Una vez procesada una request para crear orden desde el Core y obtenido un token Yape, se procede a la autorización para finalizar la orden. |
-| [Envío a Core Flow](https://gitlab.flowdevelopers.cl/core/integrations/yape/-/wikis/Env%C3%ADo-a-Core-Flow) | Notificar al Core de Flow una vez que la orden ha sido autorizada |
+| [Envío a Core Flow](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/proceso-notificacion-core-flow) | Notificar al Core de Flow una vez que la orden ha sido autorizada |
 
 ## Dependencies
 
@@ -51,12 +48,6 @@ Este servicio requiere los siguientes componentes instalados para su funcionamie
     "mateusjunges/laravel-kafka": "^1.13"
 },
 ```
-
-## Niubiz Requirements
-
-Niubiz provee credenciales y datos de prueba para poder probar en ambiente de desarrollo y QA.
-
-Para producción es necesario estar afiliado a Niubiz y contar con un user/pass asociado a Flow, además de un identificador de comercio.
 
 ## buildspec.yaml
 
