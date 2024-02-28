@@ -7,8 +7,8 @@ use App\Http\Utils\Constants;
 use App\Http\Utils\ParamUtil;
 use Exception;
 use App\Models\ApiLog;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Log;
+
 
 class SantanderClient
 {
@@ -16,6 +16,7 @@ class SantanderClient
     private $baseUrl;
     private $intentosMaximos=3;
     private $intervaloTiempo = 5;
+    private $credentials=array();
 
     public function __construct()
     {
@@ -28,22 +29,23 @@ class SantanderClient
         do {
 
             try {
-                $credentials = [
+                $this->credentials = [
                     'company' =>  ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_COMPANY),
                     'username' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_USERNAME),
                     'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
                 ];
-                if (empty($credentials['company']) || empty($credentials['username']) || empty($credentials['password'])) {
+                if (empty($this->credentials['company']) || empty($this->credentials['username']) || empty($this->credentials['password'])) {
                     echo "Error al obtener credenciales";
                     exit;
                 } 
-                $response = Http::post($this->baseUrl."/auth/basic/token", $credentials);
+
+                $response = Http::post($this->baseUrl."/auth/basic/token", $this->credentials);
                 
            
             $apiLog = ApiLog::storeLog(
                 $orderId,
                 $this->baseUrl."/auth/basic/token",
-                $credentials
+                $this->credentials
             );
             if ($response->successful()) {
                 $responseToken = [
@@ -76,14 +78,21 @@ class SantanderClient
     public function enrollCart(array $cartData,Int $orderId, $intentos=0)
     {
         $authorizationToken = $this->getBearerToken($orderId, 0);
-
+       
+        
         do {
             try {
+          
                 $url=$this->baseUrl.'/auth/apiboton/carro/inscribir';
+                if (empty($url)) {
+                    echo "Error al obtener url de servicio";
+                    exit;
+                } 
                 $headers = [
                     'Content-Type' => 'application/json',
                     'Authorization' => $authorizationToken['token_type'] . ' ' . $authorizationToken['access_token'],
                 ];
+                
                 $body=['idTransaction' => $cartData['car_id'],
                 'currency' => $cartData['car_flow_currency'],
                 'amount' => $cartData['car_flow_amount'],
@@ -99,10 +108,8 @@ class SantanderClient
                     ],
                 ],
                 'collector' => '7683001403'];
-                if (empty($url)) {
-                    echo "Error al obtener url de servicio";
-                    exit;
-                } 
+                
+                
                 $response = Http::withHeaders($headers)->post($url,$body);
                 
                 $apiLog = ApiLog::storeLog(
@@ -110,7 +117,7 @@ class SantanderClient
                     $url,
                     $body
                 );
-
+                
                 if($response->successful()){
                     $apiLog->updateLog((array) $response, 200);
                     return $response;
