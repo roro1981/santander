@@ -519,26 +519,14 @@ components:
     CreateRefundResponse:
       type: object
       properties:
-        uuid:
+        error:
           type: string
-          description: Identificador único de la respuesta
-          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
-          nullable: false
-        refund_uuid:
+          description: Codigo respuesta
+          example: "500"
+        message:
           type: string
-          description: ID del reembolso
-          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
-          nullable: false
-        authorization_code:
-          type: string
-          description: Identificador de la autorización de la orden
-          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
-          nullable: false
-        status:
-          type: string
-          description: Status del reembolso
-          example: "REFUNDED"
-          nullable: false
+          description: Descripcion error
+          example: "Internal server error"
     IsRefundableResponse:
       type: object
       properties:
