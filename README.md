@@ -22,7 +22,7 @@ El Servicio de Integración Santander permite realizar pagos desde Flow utilizan
 
 ## Integrations
 
-[Más información] (https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Integraciones%20Santander)
+**[Más información] (https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Integraciones%20Santander)**
 
 ## Tasks
 
