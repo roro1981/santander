@@ -16,20 +16,13 @@ El Servicio de Integración Santander permite realizar pagos desde Flow utilizan
 ## Services
 | Name |Url|Http Return Code|
 |------|---|----------------|
-| [Crear orden](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Inscripcion-carro) | **POST** /api/v1/order/create | 200 OK  <br> 400 Bad Request   <br>500 Internal Server Error
-| [Notificación pago notify](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Notificacion-pago-MPOUT) | **POST** /api/v1/webhook/notify | 200 OK  <br> 400 Bad Request   <br>500 Internal Server Error
-| [Notificación pago redirect](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Notificaci%C3%B3n-pago-MPFIN) | **POST** /api/v1/redirect | 200 OK  <br> 400 Bad Request   <br>500 Internal Server Error
+| [Crear orden](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Inscripcion-carro) | **POST** /api/v1/order/create | 200 OK  <br> 400 Bad Request  <br> 404 Not found <br>500 Internal Server Error
+| [Notificación pago notify](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Notificacion-pago-MPOUT) | **POST** /api/v1/webhook/notify | 200 OK  <br> 400 Bad Request  <br> 404 Not found <br>500 Internal Server Error
+| [Notificación pago redirect](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Notificaci%C3%B3n-pago-MPFIN) | **POST** /api/v1/redirect | 200 OK  <br> 400 Bad Request  <br> 404 Not found <br>500 Internal Server Error
 
 ## Integrations
 
-**Url base QA:** https://paymentbutton-bsan-cert.e-pagos.cl
-
-**Url base PROD:** https://paymentbutton-bsan.e-pagos.cl
-
-| Name |Url|Http Return Code|
-|------|---|----------------|
-| API para obtener token | /auth/basic/token | 200 Created <br> 401 Unauthorized <br> 500 Internal Server Error |
-| API para inscribir carro | /auth/apiboton/carro/inscribir | 200 OK <br> 400 Bad Request <br> 401 Unauthorized <br> 500 Internal Server Error |
+[Más información] (https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Integraciones%20Santander)
 
 ## Tasks
 
