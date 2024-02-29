@@ -8,13 +8,17 @@ El Servicio de Integración Santander permite realizar pagos desde Flow utilizan
 
 ## Capabilities
 
--  **[Crear orden](https://gitlab.flowdevelopers.cl/core/integrations/yape/-/wikis/Crear-Orden)** 
+-  **[Crear orden](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Inscripcion-carro)** 
+-  **[Notificación pago notify](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Notificacion-pago-MPOUT)** 
+-  **[Notificación pago redirect](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Notificaci%C3%B3n-pago-MPFIN)**
 
 
 ## Services
 | Name |Url|Http Return Code|
 |------|---|----------------|
-| [Crear orden](https://gitlab.flowdevelopers.cl/core/integrations/yape/-/wikis/Crear-Orden) | **POST** /api/v1/order/create | 200 OK  <br> 400 Bad Request   <br>500 Internal Server Error
+| [Crear orden](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Inscripcion-carro) | **POST** /api/v1/order/create | 200 OK  <br> 400 Bad Request   <br>500 Internal Server Error
+| [Notificación pago notify](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Notificacion-pago-MPOUT) | **POST** /api/v1/webhook/notify | 200 OK  <br> 400 Bad Request   <br>500 Internal Server Error
+| [Notificación pago redirect](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/Notificaci%C3%B3n-pago-MPFIN) | **POST** /api/v1/redirect | 200 OK  <br> 400 Bad Request   <br>500 Internal Server Error
 
 ## Integrations
 
