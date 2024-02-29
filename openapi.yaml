@@ -426,4 +426,5 @@ components:
         message:
           type: string
           description: Mensaje de error
-          example: 'Internal Server Error'
+          example: 'Internal Server Error / Id de carro inexistente'
+    
