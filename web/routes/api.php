@@ -10,22 +10,13 @@ Route::get('/v1/health', function () {
     return response()->json(['status' => 'OK'], 200);
 });
 
-Route::post('/v1/refund/create', function () {
-    $response = response()->json([
-        'error' => 500,
-        'message' => 'Internal server error'
-    ], 500);
-    return $response;
-});
-
-Route::get('/v1/refund/isrefundable', function () {
-    return false;
-});
-
 Route::post('/v1/order/create', [OrderController::class, 'create']);
 Route::post('/v1/webhook/notify', [OrderController::class, 'notify']);
 Route::post('/v1/redirect', [OrderController::class, 'mpfin']);
 
+Route::get('/v1/refund/isrefundable', function () {
+    return false;
+});
 
 /*Route::get('/v1/santander/conciliation', [FtpConciliationController::class, 'conciliation']);
 namespace App\Http\Controllers;
