@@ -1,12 +1,12 @@
 openapi: 3.0.0
+servers:
+  - url: 'http://localhost:9200/api'
+    description: Dev server (uses test data)
 info:
-  version: 0.0.1
+  version: 0.0.2
   title: Servicio Santander
   contact:
     email: soporte@flow.cl
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
   - name: health
     description : 'Permite comprobar el funcionamiento del servicio'
@@ -19,7 +19,7 @@ tags:
   - name: refund
     description: 'Permite gestionar los reembolsos de las órdenes de pago (No aplica)'
 paths:
-  /api/v1/health:
+  /v1/health:
     get:
       tags:
         - health
@@ -34,7 +34,7 @@ paths:
                 $ref: '#/components/schemas/HealthOk'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/order/create:
+  /v1/order/create:
     post:
       tags:
         - order
@@ -57,10 +57,10 @@ paths:
           $ref: '#/components/responses/BusinessError'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/webhook/notify:
+  /v1/webhook/notify:
     post:
       tags:
-        - notify
+        - webhook
       summary: Notificación de pago consolidado
       description: Recibe una notificación cuando el pago se ha realizado en Santander
       requestBody:
@@ -78,10 +78,10 @@ paths:
                 $ref: '#/components/schemas/NotifyResponse'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/redirect:
+  /v1/redirect:
     post:
       tags:
-        - redirect
+        - webhook
       summary: Notificación de pago consolidado
       description: Recibe una notificación cuando el pago se ha realizado en Santander
       parameters:
@@ -128,65 +128,6 @@ paths:
                 $ref: '#/components/schemas/MpfinResponse'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/refund/create:
-    post:
-      tags:
-        - refund
-      summary: Crear un reembolso
-      description: Permite crear un reembolso de una orden
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateRefundRequest'
-      responses:
-        '500':
-          $ref: '#/components/responses/InternalServer'
-  /api/v1/refund/isrefundable:
-    get:
-      tags:
-        - refund
-      summary: Confirma si orden es reembolsable
-      description: Permite consultar si es posible reembolsar una orden
-      parameters:
-        - name: external_id
-          required: true
-          description: ID de Santander de la orden a consultar.
-          in: query
-          example: oca1k8nhhigb
-          schema:
-            type: string
-        - name: amount
-          required: true
-          description: Monto de la reversa.
-          in: query
-          example: 5000
-          schema:
-            type: number
-        - name: payment_type
-          required: true
-          description: Método de pago.
-          in: query
-          example: Crédito
-          schema:
-            type: string
-        - name: currency
-          required: true
-          description: Moneda para realizar la reversa.
-          in: query
-          example: PEN
-          schema:
-            type: string
-      responses:
-        'false':
-          description: Objeto IsRefundable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IsRefundableResponse'
-
-    
 components:
   responses:
     BusinessError:
@@ -468,122 +409,6 @@ components:
           maxLength: 256
           description: Url de retorno
           example: "https://flow.cl/retorno.php"  
-    CreateRefundRequest:
-      type: object
-      properties:
-        uuid:
-          type: string
-          description: Identificador único de la request.
-          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
-          nullable: false
-        refund:
-          type: object
-          description: Información del reembolso
-          nullable: false
-          properties:
-            external_id:
-              type: string
-              description: ID Santander de transacción
-              example: "oca1k8nhhigb"
-              nullable: false
-            amount:
-              type: number
-              description: Monto solicitado para reembolsar
-              example: 109000
-              nullable: false
-            currency:
-              type: string
-              description: Moneda de pago
-              example: "PEN"
-              nullable: false
-            subject:
-              type: string
-              description: Descripción del motivo de la reversa
-              example: "Rembolso por compra de productos"
-              nullable: false
-            payment_type:
-              type: string
-              description: Método de pago utilizado DEBIT ó CREDIT valores aceptados
-              example: "DEBIT"
-              nullable: false
-            email_paid:
-              type: string
-              description: Email del solicitante de la reversa
-              example: "example@flow.cl"
-              nullable: false
-            create_date:
-              type: string
-              description: Fecha de la creación de la reversa, formato Tz
-              example: "2023-12-31T23:59:59Z"
-              nullable: false
-    CreateRefundResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Codigo respuesta
-          example: "500"
-        message:
-          type: string
-          description: Descripcion error
-          example: "Internal server error"
-    IsRefundableResponse:
-      type: object
-      properties:
-        is_refundable:
-          type: boolean
-          description: Respuesta de verificación si la orden es reembolsable.
-          example: false
-          nullable: false
-        description:
-          type: string
-          description: Respuesta de salida
-          example: "La orden no es reembolsable."
-          nullable: false
-    Metadata:
-      type: object
-      properties:
-        key: 
-          type: string
-          maxLength: 100
-          description: Identificador del campo
-          example: Número de factura
-        value:
-          type: string
-          maxLength: 1024
-          description: Valor del campo
-          example: "23598"
-      required: [key, value]
-    BusinessError:
-      type: object
-      properties:
-        code:
-          type: number
-          description: Código de error
-          example: 400
-        message:
-          type: string
-          description: Mensaje de error
-          example: Bad Request
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/BusinessErrorDetail'
-    BusinessErrorDetail:
-      type: object
-      properties:
-        rule:
-          type: string
-          description: Nombre de la regla de validación
-          example: Required
-        field:
-          type: string
-          description: Campo en que se produjo el error 
-          example: uuid
-        message:
-          type: string
-          description: Detalle del error en el campo 
-          example: The uuid field is required
     NotFoundError:
       type: object
       properties:
