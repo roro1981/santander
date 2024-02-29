@@ -12,12 +12,8 @@ tags:
     description : 'Permite comprobar el funcionamiento del servicio'
   - name: order
     description: 'Permite gestionar órdenes de pago '
-  - name: notify
+  - name: webhook
     description: 'Permite notificar pago en Santander'
-  - name: redirect
-    description: 'Permite notificar pago en Santander'  
-  - name: refund
-    description: 'Permite gestionar los reembolsos de las órdenes de pago (No aplica)'
 paths:
   /v1/health:
     get:
