@@ -45,13 +45,17 @@ Este servicio requiere los siguientes componentes instalados para su funcionamie
 **composer.json:**
 ```
 "require": {
-    "php": "^8.1",
-    "guzzlehttp/guzzle": "^7.2",
-    "laravel/framework": "^10.10",
-    "laravel/sanctum": "^3.3",
-    "laravel/tinker": "^2.8",
-    "mateusjunges/laravel-kafka": "^1.13"
-},
+        "php": "^8.1",
+        "guzzlehttp/guzzle": "^7.8",
+        "laravel/framework": "^10.10",
+        "laravel/sanctum": "^3.3",
+        "laravel/tinker": "^2.8",
+        "league/flysystem": "^3.23",
+        "league/flysystem-ftp": "^3.23",
+        "mateusjunges/laravel-kafka": "^1.13.5",
+        "midnite81/xml2array": "^2.0",
+        "phpseclib/phpseclib": "^3.0"
+    }
 ```
 
 ## buildspec.yaml
