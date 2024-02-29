@@ -32,6 +32,7 @@ El Servicio de Integración Santander permite realizar pagos desde Flow utilizan
 | Functionality |Description |
 |---------------|------------|
 | [Envío a Core Flow](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/proceso-notificacion-core-flow) | Notificar al Core de Flow una vez que la orden ha sido autorizada |
+|[Conciliación Bancaria](https://gitlab.flowdevelopers.cl/core/integrations/santander/-/wikis/conciliacion)| Obtener las ordenes realizadas en las ultimas 24hs y compararlas con las que estan en base de datos del servicio |
 
 ## Dependencies
 
@@ -76,7 +77,7 @@ La aplicación utiliza los siguientes parámetros.
 
 ### Secret Manager
 
-Se debe contar con un secreto que tenga por nombre **/ENVIRONMENT/yape**, donde ENVIRONMENT corresponde al nombre del ambiente (qa/staging o prod)
+Se debe contar con un secreto que tenga por nombre **/ENVIRONMENT/santander**, donde ENVIRONMENT corresponde al nombre del ambiente (qa/staging o prod)
 
 Este secreto debe contar con los siguientes keys:
 
