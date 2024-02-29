@@ -141,16 +141,6 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateRefundRequest'
       responses:
-        '200':
-          description: Objeto Refund
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateRefundResponse'
-        '400':
-          $ref: '#/components/responses/BusinessError'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServer'
   /api/v1/refund/isrefundable:
@@ -189,21 +179,14 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        'false':
           description: Objeto IsRefundable
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/IsRefundableResponse'
-        '400':
-          $ref: '#/components/responses/BusinessError'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServer'
 
-        
-
+    
 components:
   responses:
     BusinessError:
