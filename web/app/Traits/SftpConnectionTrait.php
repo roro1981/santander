@@ -16,7 +16,7 @@ trait SftpConnectionTrait
         
         try {
             $sftp = new \phpseclib3\Net\SFTP($ftpHost);
-        
+            
             if (!$sftp->login($ftpUsername, $ftpPassword)) {
                 throw new \Exception('Error de conexión');
             }else{
@@ -24,11 +24,7 @@ trait SftpConnectionTrait
             }
             
         } catch (\Exception $e) {
-            $response = response()->json([
-                'error' => 500,
-                'message' => 'Excepción general: ' . $e->getMessage() . PHP_EOL
-            ], 500);
-            return $response;
+            throw $e;
         }
     }
 }

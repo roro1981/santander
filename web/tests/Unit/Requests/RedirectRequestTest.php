@@ -2,15 +2,15 @@
 
 namespace Tests\Unit\Requests;
 
-use App\Http\Requests\MpfinRequest;
+use App\Http\Requests\RedirectRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class MpfinRequestTest extends TestCase
+class RedirectRequestTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testMpfinValidation()
+    public function testRedirectValidation()
     {
         $xmlData = '<MPFIN><IDTRX>000100</IDTRX><CODRET>000</CODRET><NROPAGOS>1</NROPAGOS><TOTAL>1234</TOTAL><INDPAGO>S</INDPAGO><IDREG>1523</IDREG></MPFIN>';
         
@@ -21,7 +21,7 @@ class MpfinRequestTest extends TestCase
             'mpfin' => $xmlData,
         ];
 
-        $request = new MpfinRequest($requestData);
+        $request = new RedirectRequest($requestData);
 
         $validator = $this->app['validator']->make($request->all(), $request->rules());
 
@@ -37,10 +37,10 @@ class MpfinRequestTest extends TestCase
 
     public function testPrepareForValidation()
     {
-        $mpfinRequest = new MpfinRequest();
-        $mpfinRequest->prepareForValidation();
+        $redirectRequest = new RedirectRequest();
+        $redirectRequest->prepareForValidation();
 
-        $this->assertFalse(is_array($mpfinRequest->input('mpfin')));
+        $this->assertFalse(is_array($redirectRequest->input('mpfin')));
     }
 
 }

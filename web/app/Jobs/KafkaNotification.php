@@ -42,7 +42,7 @@ class KafkaNotification implements ShouldQueue
         $body = [
             'uuid' => Uuid::uuid4(),
             'id' => $this->order->car_flow_id,
-            'external_id' => $this->order->car_id,
+            'external_id' => $this->order->car_id_transaction,
             'product_id' => $this->order->car_flow_product_id,
             'payer_email' => $this->order->car_flow_email_paid,
             'date_notification' => $this->order->car_updated_at,

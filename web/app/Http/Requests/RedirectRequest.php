@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MpfinRequest extends FormRequest
+class RedirectRequest extends FormRequest
 {
 
     public function rules()

@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
+use App\Http\Utils\Util;
 
 class Cart extends Model
 {
@@ -53,6 +56,28 @@ class Cart extends Model
             $model->car_id = 169008;
         });*/
     }   
+
+    public static function storeCart($uuid, $orderRequest, $userRequest)
+    {
+        return Cart::create([
+            'car_id_transaction' => $uuid,
+            'car_flow_currency' => $orderRequest['currency'],
+            'car_flow_amount' => $orderRequest['amount'],
+            'car_url' => $orderRequest['url_confirmation'],
+            'car_expires_at' => Util::validateExpirationTime($orderRequest['expiration']),
+            'car_items_number' => 1,
+            'car_status' => Constants::STATUS_CREATED,
+            'car_url_return' => ParamUtil::getParam(Constants::PARAM_URL_RETORNO),
+            'car_sent_kafka' => 0,
+            'car_flow_id' => $orderRequest['id'],
+            'car_flow_attempt_number' => $orderRequest['attempt_number'],
+            'car_flow_product_id' => $orderRequest['product_id'],
+            'car_flow_email_paid' => $userRequest['email'],
+            'car_flow_subject' => $orderRequest['subject'],
+            'car_created_at' => now()
+        ]);
+    }
+
     /**
      * Relationships
      */
@@ -61,4 +86,6 @@ class Cart extends Model
     {
         return $this->hasMany(CartStatus::class, 'car_id', 'car_id');
     }
+
+    
 }
