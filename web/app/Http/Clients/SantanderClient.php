@@ -34,10 +34,6 @@ class SantanderClient
                     'username' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_USERNAME),
                     'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
                 ];
-                if (empty($this->credentials['company']) || empty($this->credentials['username']) || empty($this->credentials['password'])) {
-                    echo "Error al obtener credenciales";
-                    exit;
-                } 
 
                 $response = Http::post($this->baseUrl."/auth/basic/token", $this->credentials);
                 

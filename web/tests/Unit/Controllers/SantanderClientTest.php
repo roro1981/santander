@@ -12,6 +12,7 @@ use Tests\TestCase;
 use Ramsey\Uuid\Uuid;
 use Mockery;
 use Database\Seeders\ParameterSeeder;
+use Database\Seeders\ParameterSeeder3;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use ReflectionClass;
 
@@ -57,7 +58,23 @@ class SantanderClientTest extends TestCase
         $this->assertEquals('test_token', $token['access_token']);
 
     }
-    
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     * @throws Exception
+     */
+
+    public function testGetBearerToken_ThreeAttempts()
+    {
+        $santanderClient = new SantanderClient();
+        try {
+            $result = $santanderClient->getBearerToken($this->flow_id);
+        } catch (\Exception $e) {
+            $this->assertEquals('Error al obtener el Bearer Token después de 3 intentos', $e->getMessage());
+        }
+        
+    }
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
