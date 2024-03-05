@@ -26,11 +26,11 @@ class OrderController extends Controller
         try { 
 
             $cart = $this->saveOrder($uuid, $orderRequest, $user);
-
+            $body = Cart::getBody($cart);
             CartStatus::saveCurrentStatus($cart);
 
             $cartInscription = new SantanderClient();
-            $register_cart = $cartInscription->enrollCart($cart->toArray(),$orderRequest['id'],0);
+            $register_cart = $cartInscription->post('/auth/apiboton/carro/inscribir',$body,$orderRequest['id'],0);
             
             if($register_cart['codeError']=="0"){
                 $cart->update(['car_url' => $register_cart['urlBanco'],'car_status' =>'REGISTERED-CART']);

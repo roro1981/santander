@@ -78,6 +78,25 @@ class Cart extends Model
         ]);
     }
 
+    public static function getBody($cartData)
+    {
+        return ['idTransaction' => $cartData['car_id'],
+        'currency' => $cartData['car_flow_currency'],
+        'amount' => $cartData['car_flow_amount'],
+        'agreement' => '9570',
+        'url' => $cartData['car_url_return'],
+        'itemsNumber' => 1,
+        'additionalData' => [],
+        'details' => [
+            [
+                'description' => $cartData['car_flow_subject'],
+                'amount' => $cartData['car_flow_amount'],
+                'number' => 1,
+            ],
+        ],
+        'collector' => '7683001403'];
+    }
+
     /**
      * Relationships
      */

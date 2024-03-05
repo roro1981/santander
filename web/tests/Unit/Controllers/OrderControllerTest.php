@@ -98,7 +98,7 @@ class OrderControllerTest extends TestCase
         ];
 
         $this->mockSantanderClient
-        ->shouldReceive('enrollCart')
+        ->shouldReceive('post')
         ->once()
         ->andReturn($mockSantanderResponse);
         
@@ -133,7 +133,7 @@ class OrderControllerTest extends TestCase
         $this->instance(CartStatus::class, $this->mockCartStatus);
 
         $this->mockSantanderClient
-        ->shouldReceive('enrollCart')
+        ->shouldReceive('post')
         ->once()
         ->andReturn($mockSantanderResponse);
         $this->instance(SantanderClient::class, $this->mockSantanderClient);
@@ -159,7 +159,7 @@ class OrderControllerTest extends TestCase
             'idTrxComercio' => '48'
         ];
         
-        $this->mockSantanderClient->shouldReceive('enrollCart')->andReturn($mockSantanderResponse);
+        $this->mockSantanderClient->shouldReceive('post')->andReturn($mockSantanderResponse);
         $this->instance(SantanderClient::class, $this->mockSantanderClient);
 
         $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andThrow('Exception', 'Test error');

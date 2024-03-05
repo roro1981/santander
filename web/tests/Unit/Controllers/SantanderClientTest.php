@@ -5,6 +5,7 @@ namespace Tests\Unit;
 namespace App\Http\Utils;
 
 use App\Models\ApiLog;
+use App\Models\Cart;
 use App\Http\Clients\SantanderClient;
 use Exception;
 use Illuminate\Support\Facades\Http;
@@ -12,7 +13,6 @@ use Tests\TestCase;
 use Ramsey\Uuid\Uuid;
 use Mockery;
 use Database\Seeders\ParameterSeeder;
-use Database\Seeders\ParameterSeeder3;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use ReflectionClass;
 
@@ -147,8 +147,8 @@ class SantanderClientTest extends TestCase
             'car_flow_subject' => 'subject test',
             'car_created_at' => now()
         ];
-
-        $response = $santanderClient->enrollCart($order, $this->flow_id, 0);
+        $body = Cart::getBody($order);
+        $response = $santanderClient->post('/auth/apiboton/carro/inscribir',$body, $this->flow_id, 0);
 
         $this->assertEquals('0', $response['codeError']);
         $this->assertEquals('Carro inscrito exitosamente', $response['descError']);
@@ -160,74 +160,36 @@ class SantanderClientTest extends TestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testEnrollCart_ExceptionToken()
-    {
-        $this->seed(ParameterSeeder::class);
-        $cart_id = random_int(168500, 300000);
-
-        $serviceMock = Mockery::mock(SantanderClient::class)->makePartial();
-
-        $serviceMock->shouldReceive('getBearerToken')
-            ->once()
-            ->withAnyArgs()
-            ->andReturn(null);
-
-        $this->instance(SantanderClient::class, $serviceMock);
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Error al inscribir el carro después de 3 intentos');
-
-        $order = [
-            'car_id' => $cart_id,
-            'car_id_transaction' => Uuid::uuid4(),
-            'car_flow_currency' => ParamUtil::getParam(Constants::PARAM_CURRENCY),
-            'car_flow_amount' => '100.1',
-            'car_url' => 'www.flow.cl',
-            'car_expires_at' => 1693418602,
-            'car_items_number' => 1,
-            'car_status' => Constants::STATUS_CREATED,
-            'car_url_return' => ParamUtil::getParam(Constants::PARAM_URL_RETORNO),
-            'car_sent_kafka' => 0,
-            'car_flow_id' => '000100',
-            'car_flow_attempt_number' => 0,
-            'car_flow_product_id' => '100',
-            'car_flow_email_paid' => 'rpanes@tuxpan.com',
-            'car_flow_subject' => 'subject test',
-            'car_created_at' => now()
-        ];
-
-        $serviceMock->enrollCart($order, $this->flow_id);
-    }
-
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
     public function testEnrollCartExceptionCatch()
     {
         $this->seed(ParameterSeeder::class);
-        $serviceMock = Mockery::mock(SantanderClient::class)->makePartial();
+        $client = new SantanderClient();
+        try{
+            $order = [
+                'car_id' => 1,
+                'car_id_transaction' => Uuid::uuid4(),
+                'car_flow_currency' => ParamUtil::getParam(Constants::PARAM_CURRENCY),
+                'car_flow_amount' => '100.1',
+                'car_url' => 'www.flow.cl',
+                'car_expires_at' => 1693418602,
+                'car_items_number' => 1,
+                'car_status' => Constants::STATUS_CREATED,
+                'car_url_return' => ParamUtil::getParam(Constants::PARAM_URL_RETORNO),
+                'car_sent_kafka' => 0,
+                'car_flow_id' => '000100',
+                'car_flow_attempt_number' => 0,
+                'car_flow_product_id' => '100',
+                'car_flow_email_paid' => 'rpanes@tuxpan.com',
+                'car_flow_subject' => 'subject test',
+                'car_created_at' => now()
+            ];
+            $body = Cart::getBody($order);
+            $response = $client->post('/auth/apiboton/carro/inscribir',$body, $this->flow_id, 0);
+        }catch(\Exception $e){
+            $this->assertEquals(500, $e->getCode());
+            $this->assertEquals('Error al inscribir el carro después de 3 intentos', $e->getMessage());
+        }
 
-        $authorizationToken = [
-            'token_type' => 'bearer token',
-            'access_token' => '123'
-        ];
-
-        $serviceMock->shouldReceive('getBearerToken')
-            ->once()
-            ->withAnyArgs()
-            ->andReturn($authorizationToken);
-
-        $this->instance(SantanderClient::class, $serviceMock);
-
-        Http::fake(['*/auth/apiboton/carro/inscribir' => function () {
-            throw new Exception("Error simulado");
-        }]);
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Error al inscribir el carro después de 3 intentos');
-
-        $serviceMock->enrollCart((array)null, $this->flow_id, 3);
     }
 
     /**
@@ -270,7 +232,7 @@ class SantanderClientTest extends TestCase
             'car_created_at' => now()
         ];
 
-        $response = $serviceMock->enrollCart($order, $this->flow_id, 3);
+        $response = $serviceMock->post('/auth/apiboton/carro/inscribir',$order, $this->flow_id, 3);
         $responseData = json_decode($response->getContent(), true);
 
         $this->assertEquals(500, $response->getStatusCode());

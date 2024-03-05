@@ -35,14 +35,14 @@ class SantanderClient
                     'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
                 ];
 
+                $apiLog = ApiLog::storeLog(
+                    $orderId,
+                    $this->baseUrl."/auth/basic/token",
+                    $this->credentials
+                );
+
                 $response = Http::post($this->baseUrl."/auth/basic/token", $this->credentials);
-                
            
-            $apiLog = ApiLog::storeLog(
-                $orderId,
-                $this->baseUrl."/auth/basic/token",
-                $this->credentials
-            );
             if ($response->successful()) {
                 $responseToken = [
                     'token_type' => $response->json('token_type'),
@@ -54,6 +54,9 @@ class SantanderClient
 
             } catch (Exception $e) {
                 $intentos++;
+                $message=$e ? $e->getMessage():'Error al inscribir el carro después de '.$this->intentosMaximos.' intentos';
+                $code=$e ? $e->getCode():500;
+                $apiLog->updateLog((array) $message, $code);
                 if ( $intentos < $this->intentosMaximos) {
                     sleep($this->intervaloTiempo);
                 } else {
@@ -71,16 +74,15 @@ class SantanderClient
         return $response;
     }
 
-    public function enrollCart(array $cartData,Int $orderId, $intentos=0)
+    public function post($endpoint,array $body, Int $orderId, $intentos=0)
     {
         $authorizationToken = $this->getBearerToken($orderId, 0);
-       
-        
         do {
             try {
           
-                $url=$this->baseUrl.'/auth/apiboton/carro/inscribir';
-                if (empty($url)) {
+                $url=$this->baseUrl.$endpoint;
+                
+                if (empty($this->baseUrl)) {
                     echo "Error al obtener url de servicio";
                     exit;
                 } 
@@ -89,37 +91,25 @@ class SantanderClient
                     'Authorization' => $authorizationToken['token_type'] . ' ' . $authorizationToken['access_token'],
                 ];
                 
-                $body=['idTransaction' => $cartData['car_id'],
-                'currency' => $cartData['car_flow_currency'],
-                'amount' => $cartData['car_flow_amount'],
-                'agreement' => '9570',
-                'url' => $cartData['car_url_return'],
-                'itemsNumber' => 1,
-                'additionalData' => [],
-                'details' => [
-                    [
-                        'description' => $cartData['car_flow_subject'],
-                        'amount' => $cartData['car_flow_amount'],
-                        'number' => 1,
-                    ],
-                ],
-                'collector' => '7683001403'];
-                
-                
-                $response = Http::withHeaders($headers)->post($url,$body);
-                
                 $apiLog = ApiLog::storeLog(
                     $orderId,
                     $url,
                     $body
                 );
                 
+                $response = Http::withHeaders($headers)->post($url,$body);
+               
                 if($response->successful()){
                     $apiLog->updateLog((array) $response, 200);
                     return $response;
+                }elseif ($response->status() == 404) {
+                    throw new \Exception('La transacción ya fue procesada', 404);
                 }
             } catch (Exception $e) {
                 $intentos++;
+                $message=$e ? $e->getMessage():'Error al inscribir el carro después de '.$this->intentosMaximos.' intentos';
+                $code=$e ? $e->getCode():500;
+                $apiLog->updateLog((array) $message, $code);
                 if ($intentos < $this->intentosMaximos) {
                     sleep($this->intervaloTiempo);
                 } else {

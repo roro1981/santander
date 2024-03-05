@@ -8,7 +8,7 @@ use App\Models\ApiLog;
 use App\Jobs\KafkaNotification;
 use Illuminate\Support\Facades\Log;
 
-class WebhookController extends OrderController
+class WebhookController extends Controller
 {
     public function notify(NotifyRequest $request)
     {
