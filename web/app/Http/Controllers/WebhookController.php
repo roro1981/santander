@@ -80,9 +80,6 @@ class WebhookController extends Controller
             $urlActual = $request->url();
 
             if($cart){
-                if($cart->car_sent_kafka == 1){
-                    throw new \Exception("Carro ya fue notificado", true);
-                }
                 $apiLog = ApiLog::storeLog(
                     $cart->car_flow_id,
                     $urlActual,
@@ -94,10 +91,7 @@ class WebhookController extends Controller
                     throw new \Exception("Monto total pagado inconsistente", true);
                 }
 
-                $notKafka=KafkaNotification::dispatch($cart)->onQueue('kafkaNotification');
-                if($notKafka){
-                    $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' => $mpfin['IDTRX']]);
-                }
+                $cart->update(['car_authorization_uuid' => $mpfin['IDTRX']]);
                 
                 $response = response()->json([
                     'message' => 'Recepcion exitosa',
