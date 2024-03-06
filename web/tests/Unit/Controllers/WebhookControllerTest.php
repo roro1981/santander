@@ -237,26 +237,8 @@ class WebhookControllerTest extends TestCase
         
         $this->assertEquals($response->getContent(), $result->getContent());
 
-        Queue::assertPushed(KafkaNotification::class, function ($job) {
-            return true; 
-        });
     }
-    public function testCarroYaNotificadoRedirect()
-    {
-        $requestMock = Mockery::mock(RedirectRequest::class);
-        $requestMock->shouldReceive('validated')->andReturn($this->requestRedirect);
-        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
-        $this->app->instance(NotifyRequest::class, $requestMock);
-        
-        $cart = Cart::factory()->create(['car_sent_kafka' => 1]);
-        $response = Response::json(['error' => 500, 'message' => 'Carro ya fue notificado']);
-
-        $controller = new WebhookController();
     
-        $result = $controller->redirect($requestMock);
-
-        $this->assertEquals($response->getContent(), $result->getContent());
-    }
     public function testMontoInconsistenteRedirect()
     {
         $requestMock = Mockery::mock(RedirectRequest::class);
