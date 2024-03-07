@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('car_uuid')->comment('Uuid carro registrado');
             $table->string('car_id_transaction', 36)->comment('Identificador transaccion');
             $table->string('car_flow_currency', 3)->comment('Moneda del cobro');
-            $table->string('car_flow_amount', 18)->comment('Monto total para pagar');
+            $table->integer('car_flow_amount')->comment('Monto total para pagar');
             $table->string('car_description', 100)->nullable()->comment('Descripción del ítem del carro');
             $table->string('car_agreement', 20)->nullable()->comment('Codigo de convenio asociado al comercio');
             $table->string('car_url', 600)->comment('URL para redireccionamiento autorización de pago');
@@ -27,9 +27,9 @@ return new class extends Migration
             $table->tinyInteger('car_sent_kafka')->length(1)->comment('Verifica si carro fue enviado a kafka');
             $table->string('car_fail_code', 255)->nullable()->comment('Codigo error webhook');
             $table->longText('car_fail_motive')->nullable()->comment('Detalle error webhook');
-            $table->string('car_flow_id', 6)->comment('Identificador de flow');
-            $table->string('car_flow_attempt_number', 1)->comment('Numero de intentos de pago');
-            $table->string('car_flow_product_id', 6)->comment('Id del producto');
+            $table->integer('car_flow_id')->comment('Identificador de flow');
+            $table->integer('car_flow_attempt_number')->comment('Numero de intentos de pago');
+            $table->integer('car_flow_product_id')->comment('Id del producto');
             $table->string('car_flow_email_paid', 255)->comment('Email usuario');
             $table->string('car_flow_subject', 255)->comment('Asunto de transaccion de pago');
             $table->timestamp('car_created_at')->nullable()->default(\DB::raw('CURRENT_TIMESTAMP'))->comment('Fecha creación');

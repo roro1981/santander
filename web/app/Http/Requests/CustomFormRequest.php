@@ -2,6 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\FloatMaxDecimals;
+use App\Rules\IsNumeric;
+use App\Rules\NumericBetween;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Foundation\Http\FormRequest;
 
 
@@ -16,5 +21,35 @@ class CustomFormRequest extends FormRequest
     const EMAIL = 'email:rfc,dns';
     const URL = 'url:http,https';
 
-   
+    protected function getAmountRules(float $minAmount, float $maxAmount)
+    {
+        return [
+            self::REQUIRED,
+            new IsNumeric,
+            new FloatMaxDecimals,
+            new NumericBetween($minAmount, $maxAmount)
+        ];
+    }
+    protected function failedValidation(Validator $validator)
+    {
+        $failedRules = $validator->failed();
+        
+        $errors = collect($validator->errors())->map(function ($error, $field) use ($failedRules) {
+            return collect($error)->map(function ($message) use ($field, $failedRules) {
+                $rule = array_keys($failedRules[$field])[0];
+
+                return [
+                    'rule' => $rule,
+                    'field' => $field,
+                    'message' => $message
+                ];
+            });
+        })->flatten(1);
+
+        throw new HttpResponseException(response()->json([
+            'code' => 400,
+            'message' => 'Bad Request',
+            'errors' => $errors
+        ], 400));
+    }
 }

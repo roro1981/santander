@@ -81,6 +81,18 @@ class ParameterSeeder extends Seeder
                 'par_description' => 'Password SFTP SANTANDER',
                 'par_created_at' => now()
             ],
+            [
+                'par_code' => 'ORDER_MIN_AMOUNT',
+                'par_value' => '1.00',
+                'par_description' => 'Monto mínimo permitido para crear ordenes',
+                'par_created_at' => now()
+            ],
+            [
+                'par_code' => 'ORDER_MAX_AMOUNT',
+                'par_value' => '99999.99',
+                'par_description' => 'Monto máximo permitido para crear ordenes',
+                'par_created_at' => now()
+            ],
         ];
         Parameter::insertOrIgnore($data);
     }

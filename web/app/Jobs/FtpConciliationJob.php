@@ -14,6 +14,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use XMLReader;
+use SimpleXMLElement;
 
 class FtpConciliationJob implements ShouldQueue
 {
@@ -31,66 +33,78 @@ class FtpConciliationJob implements ShouldQueue
        
             $sftp = $this->testConnection();
             $fileList = $sftp->nlist('/');
-            
+           
             foreach ($fileList as $fileName) {
             
                 if ($fileName === '.' || $fileName === '..') {
                     continue;
                 }
 
-            try {    
-                $fileContent = $sftp->get($fileName);
-                
-                $this->fileName=$fileName;
+                try {    
+                    $fileContent = $sftp->get($fileName);
+                    
+                    $this->fileName=$fileName;
 
-                if($this->fileNameProcess($this->fileName)){
-                    Log::error("Archivo ya fue procesado ".$this->fileName);
+                    if($this->fileNameProcess($this->fileName)){
+                        Log::error("Archivo ya fue procesado ".$this->fileName);
+                        $response = response()->json([
+                            'error' => 500,
+                            'message' => 'Archivo ya fue procesado'
+                        ], 500);
+                        continue;
+                    }
+                    
+                    $xml = simplexml_load_string($fileContent);
+                    dd($xml);
+                    foreach ($xml->detallePagos as $detallePago) {
+                        /*Pago::create([
+                            'idCarro' => (int) $detallePago->idCarro,
+                            'idConvenio' => (int) $detallePago->idConvenio,
+                            'descProducto' => (string) $detallePago->descProducto,
+                            'montoProducto' => (float) $detallePago->montoProducto,
+                            'fechahoraOperacion' => (string) $detallePago->fechahoraOperacion,
+                        ]);*/
+                    }
+                 
+                    /*$arrayData=$this->convertXmlToArray($fileContent);
+
+                    if($arrayData['totalizadorPagos']['numeroPagos']=="0"){
+                        Log::error("Archivo no contiene pagos ".$this->fileName);
+                        $response = response()->json([
+                            'error' => 500,
+                            'message' => 'Archivo no contiene pagos'
+                        ], 500);
+                        continue;
+                    }
+
+                    $detallePagos=$arrayData['detallePagos'];
+                
+                    if($arrayData['totalizadorPagos']['numeroPagos']=="1"){
+                        $fechaOperacion=$detallePagos["fechahoraOperacion"];
+                    }else{
+                        $fechaOperacion=$detallePagos[0]["fechahoraOperacion"];
+                    }
+                    
+                    if (!empty($fechaOperacion)) {
+                        $dateTime = DateTime::createFromFormat("d/m/Y H:i:s", $fechaOperacion);
+                        $this->fechaPagos = $dateTime ? $dateTime->format("Y-m-d") : null;
+                    }else{
+                        Log::error("Error proceso SFTP Santander: No hay fecha de pago ".$this->fileName);
+                        throw new \Exception('Error proceso SFTP Santander');
+                    }
+                    $registrosCart = Cart::whereDate('car_created_at', '=',$this->fechaPagos)->get();
+                    
+                    $this->processData($registrosCart,$detallePagos);
+                    dd($this->resume());*/
+
+                } catch (\Exception $e) {
+                    Log::error("Error proceso conciliacion Santander" . $e->getMessage());
                     $response = response()->json([
                         'error' => 500,
-                        'message' => 'Archivo ya fue procesado'
+                        'message' => 'Error SFTP'
                     ], 500);
                     continue;
                 }
-
-                $arrayData=$this->convertXmlToArray($fileContent);
-
-                if($arrayData['totalizadorPagos']['numeroPagos']=="0"){
-                    Log::error("Archivo no contiene pagos ".$this->fileName);
-                    $response = response()->json([
-                        'error' => 500,
-                        'message' => 'Archivo no contiene pagos'
-                    ], 500);
-                    continue;
-                }
-
-                $detallePagos=$arrayData['detallePagos'];
-              
-                if($arrayData['totalizadorPagos']['numeroPagos']=="1"){
-                    $fechaOperacion=$detallePagos["fechahoraOperacion"];
-                }else{
-                    $fechaOperacion=$detallePagos[0]["fechahoraOperacion"];
-                }
-                
-                if (!empty($fechaOperacion)) {
-                    $dateTime = DateTime::createFromFormat("d/m/Y H:i:s", $fechaOperacion);
-                    $this->fechaPagos = $dateTime ? $dateTime->format("Y-m-d") : null;
-                }else{
-                    Log::error("Error proceso SFTP Santander: No hay fecha de pago ".$this->fileName);
-                    throw new \Exception('Error proceso SFTP Santander');
-                }
-                $registrosCart = Cart::whereDate('car_created_at', '=',$this->fechaPagos)->get();
-                
-                $this->processData($registrosCart,$detallePagos);
-                dd($this->resume());
-
-            } catch (\Exception $e) {
-                Log::error("Error proceso SFTP Santander" . $e->getMessage());
-                $response = response()->json([
-                    'error' => 500,
-                    'message' => 'Error SFTP'
-                ], 500);
-                continue;
-            }
                 
             }
     }

@@ -4,6 +4,7 @@ namespace App\Http\Utils;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use App\Models\Parameter;
 
 class ParamUtil
 {
@@ -15,6 +16,12 @@ class ParamUtil
         });
     
         return $parameter;
+    }
+    public static function getParams(array $codes)
+    {
+        return Parameter::whereIn('par_code', $codes)
+            ->get()
+            ->pluck('par_value', 'par_code');
     }
 
 }
