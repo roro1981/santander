@@ -233,7 +233,7 @@ components:
               type: integer
               description: ID del usuario
               example: 200
-              nullable: false
+              nullable: true
             email:
               type: string
               description: Email del usuario
@@ -243,7 +243,7 @@ components:
               type: string
               description: Razón social o nombre legal del comercio.
               example: "FLOW S.A"
-              nullable: false
+              nullable: true
             tax_id:
               type: string
               description: Identificador tributario
@@ -253,7 +253,7 @@ components:
               type: string
               description: Dirección tributaria de la empresa
               example: "Providencia"
-              nullable: false
+              nullable: true
             fantasy_name:
               type: string
               description: Nombre de fantasía.
