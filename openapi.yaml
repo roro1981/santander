@@ -248,7 +248,7 @@ components:
               type: string
               description: Identificador tributario
               example: "99999999-9"
-              nullable: false
+              nullable: true
             address:
               type: string
               description: Dirección tributaria de la empresa
