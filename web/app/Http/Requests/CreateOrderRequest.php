@@ -25,7 +25,7 @@ class CreateOrderRequest extends CustomFormRequest
             'order.expiration' => self::REQUIRED. '|' . self::NUMERIC,
             'order.currency' => self::REQUIRED . '|' . self::STRING,
             'order.extra_params' => 'array|nullable',
-            'user.id' => self::REQUIRED . '|' . self::STRING,
+            'user.id' => self::REQUIRED . '|' . self::NUMERIC,
             'user.email' => self::REQUIRED . '|' . self::STRING . '|' . self::EMAIL . '|' . self::MAX_255,
             'user.legal_name' => self::REQUIRED . '|' . self::STRING . '|' . self::MAX_255,
             'user.tax_id' => self::REQUIRED . '|' . self::STRING . '|' . self::MAX_255,
