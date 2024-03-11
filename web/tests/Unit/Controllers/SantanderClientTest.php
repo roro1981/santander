@@ -71,7 +71,7 @@ class SantanderClientTest extends TestCase
         try {
             $result = $santanderClient->getBearerToken($this->flow_id);
         } catch (\Exception $e) {
-            $this->assertEquals('Error al obtener el Bearer Token después de 3 intentos', $e->getMessage());
+            $this->assertEquals('Error al obtener el Bearer Token después de 1 intentos', $e->getMessage());
         }
         
     }
@@ -187,7 +187,7 @@ class SantanderClientTest extends TestCase
             $response = $client->post('/auth/apiboton/carro/inscribir',$body, $this->flow_id, 0);
         }catch(\Exception $e){
             $this->assertEquals(500, $e->getCode());
-            $this->assertEquals('Error al inscribir el carro después de 3 intentos', $e->getMessage());
+            $this->assertEquals('Error al inscribir el carro después de 1 intentos', $e->getMessage());
         }
 
     }

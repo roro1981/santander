@@ -272,9 +272,9 @@ components:
           description: ID de la orden
           example: "oca1k8nhhigb"
         provider_id:
-          type: string
+          type: number
           description: ID de Santander
-          example: "000400"
+          example: 168478
         type:
           type: string
           enum: 
