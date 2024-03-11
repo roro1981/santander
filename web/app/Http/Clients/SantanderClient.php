@@ -41,14 +41,14 @@ class SantanderClient
                     $this->credentials
                 );
 
-                $response = Http::post($this->baseUrl."/auth/basic/token", $this->credentials);
-           
+                $response = Http::timeout(10)->post($this->baseUrl."/auth/basic/token", $this->credentials);
+                
             if ($response->successful()) {
                 $responseToken = [
                     'token_type' => $response->json('token_type'),
                     'access_token' => $response->json('access_token'),
                 ];
-                $apiLog->updateLog((array) $responseToken, 200);
+                $apiLog->updateLog((array) $response, 200);
                 return $responseToken;
             }
 
@@ -97,14 +97,17 @@ class SantanderClient
                     $body
                 );
                 
-                $response = Http::withHeaders($headers)->post($url,$body);
-        
+                $response = Http::withHeaders($headers)->timeout(10)->post($url,$body);
+           
                 if($response->successful()){
-                    $apiLog->updateLog((array) $response, 200);
-                    return $response;
+                    $apiLog->updateLog((array) $response->json(), 200);
+                    return $response->json();
                 }elseif ($response->status() == 404) {
                     throw new \Exception('La transacción ya fue procesada', 404);
+                }elseif($response->failed()){
+                    throw new \Exception('Error currency: debe ser igual a 999', 500);
                 }
+
             } catch (Exception $e) {
                 $intentos++;
                 $message=$e ? $e->getMessage():'Error al inscribir el carro después de '.$this->intentosMaximos.' intentos';

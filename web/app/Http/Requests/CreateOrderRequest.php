@@ -23,6 +23,7 @@ class CreateOrderRequest extends CustomFormRequest
             'order.amount' => $this->getAmountRules($params[Constants::PARAM_ORDER_MIN_AMOUNT], $params[Constants::PARAM_ORDER_MAX_AMOUNT]),
             'order.subject' => self::REQUIRED . '|' . self::STRING . '|' . self::MAX_255,
             'order.expiration' => self::REQUIRED. '|' . self::NUMERIC,
+            'order.email_paid' => self::REQUIRED . '|' . self::STRING . '|' . self::EMAIL . '|' . self::MAX_255,
             'order.currency' => self::REQUIRED . '|' . self::STRING,
             'order.extra_params' => 'array|nullable',
             'user.id' => self::NUMERIC,
