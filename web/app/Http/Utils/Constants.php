@@ -8,6 +8,8 @@ abstract class Constants
     const MAX_INTEGER_LENGTH = 18;
     const MAX_ORDER_EXPIRATION = 31536000;
     const PARAM_EXPIRATION_TIME = 900;
+    const SANTANDER_AGREEMENT = '9570';
+    const SANTANDER_COLLECTOR = '7683001403';
 
     const KAFKA_NOTIFICATION_TOPIC='KAFKA_NOTIFICATION_TOPIC';
     const PARAMETER_TABLE = 'bbs_parameter';

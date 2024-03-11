@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('car_id_transaction', 36)->comment('Identificador transaccion');
             $table->string('car_flow_currency', 3)->comment('Moneda del cobro');
             $table->integer('car_flow_amount')->comment('Monto total para pagar');
+            $table->string('car_description', 100)->nullable()->comment('Descripción del ítem del carro');
             $table->string('car_agreement', 20)->nullable()->comment('Codigo de convenio asociado al comercio');
             $table->string('car_url', 600)->comment('URL para redireccionamiento autorización de pago');
             $table->unsignedBigInteger('car_expires_at')->comment('Tiempo expiracion codigo QR');

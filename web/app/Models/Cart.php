@@ -52,6 +52,9 @@ class Cart extends Model
         self::creating(function ($model) {
             $model->car_uuid = (string) Str::uuid();
         });
+        /*static::creating(function ($model) {
+            $model->car_id = 169008;
+        });*/
     }   
 
     public static function storeCart($uuid, $orderRequest, $userRequest)
@@ -60,11 +63,11 @@ class Cart extends Model
             'car_id_transaction' => $uuid,
             'car_flow_currency' => $orderRequest['currency'],
             'car_flow_amount' => $orderRequest['amount'],
-            'car_agreement' => '9570',
+            'car_agreement' => Constants::SANTANDER_AGREEMENT,
             'car_url' => $orderRequest['url_confirmation'],
             'car_expires_at' => Util::validateExpirationTime($orderRequest['expiration']),
             'car_items_number' => 1,
-            'car_collector' => '7683001403',
+            'car_collector' => Constants::SANTANDER_COLLECTOR,
             'car_status' => Constants::STATUS_CREATED,
             'car_url_return' => ParamUtil::getParam(Constants::PARAM_URL_RETORNO),
             'car_sent_kafka' => 0,

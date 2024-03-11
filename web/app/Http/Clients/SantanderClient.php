@@ -97,8 +97,13 @@ class SantanderClient
                     $body
                 );
                 
+<<<<<<< HEAD
                 $response = Http::withHeaders($headers)->timeout(10)->post($url,$body);
            
+=======
+                $response = Http::withHeaders($headers)->post($url,$body);
+               
+>>>>>>> parent of 878e435 (modificaciones QA)
                 if($response->successful()){
                     $apiLog->updateLog((array) $response->json(), 200);
                     return $response->json();

@@ -20,7 +20,6 @@ class CustomFormRequest extends FormRequest
     const INTEGER = 'integer';
     const EMAIL = 'email:rfc,dns';
     const URL = 'url:http,https';
-    const UUID = 'uuid';
 
     protected function getAmountRules(float $minAmount, float $maxAmount)
     {
