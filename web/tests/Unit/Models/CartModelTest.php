@@ -1,15 +1,27 @@
 <?php
 
 namespace Tests\Unit\Models;
+namespace App\Models;
+
 
 use App\Models\Cart;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Ramsey\Uuid\Uuid;
 
 class CartModelTest extends TestCase
 {
     use RefreshDatabase;
+    
+    public function setUp(): void
+    {
+        parent::setUp();
 
+    }
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testCartModel()
     {
         $cart = Cart::create([
@@ -80,9 +92,44 @@ class CartModelTest extends TestCase
         $this->assertContains('car_flow_subject', $cart->getFillable());
         $this->assertContains('car_flow_email_paid', $cart->getFillable());
     }
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testCartStatusMethod()
+    {
+        $cart = new Cart();
+        $cart->car_id_transaction = Uuid::uuid4();
+        $cart->car_flow_currency = 'CLP';
+        $cart->car_flow_amount = 1199;
+        $cart->car_url = 'https://flow.cl/retorno.php';
+        $cart->car_expires_at = '1699569123';
+        $cart->car_items_number = 1;
+        $cart->car_status = 'CREATED';
+        $cart->car_url_return = 'https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect';
+        $cart->car_sent_kafka = 0;
+        $cart->car_flow_id = 1;
+        $cart->car_flow_attempt_number = 1;
+        $cart->car_flow_product_id = 1;
+        $cart->car_flow_email_paid = 'rpanes@tuxpan.com';
+        $cart->car_flow_subject = 'Test integracion';
+        $cart->car_created_at = now();
+        
+        $cart->save();
 
+        $cartStatus1 = new CartStatus();
+        $cartStatus1->car_id=1;
+        $cartStatus1->cas_status = 'CREATED';
+         
+        $cart->cartStatus()->save($cartStatus1);
+        $resultados = $cart->cartStatus;
+
+         $this->assertEquals(1, $resultados->count());
+         $this->assertEquals('CREATED', $resultados[0]->cas_status);
+    }
     public function tearDown(): void
     {
         parent::tearDown();
     }
+    
 }

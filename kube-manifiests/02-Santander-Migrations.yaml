@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: santander-app-migrations
+spec:
+  completions: 1
+  template:
+    spec:
+      containers:
+        - name: santander-app-migrations
+          image: APP_IMAGE
+          imagePullPolicy: Always
+          command: 
+            - php
+            - artisan
+            - migrate
+          volumeMounts:
+            - name: config-volume
+              mountPath: /var/www/html/.env
+              subPath: .env
+              readOnly: true
+      volumes:
+        - name: config-volume
+          secret:
+            secretName: santander-secret
+      restartPolicy: Never

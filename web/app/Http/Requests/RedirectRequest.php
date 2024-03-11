@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MpfinRequest extends FormRequest
+class RedirectRequest extends FormRequest
 {
 
     public function rules()
@@ -17,7 +17,7 @@ class MpfinRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $mpfinXml = $this->input('mpfin');
         $mpfinArray = json_decode(json_encode(simplexml_load_string($mpfinXml)), true);

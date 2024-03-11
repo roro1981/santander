@@ -2,8 +2,6 @@
 
 namespace Tests\Unit\Jobs;
 
-use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
 use App\Jobs\KafkaNotification;
 use App\Models\Cart;
 use Exception;
@@ -117,14 +115,16 @@ class KafkaNotificationTest extends TestCase
         $mockKafka->shouldReceive('publishOn')->andThrow(Exception::class);
         $this->instance(Kafka::class, $mockKafka);
 
-        KafkaNotification::dispatch($order, $san);
+        $kafkaJob = new KafkaNotification($order);
+        $kafkaJob->handle();
 
         Queue::assertPushed(KafkaNotification::class);
     }
-
+    
     public function tearDown(): void
     {
-        Mockery::close();
+        
         parent::tearDown();
+        Mockery::close();
     }
 }

@@ -10,8 +10,11 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "league/flysystem": "^3.23",
+        "league/flysystem-ftp": "^3.23",
         "mateusjunges/laravel-kafka": "^1.13.5",
-        "midnite81/xml2array": "^2.0"
+        "midnite81/xml2array": "^2.0",
+        "phpseclib/phpseclib": "^3.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

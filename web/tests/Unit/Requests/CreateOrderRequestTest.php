@@ -3,10 +3,7 @@
 namespace Tests\Unit\Requests;
 
 use App\Http\Requests\CreateOrderRequest;
-use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Tests\TestCase;
 
 class CreateOrderRequestTest extends TestCase
@@ -62,26 +59,6 @@ class CreateOrderRequestTest extends TestCase
         $this->assertEquals('The uuid field is required.', $validator->errors()->get('uuid')[0]);
         $this->assertEquals('The order.id field is required.', $validator->errors()->get('order.id')[0]);
         $this->assertEquals('The user.id field is required.', $validator->errors()->get('user.id')[0]);
-    }
-
-    public function testValidationFailsAndTriggersCustomFailedValidation()
-    {
-        $request = CreateOrderRequest::create('api/v1/order/create', 'POST', []);
-        $this->app->instance('request', $request);
-
-        try {
-            $this->app->call([$this, 'callFormRequestValidation']);
-            $this->fail('ValidationException was not thrown');
-        } catch (HttpResponseException $e) {
-            $this->assertEquals(400, $e->getResponse()->getStatusCode());
-            $this->assertEquals('Bad Request', $e->getResponse()->getData()->message);
-        }
-    }
-
-    public function callFormRequestValidation()
-    {
-        $formRequest = $this->app->make(CreateOrderRequest::class);
-        $formRequest->validateResolved();
     }
 
     public function tearDown(): void

@@ -20,17 +20,11 @@ class CartStatus extends Model
         'cas_status'
     ];
 
-    /**
-     * Relationships
-     */ 
     public function cart()
     {
         return $this->belongsTo(Cart::class, 'car_id', 'car_id');
     }
 
-    /**
-     * Functions
-     */ 
     public static function saveCurrentStatus($cart)
     {
         return CartStatus::create([

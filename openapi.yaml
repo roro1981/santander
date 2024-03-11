@@ -1,23 +1,21 @@
 openapi: 3.0.0
+servers:
+  - url: 'http://localhost:9200/api'
+    description: Dev server (uses test data)
 info:
-  version: 0.0.1
+  version: 0.0.2
   title: Servicio Santander
   contact:
     email: soporte@flow.cl
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
   - name: health
     description : 'Permite comprobar el funcionamiento del servicio'
   - name: order
-    description: 'Permite gestionar órdenes de pago'
+    description: 'Permite gestionar órdenes de pago '
   - name: webhook
-    description: 'Permite actualizar estados de órdenes de pago'
-  - name: refund
-    description: 'Permite gestionar los reembolsos de las órdenes de pago'
+    description: 'Permite notificar pago en Santander'
 paths:
-  /api/v1/health:
+  /v1/health:
     get:
       tags:
         - health
@@ -32,7 +30,7 @@ paths:
                 $ref: '#/components/schemas/HealthOk'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/order/create:
+  /v1/order/create:
     post:
       tags:
         - order
@@ -55,140 +53,77 @@ paths:
           $ref: '#/components/responses/BusinessError'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/order/{id}/notify:
+  /v1/webhook/notify:
+    post:
+      tags:
+        - webhook
+      summary: Notificación de pago consolidado
+      description: Recibe una notificación cuando el pago se ha realizado en Santander
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotifyRequest'
+      responses:
+        '200':
+          description: Objeto Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotifyResponse'
+        '500':
+          $ref: '#/components/responses/InternalServer'
+  /v1/redirect:
     post:
       tags:
         - webhook
       summary: Notificación de pago consolidado
       description: Recibe una notificación cuando el pago se ha realizado en Santander
       parameters:
-        - name: id
+        - name: IdCarro
           in: path
-          description: UUID de la orden en servicio integración Santander
+          description: Identificador del Carro
+          required: true
+          schema:
+            type: integer
+            example: 169402
+        - name: CodRet 
+          in: path
+          description: Codigo de Retorno (000=Pago aceptado por el banco, 001=Error en operación, 002=Pago pendiente de firma)
           required: true
           schema:
             type: string
-            example: 46c9d190-a244-4e2d-8c44-baf74ec90528
-          style: simple
+            example: 000
+        - name: Estado 
+          in: path
+          description: Estado del pago
+          required: true
+          schema:
+            type: string
+            example: "ACEPTADO" 
+        - name: mpfin
+          in: path
+          description: Estructura XML MPFIN
+          required: true
+          schema:
+            type: string
+            example: <MPFIN><IDTRX>000100</IDTRX><CODRET></CODRET><NROPAGOS></NROPAGOS><TOTAL>1199</TOTAL><INDPAGO></INDPAGO><IDREG></IDREG></MPFIN>
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WebhookNotifyRequest'
-      responses:
-        '200':
-          description: Ok
-        '400':
-          $ref: '#/components/responses/BusinessError'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-  /api/v1/order/{id}/cancel:
-    get:
-      tags:
-        - webhook
-      summary: Notificación de pago anulado
-      description: Recibe una notificación cuando el pagador abandona el pago
-      parameters:
-        - name: id
-          in: path
-          description: UUID de la orden en servicio integración Santander
-          required: true
-          schema:
-            type: string
-            example: 46c9d190-a244-4e2d-8c44-baf74ec90528
-          style: simple
+              $ref: '#/components/schemas/MpfinRequest'
       responses:
         '200':
           description: Url de retorno
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WebhookCancelResponse'
-        '400':
-          $ref: '#/components/responses/BusinessError'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: '#/components/schemas/MpfinResponse'
         '500':
           $ref: '#/components/responses/InternalServer'
-  /api/v1/refund/create:
-    post:
-      tags:
-        - refund
-      summary: Crear un reembolso
-      description: Permite crear un reembolso de una orden
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateRefundRequest'
-      responses:
-        '200':
-          description: Objeto Refund
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateRefundResponse'
-        '400':
-          $ref: '#/components/responses/BusinessError'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-  /api/v1/refund/isrefundable:
-    get:
-      tags:
-        - refund
-      summary: Confirma si orden es reembolsable
-      description: Permite consultar si es posible reembolsar una orden
-      parameters:
-        - name: external_id
-          required: true
-          description: ID de Santander de la orden a consultar.
-          in: query
-          example: oca1k8nhhigb
-          schema:
-            type: string
-        - name: amount
-          required: true
-          description: Monto de la reversa.
-          in: query
-          example: 5000
-          schema:
-            type: number
-        - name: payment_type
-          required: true
-          description: Método de pago.
-          in: query
-          example: Crédito
-          schema:
-            type: string
-        - name: currency
-          required: true
-          description: Moneda para realizar la reversa.
-          in: query
-          example: PEN
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Objeto IsRefundable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IsRefundableResponse'
-        '400':
-          $ref: '#/components/responses/BusinessError'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServer'
-
-        
-
 components:
   responses:
     BusinessError:
@@ -244,7 +179,7 @@ components:
               type: integer
               description: Id del medio de pago
               example: 150
-              nullable: false
+              nullable: true
             url_confirmation:
               type: string
               description: Url de confirmacion
@@ -298,7 +233,7 @@ components:
               type: integer
               description: ID del usuario
               example: 200
-              nullable: false
+              nullable: true
             email:
               type: string
               description: Email del usuario
@@ -308,17 +243,17 @@ components:
               type: string
               description: Razón social o nombre legal del comercio.
               example: "FLOW S.A"
-              nullable: false
+              nullable: true
             tax_id:
               type: string
               description: Identificador tributario
               example: "99999999-9"
-              nullable: false
+              nullable: true
             address:
               type: string
               description: Dirección tributaria de la empresa
               example: "Providencia"
-              nullable: false
+              nullable: true
             fantasy_name:
               type: string
               description: Nombre de fantasía.
@@ -337,9 +272,9 @@ components:
           description: ID de la orden
           example: "oca1k8nhhigb"
         provider_id:
-          type: string
+          type: number
           description: ID de Santander
-          example: "000400"
+          example: 168478
         type:
           type: string
           enum: 
@@ -372,154 +307,104 @@ components:
           nullable: true
           items:
             $ref: '#/components/schemas/Metadata'
-    WebhookNotifyRequest:
+    NotifyRequest:
       type: object
       properties:
-        notification_token:
+        TX:
+          type: array
+          description: Array con campos de request
+        TX.CODRET:
+          type: number
+          maxLength: 4
+          description: Codigo retorno operación
+          example: 0000
+        TX.DESCRET:
           type: string
-          maxLength: 64
-          description: Token de notificación de la orden
-          example: '03c7dd5edc6bfed5a333282c89c581c27866ba3c2f12fe0f4912abbcf595aeae'
-        api_version:
+          maxLength: 200
+          description: Descripcion codigo retorno asociado a operación
+          example: 'OK'  
+        TX.IDCOM:
           type: string
-          maxLength: 5
-          description: Versión de la API de notificación
-          example: '1.3'
-    WebhookCancelResponse:
-      type: object
-      properties:
-        return_url:
+          maxLength: 20
+          description: Identificador comercio
+          example: '5878'
+        TX.IDTRX:
+          type: number
+          maxLength: 20
+          description: Identificador comercio
+          example: 11736793152       
+        TX.TOTAL:
+          type: number
+          maxLength: 18
+          description: Monto pagado (Con máximo 2 decimales)
+          example: 27828.00  
+        TX.MONEDA:
           type: string
-          description: Url de retorno de orden
-          example: https://local.tuxidev.cl:9101/app/pgw/return.php?token=423E9D4A34B6D53E302DE1A4CAF908992931998Z
-    CreateRefundRequest:
-      type: object
-      properties:
-        uuid:
+          maxLength: 3
+          description: Código moneda
+          example: '999' 
+        TX.NROPAGOS:
+          type: number
+          maxLength: 2
+          description: Número de items pagados
+          example: 2  
+        TX.FECHATRX:
           type: string
-          description: Identificador único de la request.
-          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
-          nullable: false
-        refund:
-          type: object
-          description: Información del reembolso
-          nullable: false
-          properties:
-            external_id:
-              type: string
-              description: ID Santander de transacción
-              example: "oca1k8nhhigb"
-              nullable: false
-            amount:
-              type: number
-              description: Monto solicitado para reembolsar
-              example: 109000
-              nullable: false
-            currency:
-              type: string
-              description: Moneda de pago
-              example: "PEN"
-              nullable: false
-            subject:
-              type: string
-              description: Descripción del motivo de la reversa
-              example: "Rembolso por compra de productos"
-              nullable: false
-            payment_type:
-              type: string
-              description: Método de pago utilizado DEBIT ó CREDIT valores aceptados
-              example: "DEBIT"
-              nullable: false
-            email_paid:
-              type: string
-              description: Email del solicitante de la reversa
-              example: "example@flow.cl"
-              nullable: false
-            create_date:
-              type: string
-              description: Fecha de la creación de la reversa, formato Tz
-              example: "2023-12-31T23:59:59Z"
-              nullable: false
-    CreateRefundResponse:
-      type: object
-      properties:
-        uuid:
+          maxLength: 2
+          description: Fecha y hora de pago (Formato DD/MM/YYYY HH:mm:ss)
+          example: '07/02/2024 11:32:20' 
+        TX.IDTRXREC:
           type: string
-          description: Identificador único de la respuesta
-          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
-          nullable: false
-        refund_uuid:
-          type: string
-          description: ID del reembolso
-          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
-          nullable: false
-        authorization_code:
-          type: string
-          description: Identificador de la autorización de la orden
-          example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
-          nullable: false
-        status:
-          type: string
-          description: Status del reembolso
-          example: "REFUNDED"
-          nullable: false
-    IsRefundableResponse:
-      type: object
-      properties:
-        is_refundable:
-          type: boolean
-          description: Respuesta de verificación si la orden es reembolsable.
-          example: false
-          nullable: false
-        description:
-          type: string
-          description: Respuesta de salida
-          example: "La orden no es reembolsable."
-          nullable: false
-    Metadata:
-      type: object
-      properties:
-        key: 
-          type: string
-          maxLength: 100
-          description: Identificador del campo
-          example: Número de factura
-        value:
-          type: string
-          maxLength: 1024
-          description: Valor del campo
-          example: "23598"
-      required: [key, value]
-    BusinessError:
+          maxLength: 20
+          description: Identificador de transacción entregado por el banco para la operación
+          example: '122336754'    
+    NotifyResponse:
       type: object
       properties:
         code:
-          type: number
-          description: Código de error
-          example: 400
-        message:
           type: string
-          description: Mensaje de error
-          example: Bad Request
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/BusinessErrorDetail'
-    BusinessErrorDetail:
+          description: Código de retorno operación
+          example: "000"
+        dsc:
+          type: string
+          maxLength: 20
+          description: Descripción del código de retorno asociado a la operación
+          example: "Proceo exitoso"   
+    MpfinRequest:
       type: object
       properties:
-        rule:
+        IdCarro:
+          type: number
+          maxLength: 11
+          description: Identificador carro
+          example: 169485
+        CodRet:
           type: string
-          description: Nombre de la regla de validación
-          example: Required
-        field:
+          maxLength: 3
+          description: Código de retorno
+          example: '000'  
+        Estado:
           type: string
-          description: Campo en que se produjo el error 
-          example: uuid
+          maxLength: 20
+          description: Estado del pago
+          example: 'ACEPTADO'
+        mpfin:
+          type: string
+          maxLength: 20
+          description: Estructura XML Mpfin
+          example: '<MPFIN><IDTRX>000100</IDTRX><CODRET></CODRET><NROPAGOS></NROPAGOS><TOTAL>1199</TOTAL><INDPAGO></INDPAGO><IDREG></IDREG></MPFIN>'                
+    MpfinResponse:
+      type: object
+      properties:
         message:
           type: string
-          description: Detalle del error en el campo 
-          example: The uuid field is required
+          description: Información sobre recepción
+          example: "Recepción exitosa"
+        url_return:
+          type: string
+          maxLength: 256
+          description: Url de retorno
+          example: "https://flow.cl/retorno.php"  
     NotFoundError:
       type: object
       properties:
@@ -541,4 +426,7 @@ components:
         message:
           type: string
           description: Mensaje de error
-          example: 'Internal Server Error'
+          example: 'Internal Server Error/Id de carro inexistente/Monto total pagado inconsistente/Moneda total pagado inconsistente'
+          
+          
+    

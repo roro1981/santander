@@ -10,8 +10,6 @@ return new class extends Migration
     {
         Schema::create('bbs_conciliation', function (Blueprint $table) {
             $table->bigIncrements('con_id')->comment('Id rendicion');
-            $table->integer('con_number_payments')->comment('Numero de pagos');
-            $table->integer('con_total_amount')->comment('Sumatoria de pagos');
             $table->integer('con_cart_id')->comment('Identificador del carro');
             $table->integer('con_agreement_id')->comment('Identificador del convenio');
             $table->string('con_product_number', 12)->comment('Id del producto pagado');
@@ -21,8 +19,10 @@ return new class extends Migration
             $table->integer('con_product_amount')->comment('Monto del producto pagado');
             $table->integer('con_operation_number')->comment('Numero de la operación');
             $table->datetime('con_operation_date')->comment('Fecha y hora de la transaccion');
-            $table->boolean('con_confirmation')->comment('Confirmacion de envio campo');
-            $table->timestamp('con_register_at')->comment('Fecha y hora de registro');
+            $table->string('con_status', 50)->comment('Status transaccion:OK, NO EXISTE, INCONSISTENCIA PAGO');
+            $table->string('con_file_process', 256)->comment('Archivo de origen del registro');
+            $table->integer('con_transaction_process')->comment('Verifica si transaccion fue procesada');
+            $table->timestamp('con_created_at')->nullable()->default(\DB::raw('CURRENT_TIMESTAMP'))->comment('Fecha creación');
         });
     }
 

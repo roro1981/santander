@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 
 class NotifyRequest extends CustomFormRequest
 {
+
     public function rules(): array
     {
         
@@ -21,22 +22,33 @@ class NotifyRequest extends CustomFormRequest
             'TX.IDTRXREC' => 'required|string',
         ];
     }
-
-    protected function prepareForValidation()
-    {
-        $rawBody = file_get_contents("php://input");
+    public function prepareForValidation($data=null)
+    {   
+        if (isset($data)) {
+            $rawBody = $data;
+        }else{    
+            $rawBody = file_get_contents("php://input");
+        }
+        
         $body=str_replace("TX=","",$rawBody);
+        
         $bodyArray = $this->convertXmlToArray($body);
-
+        
         $this->merge(['TX' => $bodyArray]);
-        $request = $this->request->all();
-        $txData = $request['TX'];
-        $idTrx = (int)ltrim($txData['IDTRX'], '0');
-        $bodyArray['IDTRX'] = $idTrx;
-        $this->merge(['TX' => $bodyArray]);
+      
+        if ($this->filled('TX')) {    
+            $txData = $this->input('TX');          
+            $idTrx = (int)ltrim($txData['IDTRX'], '0');
+            $bodyArray['IDTRX'] = $idTrx;
+            $this->merge(['TX' => $bodyArray]);
+        }    
     }
-    private function convertXmlToArray($xml)
+    public function convertXmlToArray($xml)
     {
+        if (empty($xml) || !is_string($xml)) {
+            return "La cadena XML está vacía o no es válida.";
+        }
+
         $decodedXml = html_entity_decode($xml, ENT_QUOTES, 'UTF-8');
 
         libxml_use_internal_errors(true);
@@ -44,9 +56,7 @@ class NotifyRequest extends CustomFormRequest
         libxml_use_internal_errors(false); 
 
         if ($xmlObject === false) {
-            $errors = libxml_get_errors();
-            libxml_clear_errors();
-            throw new \Exception("Error al cargar la cadena XML. Detalles: " . print_r($errors, true));
+            return null;
         }
 
         $json = json_encode($xmlObject);
