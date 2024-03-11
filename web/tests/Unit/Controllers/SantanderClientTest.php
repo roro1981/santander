@@ -71,7 +71,7 @@ class SantanderClientTest extends TestCase
         try {
             $result = $santanderClient->getBearerToken($this->flow_id);
         } catch (\Exception $e) {
-            $this->assertEquals('Error al obtener el Bearer Token después de 3 intentos', $e->getMessage());
+            $this->assertEquals('Error al obtener el Bearer Token después de 1 intentos', $e->getMessage());
         }
         
     }
