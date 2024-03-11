@@ -97,20 +97,20 @@ class SantanderClient
                     $body
                 );
                 
-<<<<<<< HEAD
                 $response = Http::withHeaders($headers)->timeout(10)->post($url,$body);
            
-=======
-                $response = Http::withHeaders($headers)->post($url,$body);
-               
->>>>>>> parent of 878e435 (modificaciones QA)
                 if($response->successful()){
                     $apiLog->updateLog((array) $response->json(), 200);
                     return $response->json();
                 }elseif ($response->status() == 404) {
                     throw new \Exception('La transacción ya fue procesada', 404);
+                    $intentos++;
                 }elseif($response->failed()){
                     throw new \Exception('Error currency: debe ser igual a 999', 500);
+                    $intentos++;
+                }else{
+                    throw new \Exception('Error al consumir servicio Santander', 500);
+                    $intentos++;
                 }
 
             } catch (Exception $e) {

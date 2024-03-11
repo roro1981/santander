@@ -25,11 +25,9 @@ class SantanderClientTest extends TestCase
     private $flow_id = 000100;
     private $mockSantanderClient;
 
-
     public function setUp(): void
     {
         parent::setUp();
-
     }
 
     /**
@@ -147,7 +145,8 @@ class SantanderClientTest extends TestCase
             'car_flow_subject' => 'subject test',
             'car_created_at' => now()
         ];
-        $body = Cart::getBody($order);
+        $extra_params=[["key"=> "Número de factura", "value"=> "23598"]];
+        $body = Cart::getBody($order, $extra_params);
         $response = $santanderClient->post('/auth/apiboton/carro/inscribir',$body, $this->flow_id, 0);
 
         $this->assertEquals('0', $response['codeError']);
@@ -183,7 +182,8 @@ class SantanderClientTest extends TestCase
                 'car_flow_subject' => 'subject test',
                 'car_created_at' => now()
             ];
-            $body = Cart::getBody($order);
+            $extra_params=[["key"=> "Número de factura", "value"=> "23598"]];
+            $body = Cart::getBody($order, $extra_params);
             $response = $client->post('/auth/apiboton/carro/inscribir',$body, $this->flow_id, 0);
         }catch(\Exception $e){
             $this->assertEquals(500, $e->getCode());
