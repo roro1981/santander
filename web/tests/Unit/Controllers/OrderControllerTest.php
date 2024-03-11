@@ -39,6 +39,7 @@ class OrderControllerTest extends TestCase
                 'attempt_number' => '1',
                 'amount' => 10.200,
                 'currency' => '999',
+                'extra_params' => [],
                 'subject' => 'Unit Test',
                 'email_paid' => 'test@flow.cl',
                 'expiration' => time() + 86400,

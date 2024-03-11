@@ -98,7 +98,7 @@ class SantanderClient
                 );
                 
                 $response = Http::withHeaders($headers)->timeout(10)->post($url,$body);
-           
+                
                 if($response->successful()){
                     $apiLog->updateLog((array) $response->json(), 200);
                     return $response->json();
