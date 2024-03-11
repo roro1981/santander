@@ -52,9 +52,6 @@ class Cart extends Model
         self::creating(function ($model) {
             $model->car_uuid = (string) Str::uuid();
         });
-        /*static::creating(function ($model) {
-            $model->car_id = 169008;
-        });*/
     }   
 
     public static function storeCart($uuid, $orderRequest, $userRequest)

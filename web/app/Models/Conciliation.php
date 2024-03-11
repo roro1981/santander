@@ -25,7 +25,8 @@ class Conciliation extends Model
         'con_operation_number',
         'con_operation_date',
         'con_status',
-        'con_file_process'
+        'con_file_process',
+        'con_transaction_process'
     ];
     
 }
