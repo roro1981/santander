@@ -5,7 +5,7 @@ namespace App\Http\Utils;
 abstract class Constants
 {
     const DEFAULT_NOTIFY_API_VERSION = "1.0";
-    const MAX_INTEGER_LENGTH = 18;
+    const MAX_INTEGER_LENGTH = 11;
     const MAX_ORDER_EXPIRATION = 31536000;
     const PARAM_EXPIRATION_TIME = 900;
     const SANTANDER_AGREEMENT = '9570';
@@ -25,6 +25,7 @@ abstract class Constants
     const PARAM_SANTANDER_SFTP_PASSWORD = 'SFTP_PASSWORD_SANTANDER';
     const PARAM_ORDER_MIN_AMOUNT = 'ORDER_MIN_AMOUNT';
     const PARAM_ORDER_MAX_AMOUNT = 'ORDER_MAX_AMOUNT';
+    const PARAM_ALLOWED_METHODS = 'ALLOWED_METHODS';
     
     const STATUS_CREATED = 'CREATED';
     const STATUS_PREAUTHORIZED = 'PRE-AUTHORIZED';

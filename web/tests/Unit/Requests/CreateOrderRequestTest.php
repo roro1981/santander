@@ -21,20 +21,20 @@ class CreateOrderRequestTest extends TestCase
         $request = new CreateOrderRequest([
             'uuid' => '80b9cbcb-6080-41ba-9492-8b1d886d5904',
             'order' => [
-                'id' => "1",
-                'product_id' => "1",
-                'method_id' => "000300",
+                'id' => 1,
+                'product_id' => 1,
+                'method_id' => 160,
                 'url_confirmation' => 'https://flow.cl/confirmacion.php',
                 'url_return' => 'https://flow.cl/retorno.php',
                 'attempt_number' => 1,
                 'amount' => 3.00,
-                'currency' => 'CLP',
+                'currency' => '999',
                 'subject' => 'Unit Test',
                 'email_paid' => 'test@flow.cl',
                 'expiration' => time() + 86400,
             ],
             'user' => [
-                'id' => "1",
+                'id' => 1,
                 'email' => 'test@flow.cl',
                 'legal_name' => 'Testing',
                 'tax_id' => '11111111-1',
@@ -44,7 +44,9 @@ class CreateOrderRequestTest extends TestCase
         ]);
 
         $validator = $this->app['validator']->make($request->all(), $request->rules());
-        
+        if ($validator->fails()) {
+            dd($validator->messages());
+        }
         $this->assertFalse($validator->fails());
         
     }

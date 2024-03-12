@@ -2,9 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Utils\Constants;
 use App\Rules\FloatMaxDecimals;
 use App\Rules\IsNumeric;
 use App\Rules\NumericBetween;
+use App\Rules\IntegerMaxLength;
+use App\Rules\IntegerPositive;
+use App\Rules\IsInteger;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Foundation\Http\FormRequest;
@@ -13,6 +17,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class CustomFormRequest extends FormRequest
 {
     const REQUIRED = 'required';
+    const MAX_3 = 'max:3';
     const MAX_255 = 'max:255';
     const MAX_1024 = 'max:1024';
     const STRING = 'string';
@@ -20,6 +25,18 @@ class CustomFormRequest extends FormRequest
     const INTEGER = 'integer';
     const EMAIL = 'email:rfc,dns';
     const URL = 'url:http,https';
+    const UUID = 'uuid';
+
+
+    protected function getNumericIdRules()
+    {
+        return [
+            self::REQUIRED,
+            new IsInteger,
+            new IntegerMaxLength(Constants::MAX_INTEGER_LENGTH),
+            new IntegerPositive
+        ];
+    }
 
     protected function getAmountRules(float $minAmount, float $maxAmount)
     {

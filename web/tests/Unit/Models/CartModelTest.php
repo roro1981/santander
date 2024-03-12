@@ -28,7 +28,6 @@ class CartModelTest extends TestCase
         'car_id_transaction' => '00100',
         'car_flow_currency' => 'CLP',
         'car_flow_amount' => '100.00',
-        'car_description' => 'Descripción de la transacción',
         'car_agreement' => '9570',
         'car_url' => 'https://ejemplo.com/pago',
         'car_expires_at' => 1706292011,
@@ -52,7 +51,6 @@ class CartModelTest extends TestCase
         $this->assertEquals('00100', $cart->car_id_transaction);
         $this->assertEquals('CLP', $cart->car_flow_currency);
         $this->assertEquals('100.00', $cart->car_flow_amount);
-        $this->assertEquals('Descripción de la transacción', $cart->car_description);
         $this->assertEquals('9570', $cart->car_agreement);
         $this->assertEquals('https://ejemplo.com/pago', $cart->car_url);
         $this->assertEquals(1706292011, $cart->car_expires_at);

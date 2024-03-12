@@ -93,6 +93,12 @@ class ParameterSeeder extends Seeder
                 'par_description' => 'Monto máximo permitido para crear ordenes',
                 'par_created_at' => now()
             ],
+            [
+                'par_code' => 'ALLOWED_METHODS',
+                'par_value' => '160',
+                'par_description' => 'ID de métodos permitidos para crear ordenes, separados por coma',
+                'par_created_at' => now()
+            ],
         ];
         Parameter::insertOrIgnore($data);
     }
