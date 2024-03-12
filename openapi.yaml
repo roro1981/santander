@@ -156,7 +156,7 @@ components:
       type: object
       properties:
         uuid:
-          type: string
+          type: string tipo UUID
           description: Identificador único de request
           example: "6e3058b5-5c30-4037-9dd8-8b3b17b1e69643243"
           nullable: false
