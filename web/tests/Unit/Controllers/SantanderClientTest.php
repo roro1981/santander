@@ -183,12 +183,16 @@ class SantanderClientTest extends TestCase
     {
         $this->seed(ParameterSeeder::class);
         $client = new SantanderClient();
+        $reflectionClass = new ReflectionClass($client);
+        $intentosMax = $reflectionClass->getProperty('intentosMaximos');
+        $intentosMax->setValue($client, 1);
+        $intentosMax->setAccessible(true);
         try{
             $order = [
                 'car_id' => 1,
                 'car_id_transaction' => Uuid::uuid4(),
                 'car_flow_currency' => ParamUtil::getParam(Constants::PARAM_CURRENCY),
-                'car_flow_amount' => '100.1',
+                'car_flow_amount' => 100.1,
                 'car_url' => 'www.flow.cl',
                 'car_expires_at' => 1693418602,
                 'car_items_number' => 1,
@@ -207,7 +211,7 @@ class SantanderClientTest extends TestCase
             $response = $client->post('/auth/apiboton/carro/inscribir',$body, $this->flow_id, 0);
         }catch(\Exception $e){
             $this->assertEquals(500, $e->getCode());
-            $this->assertEquals('Error al inscribir el carro después de 1 intentos', $e->getMessage());
+            $this->assertEquals('Error al inscribir el carro después de '.$intentosMax->getValue($client).' intentos: La transacción ya fue procesada en Santander', $e->getMessage());
         }
 
     }
@@ -237,7 +241,7 @@ class SantanderClientTest extends TestCase
         $order = [
             'car_id' => $cart_id,
             'car_id_transaction' => Uuid::uuid4(),
-            'car_flow_currency' => ParamUtil::getParam(Constants::PARAM_CURRENCY),
+            'car_flow_currency' => '123',
             'car_flow_amount' => 100.1,
             'car_url' => 'www.flow.cl',
             'car_expires_at' => 1693418602,
@@ -257,7 +261,7 @@ class SantanderClientTest extends TestCase
             $responseData = json_decode($response->getContent(), true);
         }catch(Exception $e){
             $this->assertEquals(500, $e->getCode());
-            $this->assertEquals('Error al inscribir el carro después de '.$intentosMax->getValue($serviceMock)." intentos", $e->getMessage());
+            $this->assertEquals('Error al inscribir el carro después de '.$intentosMax->getValue($serviceMock)." intentos: Servicio Santander retorna error", $e->getMessage());
         } 
     }
     /**
