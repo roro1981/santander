@@ -166,17 +166,17 @@ components:
           nullable: false
           properties:
             id:
-              type: integer
+              type: integer(11)
               description: Id de la orden
               example: 800130
               nullable: false
             product_id:
-              type: integer
+              type: integer(11)
               description: Id del producto
               example: 150
               nullable: false
             method_id:
-              type: integer
+              type: integer(11)
               description: Id del medio de pago
               example: 150
               nullable: true
@@ -191,7 +191,7 @@ components:
               example: "https://flow.cl/retorno.php"
               nullable: false
             attempt_number:
-              type: integer
+              type: integer(11)
               description: Número de intento de pago
               example: 5
               nullable: false
@@ -212,7 +212,7 @@ components:
               nullable: false
             expiration: 
               type: integer
-              description: tiempo de expiracion de la url de pago
+              description: tiempo de expiracion de la url de pago (Rango 1, 2147483647)
               example: 1703174767
               nullable: false
             email_paid:
