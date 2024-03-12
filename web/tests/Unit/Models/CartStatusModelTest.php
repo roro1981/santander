@@ -8,6 +8,8 @@ use App\Models\CartStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Ramsey\Uuid\Uuid;
+use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 
 
 class CartStatusModelTest extends TestCase
@@ -17,7 +19,7 @@ class CartStatusModelTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-
+        $this->seed();
     }
     /**
      * @runInSeparateProcess
@@ -42,6 +44,7 @@ class CartStatusModelTest extends TestCase
             'car_fail_motive' => 'Motivo del fallo',
             'car_flow_id' => '000100',
             'car_flow_attempt_number' => 1,
+            'car_flow_method_id' => ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS),
             'car_flow_product_id' => '00200',
             'car_flow_subject' => 'Subject test',
             'car_flow_email_paid' => 'rpanes@ejemplo.com'
@@ -84,6 +87,7 @@ class CartStatusModelTest extends TestCase
             'car_fail_motive' => 'Motivo del fallo',
             'car_flow_id' => '000100',
             'car_flow_attempt_number' => 1,
+            'car_flow_method_id' => ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS),
             'car_flow_product_id' => '00200',
             'car_flow_subject' => 'Subject test',
             'car_flow_email_paid' => 'rpanes@ejemplo.com'

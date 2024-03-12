@@ -28,6 +28,7 @@ return new class extends Migration
             $table->longText('car_fail_motive')->nullable()->comment('Detalle error webhook');
             $table->integer('car_flow_id')->comment('Identificador de flow');
             $table->integer('car_flow_attempt_number')->comment('Numero de intentos de pago');
+            $table->integer('car_flow_method_id')->comment('ID método de pago Flow');
             $table->integer('car_flow_product_id')->comment('Id del producto');
             $table->string('car_flow_email_paid', 255)->comment('Email usuario');
             $table->string('car_flow_subject', 255)->comment('Asunto de transaccion de pago');

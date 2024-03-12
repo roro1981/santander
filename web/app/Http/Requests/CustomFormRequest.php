@@ -28,7 +28,7 @@ class CustomFormRequest extends FormRequest
     const UUID = 'uuid';
 
 
-    protected function getNumericIdRules()
+    static function getNumericIdRules()
     {
         return [
             self::REQUIRED,
@@ -38,7 +38,7 @@ class CustomFormRequest extends FormRequest
         ];
     }
 
-    protected function getAmountRules(float $minAmount, float $maxAmount)
+    static function getAmountRules(float $minAmount, float $maxAmount)
     {
         return [
             self::REQUIRED,

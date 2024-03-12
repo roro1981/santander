@@ -16,9 +16,8 @@ use App\Http\Requests\RedirectRequest;
 use App\Models\Cart;
 use App\Jobs\KafkaNotification;
 use Illuminate\Support\Facades\Queue;
-
-
-
+use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 
 class WebhookControllerTest extends TestCase
 {
@@ -45,7 +44,7 @@ class WebhookControllerTest extends TestCase
             'order' => [
                 'id' => '5000',
                 'product_id' => '1',
-                'method_id' => $this->method,
+                'method_id' => ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS),
                 'url_confirmation' => 'https://flow.cl/confirmacion.php',
                 'url_return' => 'https://flow.cl/retorno.php',
                 'attempt_number' => '1',

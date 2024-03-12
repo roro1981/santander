@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 use Ramsey\Uuid\Uuid;
+use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,6 +24,7 @@ class CartFactory extends Factory
             'car_sent_kafka' => 0,
             'car_flow_id' => 1,
             'car_flow_attempt_number' => 1,
+            'car_flow_method_id' => ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS),
             'car_flow_product_id' => 1,
             'car_flow_email_paid' => 'rpanes@tuxpan.com',
             'car_flow_subject' => 'Test integracion',

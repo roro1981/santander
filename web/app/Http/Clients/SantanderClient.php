@@ -43,14 +43,18 @@ class SantanderClient
 
                 $response = Http::timeout(10)->post($this->baseUrl."/auth/basic/token", $this->credentials);
                 
-            if ($response->successful()) {
-                $responseToken = [
-                    'token_type' => $response->json('token_type'),
-                    'access_token' => $response->json('access_token'),
-                ];
-                $apiLog->updateLog((array) $response, 200);
-                return $responseToken;
-            }
+                if ($response->successful()) {
+                    $responseToken = [
+                        'token_type' => $response->json('token_type'),
+                        'access_token' => $response->json('access_token'),
+                    ];
+                    $apiLog->updateLog((array) $response, 200);
+                    return $responseToken;
+                }elseif($response->failed()){
+                    throw new \Exception('Servicio Santander retorna error', 500);
+                }else{
+                    throw new \Exception('Error al obtener bearer token', 500);
+                }
 
             } catch (Exception $e) {
                 $intentos++;
@@ -103,25 +107,22 @@ class SantanderClient
                     $apiLog->updateLog((array) $response->json(), 200);
                     return $response->json();
                 }elseif ($response->status() == 404) {
-                    throw new \Exception('La transacción ya fue procesada', 404);
-                    $intentos++;
+                    throw new \Exception('La transacción ya fue procesada en Santander', 404);
                 }elseif($response->failed()){
-                    throw new \Exception('Error currency: debe ser igual a 999', 500);
-                    $intentos++;
+                    throw new \Exception('Servicio Santander retorna error', 500);
                 }else{
                     throw new \Exception('Error al consumir servicio Santander', 500);
-                    $intentos++;
                 }
 
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $intentos++;
-                $message=$e ? $e->getMessage():'Error al inscribir el carro después de '.$this->intentosMaximos.' intentos';
+                $message= $e->getMessage() ? $e->getMessage():'Error al inscribir el carro después de '.$this->intentosMaximos.' intentos';
                 $code=$e ? $e->getCode():500;
                 $apiLog->updateLog((array) $message, $code);
                 if ($intentos < $this->intentosMaximos) {
                     sleep($this->intervaloTiempo);
                 } else {
-                    throw new \Exception('Error al inscribir el carro después de '.$this->intentosMaximos.' intentos', 500);
+                    throw new \Exception('Error al inscribir el carro después de '.$this->intentosMaximos.' intentos: '.$e->getMessage(), 500);
                 }
             }
         } while ($intentos < $this->intentosMaximos);

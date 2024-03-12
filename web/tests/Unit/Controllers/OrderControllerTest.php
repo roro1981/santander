@@ -10,6 +10,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
 use Ramsey\Uuid\Uuid;
+use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 
 
 class OrderControllerTest extends TestCase
@@ -33,7 +35,7 @@ class OrderControllerTest extends TestCase
             'order' => [
                 'id' => '5000',
                 'product_id' => '1',
-                'method_id' => $this->method,
+                'method_id' => ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS),
                 'url_confirmation' => 'https://flow.cl/confirmacion.php',
                 'url_return' => 'https://flow.cl/retorno.php',
                 'attempt_number' => '1',

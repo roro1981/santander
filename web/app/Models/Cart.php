@@ -37,6 +37,7 @@ class Cart extends Model
         'car_fail_motive',
         'car_flow_id',
         'car_flow_attempt_number',
+        'car_flow_method_id',
         'car_flow_product_id',
         'car_flow_subject',
         'car_flow_email_paid'
@@ -70,6 +71,7 @@ class Cart extends Model
             'car_sent_kafka' => 0,
             'car_flow_id' => $orderRequest['id'],
             'car_flow_attempt_number' => $orderRequest['attempt_number'],
+            'car_flow_method_id' => $orderRequest['method_id'],
             'car_flow_product_id' => $orderRequest['product_id'],
             'car_flow_email_paid' => $orderRequest['email_paid'],
             'car_flow_subject' => $orderRequest['subject'],
