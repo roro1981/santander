@@ -179,7 +179,7 @@ components:
               type: integer(11)
               description: Id del medio de pago
               example: 150
-              nullable: true
+              nullable: false
             url_confirmation:
               type: string
               description: Url de confirmacion
