@@ -51,9 +51,9 @@ class SantanderClient
                     $apiLog->updateLog((array) $response, 200);
                     return $responseToken;
                 }elseif($response->failed()){
-                    throw new \Exception('Servicio Santander retorna error', 500);
+                    throw new \App\Exceptions\InscriptionException('Servicio Santander retorna error', 500);
                 }else{
-                    throw new \Exception('Error al obtener bearer token', 500);
+                    throw new \App\Exceptions\InscriptionException('Error al obtener bearer token', 500);
                 }
 
             } catch (Exception $e) {
@@ -64,7 +64,7 @@ class SantanderClient
                 if ( $intentos < $this->intentosMaximos) {
                     sleep($this->intervaloTiempo);
                 } else {
-                    throw new \Exception('Error al obtener el Bearer Token después de '.$this->intentosMaximos.' intentos', 500);
+                    throw new \App\Exceptions\InscriptionException('Error al obtener el Bearer Token después de '.$this->intentosMaximos.' intentos', 500);
                 }
             }
 
