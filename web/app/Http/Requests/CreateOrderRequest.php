@@ -26,7 +26,7 @@ class CreateOrderRequest extends CustomFormRequest
             'order.subject' => self::REQUIRED . '|' . self::STRING . '|' . self::MAX_255,
             'order.expiration' => new NumericBetween(1, 2147483647),
             'order.email_paid' => self::STRING . '|' . self::EMAIL . '|' . self::MAX_255,
-            'order.currency' => self::REQUIRED . '|' . self::STRING. '|' . self::MAX_3,
+            'order.currency' => self::REQUIRED . '|' . self::STRING. '|' . self::MAX_3 . '|in:' . ParamUtil::getParam(Constants::PARAM_CURRENCY),
             'order.extra_params' => 'array|nullable',
             'order.extra_params.*.key' => self::STRING,
             'order.extra_params.*.value' => self::STRING,

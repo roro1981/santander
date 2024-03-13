@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\WebhookController;
-//use App\Http\Controllers\FtpConciliationController;
+use App\Http\Controllers\FtpConciliationController;
 
 
 Route::get('/v1/health', function () {
@@ -19,6 +19,6 @@ Route::get('/v1/refund/isrefundable', function () {
     return false;
 });
 
-//Route::get('/v1/santander/conciliation', [FtpConciliationController::class, 'conciliation']);
+Route::get('/v1/santander/conciliation', [FtpConciliationController::class, 'conciliation']);
 
 
