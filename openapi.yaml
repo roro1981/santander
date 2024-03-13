@@ -217,6 +217,7 @@ components:
               nullable: false
             email_paid:
               type: string
+              nullable: true
               description: Email de pagador
               example: test@flow.cl
             extra_params:
