@@ -86,7 +86,9 @@ class FtpConciliationJob implements ShouldQueue
                             ];
                         }    
                     }
-
+                    if(count($dataToInsert)>0){
+                        Log::info("Archivo ".$this->fileName." procesado correctamente");
+                    }
                 } catch (\Exception $e) {
                     Log::error("Error proceso conciliacion Santander en archivo: ".$this->fileName." Error: ".$e->getMessage());
                     exit;
