@@ -43,7 +43,7 @@ class CartModelTest extends TestCase
         'car_fail_motive' => 'Motivo del fallo',
         'car_flow_id' => '000100',
         'car_flow_attempt_number' => 1,
-        'car_flow_method_id' => ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS),
+        'car_flow_method_id' => 160,
         'car_flow_product_id' => '00200',
         'car_flow_subject' => 'Subject test',
         'car_flow_email_paid' => 'rpanes@ejemplo.com'
@@ -111,7 +111,7 @@ class CartModelTest extends TestCase
         $cart->car_sent_kafka = 0;
         $cart->car_flow_id = 1;
         $cart->car_flow_attempt_number = 1;
-        $cart->car_flow_method_id = ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS);
+        $cart->car_flow_method_id = 160;
         $cart->car_flow_product_id = 1;
         $cart->car_flow_email_paid = 'rpanes@tuxpan.com';
         $cart->car_flow_subject = 'Test integracion';

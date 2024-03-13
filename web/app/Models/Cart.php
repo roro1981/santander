@@ -85,7 +85,7 @@ class Cart extends Model
         'currency' => $cartData['car_flow_currency'],
         'amount' => $cartData['car_flow_amount'],
         'agreement' => '9570',
-        'url' => $cartData['car_url_return'],
+        'url' => $cartData['car_url'],
         'itemsNumber' => 1,
         'additionalData' => $extra_params,
         'details' => [

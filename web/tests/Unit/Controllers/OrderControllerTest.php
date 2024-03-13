@@ -35,7 +35,7 @@ class OrderControllerTest extends TestCase
             'order' => [
                 'id' => '5000',
                 'product_id' => '1',
-                'method_id' => ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS),
+                'method_id' => 160,
                 'url_confirmation' => 'https://flow.cl/confirmacion.php',
                 'url_return' => 'https://flow.cl/retorno.php',
                 'attempt_number' => '1',

@@ -149,7 +149,7 @@ class SantanderClientTest extends TestCase
         $order = [
             'car_id' => $cart_id,
             'car_id_transaction' => Uuid::uuid4(),
-            'car_flow_currency' => ParamUtil::getParam(Constants::PARAM_CURRENCY),
+            'car_flow_currency' => 160,
             'car_flow_amount' => '100.1',
             'car_url' => 'www.flow.cl',
             'car_expires_at' => 1693418602,
@@ -202,6 +202,7 @@ class SantanderClientTest extends TestCase
                 'car_flow_id' => '000100',
                 'car_flow_attempt_number' => 0,
                 'car_flow_product_id' => '100',
+                'car_flow_method_id' => 160,
                 'car_flow_email_paid' => 'rpanes@tuxpan.com',
                 'car_flow_subject' => 'subject test',
                 'car_created_at' => now()
@@ -251,6 +252,7 @@ class SantanderClientTest extends TestCase
             'car_sent_kafka' => 0,
             'car_flow_id' => 100,
             'car_flow_attempt_number' => 1,
+            'car_flow_method_id' => 160,
             'car_flow_product_id' => 100,
             'car_flow_email_paid' => 'rpanes@tuxpan.com',
             'car_flow_subject' => 'subject test',
@@ -298,6 +300,7 @@ class SantanderClientTest extends TestCase
             'car_sent_kafka' => 0,
             'car_flow_id' => 100,
             'car_flow_attempt_number' => 1,
+            'car_flow_method_id' => 160,
             'car_flow_product_id' => 100,
             'car_flow_email_paid' => 'rpanes@tuxpan.com',
             'car_flow_subject' => 'subject test',

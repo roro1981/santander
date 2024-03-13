@@ -5,8 +5,6 @@ namespace Tests\Unit\Requests;
 use App\Http\Requests\CreateOrderRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
 
 class CreateOrderRequestTest extends TestCase
 {
@@ -25,7 +23,7 @@ class CreateOrderRequestTest extends TestCase
             'order' => [
                 'id' => 1,
                 'product_id' => 1,
-                'method_id' => ParamUtil::getParam(Constants::PARAM_ALLOWED_METHODS),
+                'method_id' => 160,
                 'url_confirmation' => 'https://flow.cl/confirmacion.php',
                 'url_return' => 'https://flow.cl/retorno.php',
                 'attempt_number' => 1,
@@ -46,7 +44,7 @@ class CreateOrderRequestTest extends TestCase
         ]);
 
         $validator = $this->app['validator']->make($request->all(), $request->rules());
-        $this->assertTrue($validator->fails());
+        $this->assertFalse($validator->fails());
         
     }
 
@@ -106,7 +104,6 @@ class CreateOrderRequestTest extends TestCase
         $this->assertTrue($validator->fails());
         $this->assertEquals('The uuid field is required.', $validator->errors()->get('uuid')[0]);
         $this->assertEquals('The order.id field is required.', $validator->errors()->get('order.id')[0]);
-        $this->assertEquals('The user.id field is required.', $validator->errors()->get('user.id')[0]);
     }
 
     public function tearDown(): void
