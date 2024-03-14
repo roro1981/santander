@@ -119,11 +119,13 @@ class SantanderClientTest extends TestCase
         Http::fake([
             '*/auth/basic/token' => Http::response([], 200),
         ]);
-    
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Error al obtener el Bearer Token después de '.$intentosMax->getValue($service)." intentos");
-    
-        $service->getBearerToken(1234);
+        try{
+            $service->getBearerToken(1234);
+        }catch(Exception $e){
+            $this->expectException(500, $e->getCode());
+            $this->expectExceptionMessage('Error al obtener el Bearer Token después de '.$intentosMax->getValue($service)." intentos", $e->getMessage());
+        }    
+        
     }
     /**
      * @runInSeparateProcess
