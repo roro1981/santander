@@ -4,7 +4,6 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Clients\SantanderClient;
 use App\Http\Controllers\WebhookController;
-use App\Models\Idempotency;
 use App\Models\CartStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Response;
@@ -16,8 +15,7 @@ use App\Http\Requests\RedirectRequest;
 use App\Models\Cart;
 use App\Jobs\KafkaNotification;
 use Illuminate\Support\Facades\Queue;
-use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
+
 
 class WebhookControllerTest extends TestCase
 {
@@ -25,7 +23,6 @@ class WebhookControllerTest extends TestCase
 
     private $mockRequestData;
     private $requestNotify;
-    private $requestNotifyError;
     private $requestNotifyCodRetError;
     private $requestRedirect;
     private $mockCartStatus;
@@ -65,36 +62,29 @@ class WebhookControllerTest extends TestCase
         ];
 
         $this->requestNotify = [
-            'TX' => [
-                'IDTRX' => '1',
-                'CODRET' => '0000',
-                'TOTAL' => 1199,
-                'MONEDA' =>'CLP',
-                'IDTRXREC' =>'1',
-                'DESCRET' => 'Transaccion OK'
-            ]
+            "CODRET"=> "0000",
+            "DESCRET"=> "Transaccion OK",
+            "IDCOM"=> "7683001403",
+            "IDTRX"=> "00000000001",
+            "TOTAL"=> "1199",
+            "NROPAGOS"=> "1",
+            "FECHATRX"=> "20240314110848",
+            "FECHACONT"=> "20240314",
+            "NUMCOMP"=> "1710425328291",
+            "IDREG"=> "202053"
         ];
         
-        $this->requestNotifyError = [
-            'TX' => [
-                'IDTRX' => '1',
-                'CODRET' => '0000',
-                'TOTAL' => 1199,
-                'MONEDA' =>'USD',
-                'IDTRXREC' =>'1',
-                'DESCRET' => 'Transaccion OK'
-            ]
-        ];
-
         $this->requestNotifyCodRetError = [
-            'TX' => [
-                'IDTRX' => '1',
-                'CODRET' => '0077',
-                'TOTAL' => 1199,
-                'MONEDA' =>'CLP',
-                'IDTRXREC' =>'1',
-                'DESCRET' => 'Transaccion 77'
-            ]
+            "CODRET"=> "0077",
+            "DESCRET"=> "Transaccion 77",
+            "IDCOM"=> "7683001403",
+            "IDTRX"=> "0000000000169007",
+            "TOTAL"=> "1199",
+            "NROPAGOS"=> "1",
+            "FECHATRX"=> "20240314110848",
+            "FECHACONT"=> "20240314",
+            "NUMCOMP"=> "1710425328291",
+            "IDREG"=> "202053"
         ];
 
         $this->requestRedirect = [
@@ -114,21 +104,26 @@ class WebhookControllerTest extends TestCase
     
     public function testNotifySuccess()
     {
-   
         Queue::fake();
         
         $requestMock = Mockery::mock(NotifyRequest::class);
         $requestMock->shouldReceive('validated')->andReturn($this->requestNotify);
         $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
         $this->app->instance(NotifyRequest::class, $requestMock);
-
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andReturnUsing(function ($cart) {
+            return new CartStatus([
+                'car_id' => $cart->car_id,
+                'cas_status' => $cart->car_status
+            ]);
+        });
+        $this->instance(CartStatus::class, $this->mockCartStatus);
         $response = Response::json(['code' => '0000', 'dsc' => 'Transaccion OK'], 200);
 
         $order = Cart::factory()->create();
-
+        
         $controller = new WebhookController();
         $result = $controller->notify($requestMock);
-      
+ 
         $this->assertEquals($response->getContent(), $result->getContent());
 
         Queue::assertPushed(KafkaNotification::class, function ($job) {
@@ -167,23 +162,7 @@ class WebhookControllerTest extends TestCase
 
         $this->assertEquals($response->getContent(), $result->getContent());
     }
-    public function testMonedaInconsistente()
-    {
-        $requestMock = Mockery::mock(NotifyRequest::class);
-        $requestMock->shouldReceive('validated')->andReturn($this->requestNotifyError);
-        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
-        $this->app->instance(NotifyRequest::class, $requestMock);
-      
-        $cart = Cart::factory()->create();
-        
-        $response = Response::json(['error' => 500, 'message' => 'Moneda total pagado inconsistente']);
-
-        $controller = new WebhookController();
-        
-        $result = $controller->notify($requestMock);
-
-        $this->assertEquals($response->getContent(), $result->getContent());
-    }
+    
     public function testCodigoRetornoError()
     {
         $requestMock = Mockery::mock(NotifyRequest::class);
@@ -193,7 +172,7 @@ class WebhookControllerTest extends TestCase
        
         $cart = Cart::factory()->create();
         
-        $response = Response::json(['error' => 500, 'message' => 'Codigo de retorno: '.$this->requestNotifyCodRetError['TX']['CODRET']." ".$this->requestNotifyCodRetError['TX']['DESCRET']]);
+        $response = Response::json(['error' => 500, 'message' => 'Codigo de retorno: '.$this->requestNotifyCodRetError['CODRET']." ".$this->requestNotifyCodRetError['DESCRET']]);
 
         $controller = new WebhookController();
         
@@ -203,12 +182,19 @@ class WebhookControllerTest extends TestCase
     }
     public function testCarroInexistente()
     {
-        $this->requestNotify['TX']['IDTRX']=5;
+        $this->requestNotify['IDTRX']=2;
         $requestMock = Mockery::mock(NotifyRequest::class);
         $requestMock->shouldReceive('validated')->andReturn($this->requestNotify);
         $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
         $this->app->instance(NotifyRequest::class, $requestMock);
-       
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andReturnUsing(function ($cart) {
+            return new CartStatus([
+                'car_id' => $cart->car_id,
+                'cas_status' => $cart->car_status
+            ]);
+        });
+        $this->instance(CartStatus::class, $this->mockCartStatus);
+        
         $cart = Cart::factory()->create();
         
         $response = Response::json(['error' => 500, 'message' => 'Id de carro inexistente']);
@@ -228,13 +214,12 @@ class WebhookControllerTest extends TestCase
         $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
         $this->app->instance(RedirectRequest::class, $requestMock);
 
-        $response = Response::json(['message' => 'Recepcion exitosa', 'url_return' => 'https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect'], 200);
-
+        $response = "<html><head><title>Recepción Exitosa</title></head><body><h1>Recepción exitosa</h1><p><a href='https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect'>Volver</a></p></body></html>";
         
         $controller = new WebhookController();
         $result = $controller->redirect($requestMock);
         
-        $this->assertEquals($response->getContent(), $result->getContent());
+        $this->assertEquals($response, $result->getContent());
 
     }
     

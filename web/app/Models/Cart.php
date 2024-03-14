@@ -25,6 +25,7 @@ class Cart extends Model
         'car_flow_amount',
         'car_description',
         'car_agreement',
+        'car_collector',
         'car_url',
         'car_expires_at',
         'car_items_number',

@@ -19,6 +19,7 @@ class CartFactory extends Factory
             'car_url' => 'https://flow.cl/retorno.php',
             'car_expires_at' => '1699569123',
             'car_items_number' => 1,
+            'car_collector' => '7683001403',
             'car_status' => 'CREATED',
             'car_url_return' => 'https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect',
             'car_sent_kafka' => 0,

@@ -11,16 +11,17 @@ document.getElementById('consumirServicioBtn').addEventListener('click', functio
         var datos = {
             'uuid': generarUUID(),
             'order': {
-                'id': '000100',
-                'product_id': '000200',
-                'method_id': '000300',
+                'id': 100,
+                'product_id': 200,
+                'method_id': 160,
                 'url_confirmation': 'https://www.comercio.cl/confirmacion',
-                'url_return': 'https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect',
-                'attempt_number': '1',
-                'amount': '1199.25',
+                'url_return': 'http://localhost:9200/api/v1/redirect',
+                'attempt_number': 1,
+                'amount': 1199.25,
                 'subject': 'Pago por compra de productos',
                 'expiration': 1693418602,
                 'currency': '999',
+                'email_paid': "rpanes@tuxpan.com",
                 'extra_params': [
                     {
                         'key': 'Número de factura',
@@ -29,7 +30,7 @@ document.getElementById('consumirServicioBtn').addEventListener('click', functio
                 ]
             },
             'user': {
-                'id': '000200',
+                'id': 200,
                 'email': 'rpanes@tuxpan.com',
                 'legal_name': 'FLOW S.A',
                 'tax_id': '99999999-9',
@@ -37,7 +38,7 @@ document.getElementById('consumirServicioBtn').addEventListener('click', functio
                 'fantasy_name': 'Pasarela de pago FLOW.'
             }
         };
-
+ 
         fetch('/api/v1/order/create', {
             method: 'POST',
             headers: {
@@ -47,9 +48,14 @@ document.getElementById('consumirServicioBtn').addEventListener('click', functio
         })
         .then(response => response.json())
         .then(data => {
-            var popup = window.open(data.url, '_blank', 'width=600,height=400');
+            if(data.error){
+                var popup = window.open(data.message, '_blank', 'width=600,height=400');
+            }else{
+                var popup = window.open(data.url, '_blank', 'width=600,height=400');
+            }
         })
         .catch(error => {
+            var popup = window.open(error, '_blank', 'width=600,height=400');
             console.error('Error:', error);
         });
     });
