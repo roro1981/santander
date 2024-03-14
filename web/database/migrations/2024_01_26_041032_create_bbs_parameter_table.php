@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\ParameterSeeder;
 
 return new class extends Migration
 {
@@ -15,6 +17,9 @@ return new class extends Migration
             $table->timestamp('par_created_at')->comment('Fecha creación parametro');
             $table->timestamp('par_updated_at')->nullable()->default(null)->comment('Fecha modificacion parametro');
         });
+        Artisan::call('db:seed', [
+            '--class' => ParameterSeeder::class
+        ]);
     }
 
     public function down(): void
