@@ -138,7 +138,7 @@ class WebhookControllerTest extends TestCase
         $this->app->instance(NotifyRequest::class, $requestMock);
         
         $cart = Cart::factory()->create(['car_sent_kafka' => 1]);
-        $response = Response::json(['error' => 500, 'message' => 'Carro ya fue notificado']);
+        $response = Response::json(['error' => 405, 'message' => 'Carro ya fue notificado']);
 
         $controller = new WebhookController();
     
@@ -154,7 +154,7 @@ class WebhookControllerTest extends TestCase
         $this->app->instance(NotifyRequest::class, $requestMock);
         
         $cart = Cart::factory()->create(['car_flow_amount' => 7777]);
-        $response = Response::json(['error' => 500, 'message' => 'Monto total pagado inconsistente']);
+        $response = Response::json(['error' => 401, 'message' => 'Monto total pagado inconsistente']);
 
         $controller = new WebhookController();
     
@@ -172,7 +172,7 @@ class WebhookControllerTest extends TestCase
        
         $cart = Cart::factory()->create();
         
-        $response = Response::json(['error' => 500, 'message' => 'Codigo de retorno: '.$this->requestNotifyCodRetError['CODRET']." ".$this->requestNotifyCodRetError['DESCRET']]);
+        $response = Response::json(['error' => 401, 'message' => 'Codigo de retorno: '.$this->requestNotifyCodRetError['CODRET']." ".$this->requestNotifyCodRetError['DESCRET']]);
 
         $controller = new WebhookController();
         
@@ -197,7 +197,7 @@ class WebhookControllerTest extends TestCase
         
         $cart = Cart::factory()->create();
         
-        $response = Response::json(['error' => 500, 'message' => 'Id de carro inexistente']);
+        $response = Response::json(['error' => 404, 'message' => 'Id de carro inexistente']);
 
         $controller = new WebhookController();
         
@@ -214,12 +214,11 @@ class WebhookControllerTest extends TestCase
         $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
         $this->app->instance(RedirectRequest::class, $requestMock);
 
-        $response = "<html><head><title>Recepción Exitosa</title></head><body><h1>Recepción exitosa</h1><p><a href='https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect'>Volver</a></p></body></html>";
-        
+        $response = Response::json(['message' => 'Recepcion exitosa', 'url_return' => 'https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect'], 200);
         $controller = new WebhookController();
         $result = $controller->redirect($requestMock);
         
-        $this->assertEquals($response, $result->getContent());
+        $this->assertEquals($response->getContent(), $result->getContent());
 
     }
     
@@ -231,7 +230,7 @@ class WebhookControllerTest extends TestCase
         $this->app->instance(NotifyRequest::class, $requestMock);
         
         $cart = Cart::factory()->create(['car_flow_amount' => 7777]);
-        $response = Response::json(['error' => 500, 'message' => 'Monto total pagado inconsistente']);
+        $response = Response::json(['error' => 401, 'message' => 'Monto total pagado inconsistente']);
 
         $controller = new WebhookController();
     
