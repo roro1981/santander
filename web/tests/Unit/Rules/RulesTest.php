@@ -37,7 +37,7 @@ class RulesTest extends TestCase
             'amount' => \App\Http\Requests\CustomFormRequest::getAmountRules($minAmount, $maxAmount),
         ];
 
-        $validator = Validator::make(['amount' => 55.50], $rules);
+        $validator = Validator::make(['amount' => 55.00], $rules);
         $this->assertFalse($validator->fails());
 
         $validator = Validator::make(['amount' => $minAmount], $rules);

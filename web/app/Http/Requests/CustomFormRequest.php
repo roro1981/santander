@@ -26,6 +26,7 @@ class CustomFormRequest extends FormRequest
     const EMAIL = 'email:rfc,dns';
     const URL = 'url:http,https';
     const UUID = 'uuid';
+    const SZ = 'decimalsinzero';
 
 
     static function getNumericIdRules()
@@ -42,6 +43,7 @@ class CustomFormRequest extends FormRequest
     {
         return [
             self::REQUIRED,
+            self::SZ,
             new IsNumeric,
             new FloatMaxDecimals,
             new NumericBetween($minAmount, $maxAmount)

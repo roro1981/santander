@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Traits\SftpConnectionTrait;
 use App\Models\Cart;
 use Carbon\Carbon;
-use DateTime;
 use Illuminate\Support\Facades\DB;
 use App\Models\Conciliation;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +25,8 @@ class FtpConciliationJob implements ShouldQueue
        
             $sftp = $this->testConnection();
             $fileList = $sftp->nlist('/');
-            
+            $dataToInsert = [];
+
             foreach ($fileList as $fileName) {
             
                 if ($fileName === '.' || $fileName === '..') {
@@ -50,11 +50,11 @@ class FtpConciliationJob implements ShouldQueue
                         Log::error("Archivo sin pagos ".$this->fileName);
                         continue;
                     }
-                    $dataToInsert = [];
+                    
                     foreach ($xml->detallePagos as $detallePago) {
                         $idCart=Cart::where('car_id', '=',$detallePago->idCarro)->first();
                         $idConciliation=Conciliation::where('con_cart_id', '=',$detallePago->idCarro)
-                                        ->where('con_transaction_process', '=',1)->first();
+                        ->where('con_status', '=','OK')->where('con_transaction_process', '=',1)->first();
                         if($idConciliation){
                             continue;
                         }else{              
@@ -99,6 +99,7 @@ class FtpConciliationJob implements ShouldQueue
             if(count($dataToInsert)>0){
                 $this->insertData($dataToInsert);
             }
+            Log::info("Conciliacion Santander finalizada");
     }
 
     private function insertData($array){
@@ -107,7 +108,6 @@ class FtpConciliationJob implements ShouldQueue
             DB::beginTransaction();
             Conciliation::insert($array);
             DB::commit();
-            Log::info("Conciliacion Santander finalizada exitosamente");
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error conciliacion Santander al grabar ".$e->getMessage());
@@ -117,7 +117,7 @@ class FtpConciliationJob implements ShouldQueue
 
     public function fileNameProcess($file){
         $existeArchivo = Conciliation::where('con_file_process', $file)->exists();
-        
+    
         if ($existeArchivo) {
            return true;
         } else {
