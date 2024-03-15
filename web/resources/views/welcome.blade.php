@@ -39,7 +39,7 @@ document.getElementById('consumirServicioBtn').addEventListener('click', functio
             }
         };
  
-        fetch('/api/v1/order/create', {
+        fetch('/santander/v1/order/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
