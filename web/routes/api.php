@@ -6,7 +6,6 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\FtpConciliationController;
 
-
 Route::get('/v1/health', function () {
     return response()->json(['status' => 'OK'], 200);
 });
