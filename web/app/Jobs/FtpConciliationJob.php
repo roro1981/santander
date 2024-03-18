@@ -27,7 +27,7 @@ class FtpConciliationJob implements ShouldQueue
             $sftp = $this->testConnection();
             $fileList = $sftp->nlist('/');
             $dataToInsert = [];
-            
+      
             foreach ($fileList as $fileName) {
                 
                 if ($fileName === '.' || $fileName === '..') {
@@ -51,6 +51,7 @@ class FtpConciliationJob implements ShouldQueue
                         continue;
                     }
                     $xml = simplexml_load_string($fileContent);
+                  
                     foreach ($xml->detallePagos as $detallePago) {
                         $fechahoraOperacion = Carbon::createFromFormat('d/m/Y H:i:s', (string) $detallePago->fechahoraOperacion)->format('Y-m-d H:i:s');
                         $dataToInsert[]= [
@@ -79,9 +80,10 @@ class FtpConciliationJob implements ShouldQueue
             }
 
             if(count($dataToInsert)>0){
+                Log::info ($dataToInsert);
                 $this->insertData($dataToInsert);
                 Log::info("Transacciones SFTP grabadas en base de datos");
-                $this->conciliationProcess2();
+                $this->conciliationProcess();
             }
             
     }
@@ -122,58 +124,8 @@ class FtpConciliationJob implements ShouldQueue
         }
         
     }
-   
+
     public function conciliationProcess(){
-
-        $idsParaMantener = Conciliation::selectRaw('MAX(con_id) as id')
-                            ->groupBy('con_cart_id')
-                            ->pluck('id');
-        Conciliation::whereNotIn('con_id', $idsParaMantener)->delete();
-
-        Conciliation::where('con_transaction_process', 0)->lazy()->each(function ($transaction) {
-            DB::beginTransaction();
-
-            try {
-                $matchedTransaction = Cart::where('car_id', $transaction->con_cart_id)->first();
-                if (!$matchedTransaction) {
-                    $transaction->update([
-                        'con_status' => 'NO_EXISTE',
-                    ]);
-                } else if ($matchedTransaction->car_status !== 'AUTHORIZED') {
-                    $transaction->update([
-                        'con_status' => 'TRANSACCION_NO_AUTORIZADA',
-                    ]);
-                } else {
-                    $isAmountMatch = $transaction->con_product_amount == $matchedTransaction->car_flow_amount;
-                    $isDateMatch = Carbon::parse($transaction->con_operation_date)->equalTo(Carbon::parse($matchedTransaction->car_transaction_date));
-
-                    if (!$isAmountMatch) {
-                        $transaction->update([
-                            'con_status' => 'MONTO_INCONSISTENTE',
-                        ]);
-                    } elseif (!$isDateMatch) {
-                        $transaction->update([
-                            'con_status' => 'FECHA_TRX_INCONSISTENTE',
-                        ]);
-                    } else {
-                        $transaction->update([
-                            'con_status' => 'OK',
-                            'con_transaction_process' => 1
-                        ]);
-                    }
-                }
-
-                DB::commit();
-                Log::info("Proceso de conciliación finalizado");
-            } catch (\Exception $e) {
-                DB::rollBack();
-                Log::error("Error en el proceso de conciliacion: ".$e->getMessage());
-                throw $e;
-            }
-        });
-    }
-
-    public function conciliationProcess2(){
 
         $idsParaMantener = Conciliation::selectRaw('MAX(con_id) as id')
                             ->groupBy('con_cart_id')

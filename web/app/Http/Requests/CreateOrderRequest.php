@@ -31,7 +31,7 @@ class CreateOrderRequest extends CustomFormRequest
             'order.extra_params.*.key' => 'nullable|' . self::STRING,
             'order.extra_params.*.value' => 'nullable|' . self::STRING,
             'order.email_paid' => 'nullable|' . self::STRING . '|' . self::EMAIL . '|' . self::MAX_255,
-            'user.id' => "|nullable|digits_between:1,11",
+            'user.id' => "|nullable|integer|digits_between:1,11",
             'user.email' => self::REQUIRED . '|' . self::STRING . '|' . self::EMAIL . '|' . self::MAX_255,
             'user.legal_name' => 'nullable|' . self::STRING . '|' . self::MAX_255,
             'user.tax_id' => 'nullable|' . self::STRING . '|' . self::MAX_255,

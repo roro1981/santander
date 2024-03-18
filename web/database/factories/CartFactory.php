@@ -15,7 +15,7 @@ class CartFactory extends Factory
             'car_id' => 1,
             'car_id_transaction' => Uuid::uuid4(),
             'car_flow_currency' => 'CLP',
-            'car_flow_amount' => '1199',
+            'car_flow_amount' => 1199,
             'car_url' => 'https://flow.cl/retorno.php',
             'car_expires_at' => '1699569123',
             'car_items_number' => 1,

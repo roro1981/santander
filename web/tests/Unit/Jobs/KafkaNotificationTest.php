@@ -11,8 +11,6 @@ use Junges\Kafka\Facades\Kafka;
 use Mockery;
 use Tests\TestCase;
 use Ramsey\Uuid\Uuid;
-use App\Http\Utils\Constants;
-use App\Http\Utils\ParamUtil;
 
 class KafkaNotificationTest extends TestCase
 {

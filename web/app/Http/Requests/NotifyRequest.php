@@ -8,8 +8,7 @@ class NotifyRequest extends CustomFormRequest
 {
 
     public function rules(): array
-    {
-        
+    { 
         return [
             'CODRET' => 'required|numeric|regex:/^\d{4}$/',
             'DESCRET' => 'required|string|max:200',
