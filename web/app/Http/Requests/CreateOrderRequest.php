@@ -18,7 +18,7 @@ class CreateOrderRequest extends CustomFormRequest
             'uuid' => self::REQUIRED . '|' . self::STRING . '|' . self::UUID,
             'order.id' => $this->getNumericIdRules(),
             'order.product_id' => $this->getNumericIdRules(),
-            'order.method_id' => self::REQUIRED . '|' . self::NUMERIC,
+            'order.method_id' => self::REQUIRED . '|' . self::NUMERIC . "|digits_between:1,11",
             'order.url_confirmation' => self::REQUIRED . '|' . self::STRING . '|' . self::URL . '|' . self::MAX_255,
             'order.url_return' => self::REQUIRED . '|' . self::STRING . '|' . self::URL . '|' . self::MAX_255,
             'order.attempt_number' => $this->getNumericIdRules(),
