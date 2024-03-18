@@ -32,6 +32,7 @@ return new class extends Migration
             $table->integer('car_flow_product_id')->comment('Id del producto');
             $table->string('car_flow_email_paid', 255)->comment('Email usuario');
             $table->string('car_flow_subject', 255)->comment('Asunto de transaccion de pago');
+            $table->timestamp('car_transaction_date')->nullable()->comment('Fecha transaccion proporcionada por santander');
             $table->timestamp('car_created_at')->nullable()->default(\DB::raw('CURRENT_TIMESTAMP'))->comment('Fecha creación');
             $table->timestamp('car_updated_at')->nullable()->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))->comment('Fecha modificación');
         });

@@ -19,9 +19,8 @@ return new class extends Migration
             $table->integer('con_product_amount')->comment('Monto del producto pagado');
             $table->integer('con_operation_number')->nullable()->comment('Numero de la operación');
             $table->datetime('con_operation_date')->comment('Fecha y hora de la transaccion');
-            $table->string('con_status', 50)->comment('Status transaccion:OK, NO EXISTE, INCONSISTENCIA PAGO');
-            $table->string('con_file_process', 256)->comment('Archivo de origen del registro');
-            $table->integer('con_transaction_process')->comment('Verifica si transaccion fue procesada');
+            $table->string('con_status', 50)->nullable()->comment('Status transaccion:OK, NO EXISTE, INCONSISTENCIA PAGO');
+            $table->integer('con_transaction_process')->nullable()->default(0)->comment('Verifica si transaccion fue procesada');
             $table->timestamp('con_created_at')->nullable()->default(\DB::raw('CURRENT_TIMESTAMP'))->comment('Fecha creación');
         });
     }

@@ -66,9 +66,10 @@ class KafkaNotification implements ShouldQueue
                 ->withSasl(new Sasl($this->saslUsername, $this->saslPassword, 'SCRAM-SHA-512', 'SASL_SSL'));
             $producer->send();
             Log::info("Evento enviado: {$message->getTopicName()}");
-            $this->order->update(['ord_sent_kafka' => true]);
+            $this->order->update(['car_fail_code' => '', 'car_fail_motive' => '']);
         } catch (Exception $e) {
             Log::error("Error al enviar evento a kafka: {$e->getMessage()}");
+            $this->order->update(['car_fail_code' => $e->getCode(), 'car_fail_motive' => $e->getMessage()]);
             KafkaNotification::dispatch($this->order)->onQueue('kafkaNotification')->delay(5);
         }
         Log::info("Finalizando envio a kafka");

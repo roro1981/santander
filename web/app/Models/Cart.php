@@ -41,7 +41,8 @@ class Cart extends Model
         'car_flow_method_id',
         'car_flow_product_id',
         'car_flow_subject',
-        'car_flow_email_paid'
+        'car_flow_email_paid',
+        'car_transaction_date'
      ];
 
      /**

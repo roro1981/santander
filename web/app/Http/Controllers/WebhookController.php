@@ -8,6 +8,7 @@ use App\Jobs\KafkaNotification;
 use App\Models\ApiLog;
 use App\Models\Cart;
 use App\Models\CartStatus;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class WebhookController extends Controller
@@ -42,7 +43,9 @@ class WebhookController extends Controller
                 $notKafka=KafkaNotification::dispatch($cart)->onQueue('kafkaNotification');
 
                 if($notKafka){
-                    $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' =>$validated['IDREG']]);
+                    $fechaNotify = Carbon::createFromFormat('YmdHis', $validated['FECHATRX']);
+                    $fechaFormateada = $fechaNotify->format('Y-m-d H:i:s');
+                    $cart->update(['car_status' => 'AUTHORIZED','car_sent_kafka' => 1 ,'car_authorization_uuid' =>$validated['IDREG'],'car_transaction_date' =>$fechaFormateada]);
                     CartStatus::saveCurrentStatus($cart);
                 }
 
