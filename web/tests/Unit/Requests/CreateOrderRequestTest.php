@@ -42,7 +42,7 @@ class CreateOrderRequestTest extends TestCase
                 'fantasy_name' => 'Testing',
             ],
         ]);
-
+     
         $validator = $this->app['validator']->make($request->all(), $request->rules());
         $this->assertFalse($validator->fails());
         
