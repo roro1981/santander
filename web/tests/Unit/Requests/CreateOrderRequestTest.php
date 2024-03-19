@@ -29,6 +29,7 @@ class CreateOrderRequestTest extends TestCase
                 'attempt_number' => 1,
                 'amount' => 3.00,
                 'currency' => '999',
+                'extra_params' => [],
                 'subject' => 'Unit Test',
                 'email_paid' => 'test@flow.cl',
                 'expiration' => time() + 86400,
@@ -53,17 +54,19 @@ class CreateOrderRequestTest extends TestCase
     $request = new CreateOrderRequest([
         'uuid' => '86fafc8e-f3e2-4290-a969-e092a6f46fc1',
         'order' => [
-            'id' => "1",
-            'product_id' => 1,
+            'id' => 12345678901234567890,
+            'product_id' => 100,
             'method_id' => 160,
             'url_confirmation' => 'https://flow.cl/confirmacion.php',
             'url_return' => 'https://flow.cl/retorno.php',
             'attempt_number' => 1,
             'amount' => 3.00,
             'currency' => '999',
+            'extra_params' => [],
             'subject' => 'Unit Test',
             'email_paid' => 'test@flow.cl',
             'expiration' => time() + 86400,
+            
         ],
         'user' => [
             'id' => 1,
