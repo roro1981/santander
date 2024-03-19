@@ -16,12 +16,12 @@ class CreateOrderRequest extends CustomFormRequest
         ]);
         return [
             'uuid' => self::REQUIRED . '|' . self::STRING . '|' . self::UUID,
-            'order.id' => $this->getNumericIdRules(),
-            'order.product_id' => $this->getNumericIdRules(),
-            'order.method_id' => self::REQUIRED . '|' . self::NUMERIC . "|digits_between:1,11",
+            'order.id' => self::REQUIRED. "|integer|digits_between:1,11",
+            'order.product_id' => self::REQUIRED. "|integer|digits_between:1,11",
+            'order.method_id' => self::REQUIRED. "|integer|digits_between:1,11",
             'order.url_confirmation' => self::REQUIRED . '|' . self::STRING . '|' . self::URL . '|' . self::MAX_255,
             'order.url_return' => self::REQUIRED . '|' . self::STRING . '|' . self::URL . '|' . self::MAX_255,
-            'order.attempt_number' => $this->getNumericIdRules(),
+            'order.attempt_number' => self::REQUIRED. "|integer|digits_between:1,11",
             'order.amount' => $this->getAmountRules($params[Constants::PARAM_ORDER_MIN_AMOUNT], $params[Constants::PARAM_ORDER_MAX_AMOUNT]) ,
             'order.subject' => self::REQUIRED . '|' . self::STRING . '|' . self::MAX_255,
             'order.expiration' => self::REQUIRED . '|'. self::NUMERIC . '|' . '| between:1,2147483647',
