@@ -9,7 +9,6 @@ use Mockery;
 use App\Http\Utils\ParamUtil;
 use App\Http\Utils\Constants;
 
-
 class SftpConnectionTraitTest extends TestCase
 {
     use SftpConnectionTrait;
@@ -23,7 +22,7 @@ class SftpConnectionTraitTest extends TestCase
     {
         $ftpUsername = ParamUtil::getParam(Constants::PARAM_SANTANDER_SFTP_USERNAME);
         $ftpPassword = ParamUtil::getParam(Constants::PARAM_SANTANDER_SFTP_PASSWORD);
-        // Mockear la clase SFTP
+  
         $mockSftp = Mockery::mock('overload:' . SFTP::class);
         $mockSftp->shouldReceive('login')->with($ftpUsername, $ftpPassword)->andReturn(true);
 
@@ -36,28 +35,18 @@ class SftpConnectionTraitTest extends TestCase
      * @preserveGlobalState disabled
      * @throws Exception
      */
-    public function testFailedSftpConnection()
+    public function testSftpConnectionFailure()
     {
         $ftpUsername = ParamUtil::getParam(Constants::PARAM_SANTANDER_SFTP_USERNAME);
         $ftpPassword = ParamUtil::getParam(Constants::PARAM_SANTANDER_SFTP_PASSWORD);
+
         $mockSftp = Mockery::mock('overload:' . SFTP::class);
         $mockSftp->shouldReceive('login')->with($ftpUsername, $ftpPassword)->andReturn(false);
 
-        try{
-            $this->testConnection();
-        }catch(\Exception $e){
-            $this->expectException(\Exception::class);
-            $this->expectExceptionMessage('Error de conexión');
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error de conexión');
+        $result = $this->testConnection();
+    
     }
-    
 
-    
-    
-}
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
-    }
 }

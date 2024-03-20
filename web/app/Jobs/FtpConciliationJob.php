@@ -95,7 +95,7 @@ class FtpConciliationJob implements ShouldQueue
             
     }
 
-    private function insertData($array){
+    static function insertData($array){
         try {
             DB::beginTransaction();
             Conciliation::insert($array);
@@ -103,7 +103,6 @@ class FtpConciliationJob implements ShouldQueue
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error al grabar datos desde SFTP: ".$e->getMessage());
-            throw $e;
         }
     }
 

@@ -24,7 +24,7 @@ trait SftpConnectionTrait
             }
             
         } catch (\Exception $e) {
-            return $e->getMessage();
+            throw new \Exception('Error de conexión');
         }
     }
 }
