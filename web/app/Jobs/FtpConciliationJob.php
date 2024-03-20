@@ -86,7 +86,7 @@ class FtpConciliationJob implements ShouldQueue
                 
             }
 
-            if(count($dataToInsert)>0){
+            if(!empty($dataToInsert)){
                 Log::info ($dataToInsert);
                 $this->insertData($dataToInsert);
                 Log::info("Transacciones SFTP grabadas en base de datos");

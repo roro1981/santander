@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\Conciliation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Mockery;
 use phpseclib3\Net\SFTP;
@@ -133,7 +134,16 @@ class FtpConciliationJobTest extends TestCase
 
         $job->handle(); 
     }
-    
+
+    public function testConciliationProcessMock()
+    {
+        Queue::fake();
+        
+        $jobMock = Mockery::mock(FtpConciliationJob::class)->makePartial();
+        $jobMock->shouldReceive('conciliationProcess')->never()->andReturn(true);
+        $result = $jobMock->handle();
+        
+    }
     public function tearDown(): void
     {
         parent::tearDown();

@@ -120,7 +120,7 @@ class SantanderClientTest extends TestCase
             '*/auth/basic/token' => Http::response([], 200),
         ]);
         try{
-            $service->getBearerToken(1234);
+            $service->getBearerToken(1234,2);
         }catch(Exception $e){
             $this->expectException(500, $e->getCode());
             $this->expectExceptionMessage('Error al obtener el Bearer Token después de '.$intentosMax->getValue($service)." intentos", $e->getMessage());
