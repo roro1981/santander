@@ -1,0 +1,17 @@
+<archivoRendicion xmlns:xs="http://www.w3.org/2001/XMLSchema"><totalizadorPagos>
+                    <numeroPagos>1</numeroPagos>
+                    <montoTotal>100</montoTotal>
+                    </totalizadorPagos>
+                    <detallePagos>
+                    <idCarro>1</idCarro>
+                    <idConvenio>9570</idConvenio>
+                    <numeroProducto/>
+                    <numeroCliente/>
+                    <expiracionProducto/>
+                    <descProducto>Producto éxito</descProducto>
+                    <montoProducto>1198</montoProducto>
+                    <idAtributo>113</idAtributo>
+                    <numeroOperacion/>
+                    <fechahoraOperacion>14/03/2024 11:15:48</fechahoraOperacion>
+                    </detallePagos>
+                    </archivoRendicion>

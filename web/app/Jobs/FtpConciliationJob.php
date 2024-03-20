@@ -14,17 +14,24 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
+use phpseclib3\Net\SFTP;
 
 class FtpConciliationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, SftpConnectionTrait;
     private $fechaPagos;
     private $fileName;
+    private $sftpConnection = null;
+
+    public function setSftpConnection(SFTP $sftpConnection)
+    {
+        $this->sftpConnection = $sftpConnection;
+    }
 
     public function handle(): void
     {
        
-            $sftp = $this->testConnection();
+            $sftp = $this->sftpConnection ?? $this->testConnection();
             $fileList = $sftp->nlist('/');
             $dataToInsert = [];
       
@@ -116,7 +123,7 @@ class FtpConciliationJob implements ShouldQueue
 
         $archivoOriginal = $file;
         $nuevoNombreArchivo = $nom_archivo.'_'.Carbon::now('America/Santiago')->format('YmdHisv')."_process.".$ext_archivo;
-        
+       
         if ($sftp->rename($archivoOriginal, $nuevoNombreArchivo)) {
             return true;
         } else {
@@ -125,7 +132,7 @@ class FtpConciliationJob implements ShouldQueue
         
     }
 
-    public function conciliationProcess(){
+        public function conciliationProcess(){
 
         $idsParaMantener = Conciliation::selectRaw('MAX(con_id) as id')
                             ->groupBy('con_cart_id')
