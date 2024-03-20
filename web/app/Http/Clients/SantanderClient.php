@@ -14,7 +14,7 @@ class SantanderClient
 {
 
     private $baseUrl;
-    private $intentosMaximos = 1;
+    private $intentosMaximos = 2;
     private $intervaloTiempo = 5;
     private $credentials=array();
 
