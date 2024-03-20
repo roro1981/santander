@@ -227,13 +227,31 @@ class WebhookControllerTest extends TestCase
         $requestMock = Mockery::mock(RedirectRequest::class);
         $requestMock->shouldReceive('validated')->andReturn($this->requestRedirect);
         $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
-        $this->app->instance(NotifyRequest::class, $requestMock);
+        $this->app->instance(RedirectRequest::class, $requestMock);
         
         $cart = Cart::factory()->create(['car_flow_amount' => 7777]);
         $response = Response::json(['error' => 401, 'message' => 'Monto total pagado inconsistente']);
 
         $controller = new WebhookController();
     
+        $result = $controller->redirect($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
+    }
+    public function testCarroInexistenteRedirect()
+    {
+        $this->requestRedirect['IdCarro']=2;
+        $requestMock = Mockery::mock(RedirectRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestRedirect);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(RedirectRequest::class, $requestMock);
+        
+        $cart = Cart::factory()->create();
+        
+        $response = Response::json(['error' => 404, 'message' => 'Id de carro inexistente']);
+
+        $controller = new WebhookController();
+        
         $result = $controller->redirect($requestMock);
 
         $this->assertEquals($response->getContent(), $result->getContent());
