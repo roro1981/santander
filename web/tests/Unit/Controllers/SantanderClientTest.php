@@ -315,15 +315,9 @@ class SantanderClientTest extends TestCase
         }catch(Exception $e){
             $this->assertEquals(500, $e->getCode());
             $this->assertEquals('Error al inscribir el carro después de '.$intentosMax->getValue($serviceMock)." intentos", $e->getMessage());
-        } 
-    
-        
+        }   
     }
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
-    
+
     public function tearDown(): void
     {
         parent::tearDown();

@@ -79,10 +79,6 @@ class SantanderClient
           
                 $url=$this->baseUrl.$endpoint;
                 
-                if (empty($this->baseUrl)) {
-                    echo "Error al obtener url de servicio";
-                    exit;
-                } 
                 $headers = [
                     'Content-Type' => 'application/json',
                     'Authorization' => $authorizationToken['token_type'] . ' ' . $authorizationToken['access_token'],
