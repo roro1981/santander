@@ -15,6 +15,7 @@ use Mockery;
 use Database\Seeders\ParameterSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use ReflectionClass;
+use App\Exceptions\InscriptionException;
 
 class SantanderClientTest extends TestCase
 {
@@ -125,7 +126,30 @@ class SantanderClientTest extends TestCase
             $this->expectException(500, $e->getCode());
             $this->expectExceptionMessage('Error al obtener el Bearer Token después de '.$intentosMax->getValue($service)." intentos", $e->getMessage());
         }    
-        
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testGetBearerTokenGenericError()
+    {
+        $service = new SantanderClient();
+        $reflectionClass = new ReflectionClass($service);
+        $intentosMax = $reflectionClass->getProperty('intentosMaximos');
+        $intentosMax->setValue($service, 2);
+        $intentosMax->setAccessible(true);
+
+        Http::fake(function () {
+            return Http::response(['error' => 'Un error inesperado'], 418);
+        });
+
+        $cliente = new SantanderClient(); 
+
+        $this->expectException(InscriptionException::class);
+        $this->expectExceptionMessage('Error al obtener el Bearer Token después de '.$intentosMax->getValue($service).' intentos');
+
+        $cliente->getBearerToken(1);
     }
 
     /**
@@ -317,6 +341,42 @@ class SantanderClientTest extends TestCase
             $this->assertEquals('Error al inscribir el carro después de '.$intentosMax->getValue($serviceMock)." intentos", $e->getMessage());
         }   
     }
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testPostGenericError()
+    {
+        $cart_id = random_int(168500, 300000);
+        $order = [
+            'car_id' => $cart_id,
+            'car_id_transaction' => Uuid::uuid4(),
+            'car_flow_currency' => ParamUtil::getParam(Constants::PARAM_CURRENCY),
+            'car_flow_amount' => 100.1,
+            'car_url' => 'www.flow.cl',
+            'car_expires_at' => 1693418602,
+            'car_items_number' => 1,
+            'car_status' => Constants::STATUS_CREATED,
+            'car_url_return' => ParamUtil::getParam(Constants::PARAM_URL_RETORNO),
+            'car_sent_kafka' => 0,
+            'car_flow_id' => 100,
+            'car_flow_attempt_number' => 1,
+            'car_flow_method_id' => 160,
+            'car_flow_product_id' => 100,
+            'car_flow_email_paid' => 'rpanes@tuxpan.com',
+            'car_flow_subject' => 'subject test',
+            'car_created_at' => now()
+        ];
+        Http::fake([
+            '*/auth/apiboton/carro/inscribir' => Http::response(['error' => 'Un error inesperado'], 418),
+        ]);
+        $cliente = new SantanderClient(); 
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error al consumir servicio Santander');
+
+        $cliente->post('/auth/apiboton/carro/inscribir', $order, $cart_id,2); 
+    }
+
 
     public function tearDown(): void
     {

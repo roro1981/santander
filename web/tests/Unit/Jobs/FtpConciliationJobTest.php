@@ -2,9 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Http\Utils\Constants;
+use App\Http\Utils\ParamUtil;
 use App\Jobs\FtpConciliationJob;
 use App\Models\Cart;
-use App\Models\Conciliation;
+use App\Traits\SftpConnectionTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
@@ -15,12 +17,14 @@ use Tests\TestCase;
 
 class FtpConciliationJobTest extends TestCase
 {
+    use SftpConnectionTrait;
 
     public function setUp(): void
     {
         parent::setUp();
 
     }
+
     public function testHandle()
     {
         $sftpMock = $this->createMock(SFTP::class);
@@ -138,11 +142,29 @@ class FtpConciliationJobTest extends TestCase
     public function testConciliationProcessMock()
     {
         Queue::fake();
-        
         $jobMock = Mockery::mock(FtpConciliationJob::class)->makePartial();
         $jobMock->shouldReceive('conciliationProcess')->never()->andReturn(true);
         $result = $jobMock->handle();
         
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testConciliationProcessHandlesException()
+    {
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->once();
+        DB::shouldReceive('rollBack')->never(); // Verifica que se llama al rollback
+    
+        try {
+            $job = new FtpConciliationJob();
+            $job->conciliationProcess();
+            $this->fail("Error simulado");
+        } catch (\Exception $e) {
+            $this->assertEquals("Error simulado", $e->getMessage());
+        }
     }
     public function tearDown(): void
     {

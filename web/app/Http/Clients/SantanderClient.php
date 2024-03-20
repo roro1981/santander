@@ -34,14 +34,14 @@ class SantanderClient
                     'username' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_USERNAME),
                     'password' => ParamUtil::getParam(Constants::PARAM_SANTANDER_TOKEN_PASSWORD),
                 ];
-
+               
                 $apiLog = ApiLog::storeLog(
                     $orderId,
                     $this->baseUrl."/auth/basic/token",
                     $this->credentials
                 );
-
-                $response = Http::timeout(10)->post($this->baseUrl."/auth/basic/token", $this->credentials);
+                
+                $response = Http::post($this->baseUrl."/auth/basic/token", $this->credentials);
                 
                 if ($response->successful()) {
                     $responseToken = [
@@ -73,7 +73,9 @@ class SantanderClient
 
     public function post($endpoint,array $body, Int $orderId, $intentos=0)
     {
+       
         $authorizationToken = $this->getBearerToken($orderId, 0);
+        
         do {
             try {
           
@@ -97,12 +99,11 @@ class SantanderClient
                     return $response->json();
                 }elseif ($response->status() == 404) {
                     throw new \Exception('La transacción ya fue procesada en Santander', 404);
+                }elseif ($response->status()>=400 && $response->status()<500) {
+                    throw new \Exception('Error al consumir servicio Santander', $response->status());    
                 }elseif($response->failed()){
-                    throw new \Exception('Servicio Santander retorna error', 500);
-                }else{
-                    throw new \Exception('Error al consumir servicio Santander', 500);
+                    throw new \Exception('Servicio Santander retorna error', $response->status());
                 }
-
             } catch (\Exception $e) {
                 $intentos++;
                 $message= $e->getMessage() ? $e->getMessage():'Error al inscribir el carro después de '.$this->intentosMaximos.' intentos';

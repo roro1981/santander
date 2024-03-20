@@ -131,8 +131,8 @@ class FtpConciliationJob implements ShouldQueue
         
     }
 
-        public function conciliationProcess(){
-
+    public function conciliationProcess()
+    {
         $idsParaMantener = Conciliation::selectRaw('MAX(con_id) as id')
                             ->groupBy('con_cart_id')
                             ->pluck('id');
