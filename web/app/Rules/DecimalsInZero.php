@@ -3,7 +3,7 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 
-class DecimalIsZero implements Rule
+class DecimalsInZero implements Rule
 {
     public function passes($attribute, $value)
     {
