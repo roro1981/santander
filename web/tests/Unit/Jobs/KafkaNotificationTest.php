@@ -21,7 +21,10 @@ class KafkaNotificationTest extends TestCase
         parent::setUp();
         $this->seed();
     }
-
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testKafkaNotification()
     {
         $order = Cart::factory()->create([
@@ -56,7 +59,10 @@ class KafkaNotificationTest extends TestCase
 
         $this->assertEquals(0, $order->car_sent_kafka);
     }
-
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testKafkaNotificationRejected()
     {
         $order = Cart::factory()->create([
@@ -91,7 +97,10 @@ class KafkaNotificationTest extends TestCase
         
         $this->assertEquals(1, $order->car_sent_kafka);
     }
-
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testKafkaNotificationException()
     {
         Queue::fake();
