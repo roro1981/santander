@@ -93,14 +93,14 @@ class SantanderClient
                 );
                 
                 $response = Http::withHeaders($headers)->timeout(10)->post($url,$body);
-                
+              
                 if($response->successful()){
                     $apiLog->updateLog((array) $response->json(), 200);
                     return $response->json();
                 }elseif ($response->status() == 404) {
                     throw new \Exception('La transacción ya fue procesada en Santander', 404);
                 }elseif ($response->status()>=400 && $response->status()<500) {
-                    throw new \Exception('Error al consumir servicio Santander', $response->status());    
+                    throw new \Exception('Error al consumir servicio Santander:', $response->status());    
                 }elseif($response->failed()){
                     throw new \Exception('Servicio Santander retorna error', $response->status());
                 }

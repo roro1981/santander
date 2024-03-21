@@ -4,17 +4,18 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Clients\SantanderClient;
 use App\Http\Controllers\WebhookController;
-use App\Models\CartStatus;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Response;
-use Mockery;
-use Tests\TestCase;
-use Ramsey\Uuid\Uuid;
 use App\Http\Requests\NotifyRequest;
 use App\Http\Requests\RedirectRequest;
-use App\Models\Cart;
 use App\Jobs\KafkaNotification;
+use App\Models\Cart;
+use App\Models\CartStatus;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Response;
+use Mockery;
+use Ramsey\Uuid\Uuid;
+use Tests\TestCase;
 
 
 class WebhookControllerTest extends TestCase
@@ -229,6 +230,29 @@ class WebhookControllerTest extends TestCase
         $result = $controller->notify($requestMock);
 
         $this->assertEquals($response->getContent(), $result->getContent());
+    }
+    public function testNotifyError()
+    {
+        $requestMock = Mockery::mock(NotifyRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestNotify);
+        $requestMock->shouldReceive('url')->andReturn("http://url.com");
+        $this->app->instance(NotifyRequest::class, $requestMock);
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andThrow('Exception', 'Test error');
+        $this->instance(CartStatus::class, $this->mockCartStatus);
+        
+        $cart = Cart::factory()->create();
+        
+        $controller = new WebhookController();
+        $cart->update([
+            'car_status' => 'REGISTERED-CART'
+        ]);
+        $result = $controller->notify($requestMock,"iii");
+        $cart->update([
+            'car_status' => 'CREATED'
+        ]);
+    
+        $this->assertNotNull($result);
+        $this->assertEquals(500, $result->status());
     }
     public function testRedirectSuccess()
     {
