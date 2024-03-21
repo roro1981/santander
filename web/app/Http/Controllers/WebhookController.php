@@ -55,7 +55,8 @@ class WebhookController extends Controller
                 ]);
                 $apiLog->updateLog($response, 200);
             }elseif($codRet != "0000"){
-                throw new \Exception("Codigo de retorno: ".$codRet." ".$validated['DESCRET'], 401);    
+                throw new \Exception("Codigo de retorno: ".$codRet." ".$validated['DESCRET'],401);    
+                //throw new \App\Exceptions\CodigoRetornoException("Codigo de retorno: ".$codRet." ".$validated['DESCRET'], 401);
             }else{  
                 throw new \Exception("Id de carro inexistente", 404);
             }

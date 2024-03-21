@@ -75,7 +75,7 @@ class Cart extends Model
             'car_flow_attempt_number' => $orderRequest['attempt_number'],
             'car_flow_method_id' => $orderRequest['method_id'],
             'car_flow_product_id' => $orderRequest['product_id'],
-            'car_flow_email_paid' => $orderRequest['email_paid'],
+            'car_flow_email_paid' => $userRequest['email'],
             'car_flow_subject' => $orderRequest['subject'],
             'car_created_at' => now()
         ]);

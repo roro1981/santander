@@ -7,6 +7,18 @@ use Throwable;
 
 class Handler extends ExceptionHandler
 {
+
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof \App\Exceptions\CodigoRetornoException) {
+            return response()->json([
+                'error' => $exception->getCode(), 
+                'message' => $exception->getMessage()
+            ], $exception->getCode());
+        }
+
+        return parent::render($request, $exception);
+    }
     /**
      * The list of the inputs that are never flashed to the session on validation exceptions.
      *
