@@ -43,7 +43,7 @@ class SantanderClientTest extends TestCase
 
         $reflectionClass = new ReflectionClass($santanderClient);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setValue($santanderClient, 2);
+        $intentosMax->setValue($santanderClient, 1);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');
         $tiempo->setValue($santanderClient, 5);
@@ -70,7 +70,7 @@ class SantanderClientTest extends TestCase
         try {
             $result = $santanderClient->getBearerToken($this->flow_id);
         } catch (\Exception $e) {
-            $this->assertEquals('Error al obtener el Bearer Token después de 2 intentos', $e->getMessage());
+            $this->assertEquals('Error al obtener el Bearer Token después de 1 intentos', $e->getMessage());
         }
         
     }
@@ -89,7 +89,7 @@ class SantanderClientTest extends TestCase
 
         $reflectionClass = new ReflectionClass($service);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setValue($service, 2);
+        $intentosMax->setValue($service, 1);
         $intentosMax->setAccessible(true);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');
@@ -115,7 +115,7 @@ class SantanderClientTest extends TestCase
         $service = new SantanderClient();
         $reflectionClass = new ReflectionClass($service);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setValue($service, 2);
+        $intentosMax->setValue($service, 1);
         $intentosMax->setAccessible(true);
         Http::fake([
             '*/auth/basic/token' => Http::response([], 200),
@@ -137,7 +137,7 @@ class SantanderClientTest extends TestCase
         $service = new SantanderClient();
         $reflectionClass = new ReflectionClass($service);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setValue($service, 2);
+        $intentosMax->setValue($service, 1);
         $intentosMax->setAccessible(true);
 
         Http::fake(function () {
@@ -164,7 +164,7 @@ class SantanderClientTest extends TestCase
 
         $reflectionClass = new ReflectionClass($santanderClient);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setValue($santanderClient, 2);
+        $intentosMax->setValue($santanderClient, 1);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');
         $tiempo->setValue($santanderClient, 5);
@@ -212,7 +212,7 @@ class SantanderClientTest extends TestCase
         $client = new SantanderClient();
         $reflectionClass = new ReflectionClass($client);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setValue($client, 2);
+        $intentosMax->setValue($client, 1);
         $intentosMax->setAccessible(true);
         try{
             $order = [
@@ -256,7 +256,7 @@ class SantanderClientTest extends TestCase
 
         $reflectionClass = new ReflectionClass($serviceMock);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setValue($serviceMock, 2);
+        $intentosMax->setValue($serviceMock, 1);
         $intentosMax->setAccessible(true);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');
@@ -305,7 +305,7 @@ class SantanderClientTest extends TestCase
 
         $reflectionClass = new ReflectionClass($serviceMock);
         $intentosMax = $reflectionClass->getProperty('intentosMaximos');
-        $intentosMax->setValue($serviceMock, 2);
+        $intentosMax->setValue($serviceMock, 1);
         $intentosMax->setAccessible(true);
 
         $tiempo = $reflectionClass->getProperty('intervaloTiempo');

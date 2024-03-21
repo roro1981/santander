@@ -26,7 +26,14 @@ class WebhookController extends Controller
             $urlActual = $request->url();
 
             if($cart && $codRet == "0000"){
-              
+                
+                if($cart->car_status != "REGISTERED-CART" && $cart->car_sent_kafka == 0){
+                    return response()->json([
+                        'code' => 409,
+                        'dsc' => "Carro se encuentra con status ".$cart->car_status." debiendo estar en status REGISTERED-CART"
+                    ],409);
+                }
+
                 if($cart->car_sent_kafka == 1){
                     return response()->json([
                         'code' => 422,

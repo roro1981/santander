@@ -120,15 +120,35 @@ class WebhookControllerTest extends TestCase
         $response = Response::json(['code' => '0000', 'dsc' => 'Transaccion OK'], 200);
 
         $order = Cart::factory()->create();
-        
+        $order->update([
+            'car_status' => 'REGISTERED-CART'
+        ]);
         $controller = new WebhookController();
         $result = $controller->notify($requestMock);
- 
+        $order->update([
+            'car_status' => 'CREATED'
+        ]);
         $this->assertEquals($response->getContent(), $result->getContent());
 
         Queue::assertPushed(KafkaNotification::class, function ($job) {
             return true;
         });
+    }
+    public function testStatusNoCorresponde()
+    {
+        $requestMock = Mockery::mock(NotifyRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestNotify);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(NotifyRequest::class, $requestMock);
+        
+        $cart = Cart::factory()->create();
+        $response = response()->json(['code' => 409, 'dsc' => 'Carro se encuentra con status '.$cart->car_status.' debiendo estar en status REGISTERED-CART']);
+
+        $controller = new WebhookController();
+        
+        $result = $controller->notify($requestMock);
+
+        $this->assertEquals($response->getContent(), $result->getContent());
     }
     public function testCarroYaNotificado()
     {
@@ -157,9 +177,14 @@ class WebhookControllerTest extends TestCase
         $response = response()->json(['code' => 401, 'dsc' => 'Monto total pagado inconsistente']);
 
         $controller = new WebhookController();
-    
+        
+        $cart->update([
+            'car_status' => 'REGISTERED-CART'
+        ]);
         $result = $controller->notify($requestMock);
-
+        $cart->update([
+            'car_status' => 'CREATED'
+        ]);
         $this->assertEquals($response->getContent(), $result->getContent());
     }
     

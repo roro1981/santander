@@ -13,7 +13,7 @@ class NotifyRequest extends CustomFormRequest
             'CODRET' => 'required|numeric|regex:/^\d{4}$/',
             'DESCRET' => 'required|string|max:200',
             'IDCOM' => 'required|string|max:20',
-            'IDTRX' => 'required|numeric|digits_between:1,20',
+            'IDTRX' => 'required|numeric|digits_between:0,21',
             'TOTAL' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/',
             'NROPAGOS' => 'required|numeric|min:1|max:999',
             'FECHATRX' => 'required|date_format:YmdHis',

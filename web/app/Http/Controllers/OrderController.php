@@ -26,7 +26,8 @@ class OrderController extends Controller
         try { 
 
             $cart = $this->saveOrder($uuid, $orderRequest, $user);
-            $body = Cart::getBody($cart, $orderRequest['extra_params']);
+            $extra_params=isset($orderRequest['extra_params']) ? : [];
+            $body = Cart::getBody($cart, $extra_params);
             CartStatus::saveCurrentStatus($cart);
 
             $cartInscription = new SantanderClient();
