@@ -26,7 +26,7 @@ class OrderController extends Controller
         try { 
 
             $cart = $this->saveOrder($uuid, $orderRequest, $user);
-            $extra_params=isset($orderRequest['extra_params']) ? : [];
+            $extra_params=isset($orderRequest['extra_params']) ? $orderRequest['extra_params']:[];
             $body = Cart::getBody($cart, $extra_params);
             CartStatus::saveCurrentStatus($cart);
 
