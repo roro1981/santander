@@ -28,7 +28,10 @@ class WebhookController extends Controller
             if($cart && $codRet == "0000"){
               
                 if($cart->car_sent_kafka == 1){
-                    throw new \Exception("Carro ya fue notificado", 405);
+                    return response()->json([
+                        'code' => 422,
+                        'dsc' => "Carro ya fue notificado"
+                    ],422);
                 }
                 $apiLog = ApiLog::storeLog(
                     $cart->car_id,
@@ -37,7 +40,10 @@ class WebhookController extends Controller
                 );
                 $montoFormateado = (int) number_format($cart->car_flow_amount, 0, '.', '');
                 if((int)$validated['TOTAL'] != $montoFormateado){
-                    throw new \Exception("Monto total pagado inconsistente", 401);
+                    return response()->json([
+                        'code' => 401,
+                        'dsc' => "Monto total pagado inconsistente"
+                    ],401);
                 }
 
                 $notKafka=KafkaNotification::dispatch($cart)->onQueue('kafkaNotification');
@@ -52,13 +58,18 @@ class WebhookController extends Controller
                 $response = response()->json([
                     'code' => $validated['CODRET'],
                     'dsc' => $validated['DESCRET']
-                ]);
+                ],200);
                 $apiLog->updateLog($response, 200);
             }elseif($codRet != "0000"){
-                throw new \Exception("Codigo de retorno: ".$codRet." ".$validated['DESCRET'],401);    
-                //throw new \App\Exceptions\CodigoRetornoException("Codigo de retorno: ".$codRet." ".$validated['DESCRET'], 401);
+                $response = response()->json([
+                    'code' => 401,
+                    'error' => "Codigo de retorno: ".$codRet." ".$validated['DESCRET']
+                ], 401);
             }else{  
-                throw new \Exception("Id de carro inexistente", 404);
+                $response = response()->json([
+                    'code' => 404,
+                    'error' => "Id de carro inexistente"
+                ], 404);
             }
         } catch (\Exception $e) {
             $apiLog = ApiLog::storeLog(
