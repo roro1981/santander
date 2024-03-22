@@ -143,7 +143,8 @@ class WebhookController extends Controller
                 }
                 $cart->update(['car_status' => $status]);
                 $cart->update(['car_authorization_uuid' => $mpfin['IDTRX']]);
-            
+                CartStatus::saveCurrentStatus($cart);
+                
                 $apiLog->updateLog($response, 200);
             }else{
                 $apiLog = ApiLog::storeLog(
