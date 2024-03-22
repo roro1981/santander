@@ -262,6 +262,13 @@ class WebhookControllerTest extends TestCase
         $requestMock->shouldReceive('validated')->andReturn($this->requestRedirect);
         $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
         $this->app->instance(RedirectRequest::class, $requestMock);
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andReturnUsing(function ($cart) {
+            return new CartStatus([
+                'car_id' => $cart->car_id,
+                'cas_status' => $cart->car_status
+            ]);
+        });
+        $this->instance(CartStatus::class, $this->mockCartStatus);
 
         $response = Response::json(['message' => 'Recepcion exitosa', 'url_return' => 'https://tebi4tbxq0.execute-api.us-west-2.amazonaws.com/QA/santander/v1/redirect'], 200);
         $controller = new WebhookController();
