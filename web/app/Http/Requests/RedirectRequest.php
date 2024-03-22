@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Requests;
-use App\Rules\NotNull;
 
 class RedirectRequest extends CustomFormRequest
 {
@@ -24,7 +23,6 @@ class RedirectRequest extends CustomFormRequest
 
     public function prepareForValidation()
     {
-        
         $mpfinXml = (!empty($this->input('mpfin')) && $this->input('mpfin') != 'null') ? $this->input('mpfin') : '';
         $mpfinArray = json_decode(json_encode(simplexml_load_string($mpfinXml)), true);
         $this->merge(['mpfin' => $mpfinArray]);
