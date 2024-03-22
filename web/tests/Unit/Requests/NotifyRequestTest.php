@@ -21,7 +21,7 @@ class NotifyRequestTest extends TestCase
             "DESCRET"=> "Transaccion OK",
             "IDCOM"=> "7683001403",
             "IDTRX"=> "00000000001",
-            "TOTAL"=> "1199",
+            "TOTAL"=> 1199,
             "NROPAGOS"=> "1",
             "FECHATRX"=> "20240314110848",
             "FECHACONT"=> "20240314",
