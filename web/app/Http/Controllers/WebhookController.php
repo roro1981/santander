@@ -102,6 +102,8 @@ class WebhookController extends Controller
         try { 
             $idCarro =  $validated['IdCarro'];
             $mpfin   =  $validated['mpfin'];
+            $codRet  = $validated['CodRet'];
+            $estado  = $validated['Estado'];
 
             $cart = Cart::find($idCarro);
           
@@ -116,15 +118,31 @@ class WebhookController extends Controller
                 $montoFormateado = (int) number_format($cart->car_flow_amount, 0, '.', '');
 
                 if((int)$mpfin['TOTAL'] != $montoFormateado){
-                    throw new \Exception("Monto total pagado inconsistente", 401);
+                    $response=response()->json(["error"=> 401,"message" => "Monto total pagado inconsistente"], 401);
+                    return $response;
                 }
 
+                if($codRet=="001"){
+                    $status="FAILED_OP";
+                    $response = response()->json([
+                        'code' => '001',
+                        'message' => $estado
+                    ],200); 
+                }elseif($codRet=="002"){
+                    $status="FAILED_SIGN";
+                    $response = response()->json([
+                        'code' => '002',
+                        'message' => $estado
+                    ],200); 
+                }else{
+                    $status="AUTHORIZED";
+                    $response = response()->json([
+                        'message' => 'Recepcion exitosa',
+                        'url_return' => $cart->car_url_return
+                    ],200); 
+                }
+                $cart->update(['car_status' => $status]);
                 $cart->update(['car_authorization_uuid' => $mpfin['IDTRX']]);
-                
-                $response = response()->json([
-                    'message' => 'Recepcion exitosa',
-                    'url_return' => $cart->car_url_return
-                ]); 
             
                 $apiLog->updateLog($response, 200);
             }else{
@@ -133,7 +151,9 @@ class WebhookController extends Controller
                     $urlActual,
                     $validated
                 );
-                throw new \Exception("Id de carro inexistente", 404);
+                
+                $response=response()->json(["error"=> 404,"message" => "Id de carro inexistente"], 404);
+                return $response;
             }
         } catch (\Exception $e) {
             Log::error("Error recepcion de MPFIN" . $e->getMessage());
