@@ -4,20 +4,20 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RedirectRequest extends FormRequest
+class RedirectRequest extends CustomFormRequest
 {
 
     public function rules()
     {
         return [
-            'IdCarro' => 'required',
+            'IdCarro' => 'required|numeric|digits_between:1,20',
             'CodRet' => 'required',
             'Estado' => 'required',
             'mpfin' => 'required'
         ];
 
         /*  
-            IdCarro' => 'required|numeric|digits_between:1,20',
+            'IdCarro' => 'required|numeric|digits_between:1,20',
             'CodRet' => 'required|string|in:001,002,003',
             'Estado' => 'required|string|in:ACEPTADO,RECHAZADO,PENDIENTE',
             'mpfin' => 'required|array',
