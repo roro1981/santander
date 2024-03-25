@@ -24,7 +24,7 @@ class RedirectRequest extends CustomFormRequest
                         '002' => 'PENDIENTE',
                         default => null,
                     };
-        
+       
                     if ($value !== $estadoPermitido) {
                         $fail("El {$attribute} no es válido para el código de retorno proporcionado.");
                     }

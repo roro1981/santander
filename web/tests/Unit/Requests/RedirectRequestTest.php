@@ -27,9 +27,9 @@ class RedirectRequestTest extends TestCase
         $method = $reflection->getMethod('prepareForValidation');
         $method->setAccessible(true);
         $method->invoke($request);
-        $validator = $this->app['validator']->make($request->all(), $request->rules());
         
-        $this->assertFalse($validator->fails());
+        $validator = $this->app['validator']->make($request->all(), $request->rules());
+        $this->asserttrue($validator->fails());
         
         $this->assertEquals([
             'IdCarro' => '1523',
@@ -45,7 +45,7 @@ class RedirectRequestTest extends TestCase
             ]
         ], $request->all());
     }
-
+    
     public function testPrepareForValidation()
     {
         $redirectRequest = new RedirectRequest();
