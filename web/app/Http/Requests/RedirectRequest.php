@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\CustomFormRequest;
+use Illuminate\Validation\Rule;
+
 class RedirectRequest extends CustomFormRequest
 {
 
@@ -9,8 +12,24 @@ class RedirectRequest extends CustomFormRequest
     {
         return [
             'IdCarro' => 'required|numeric|digits_between:1,20',
-            'CodRet' => 'required|string|in:000,001,002',
-            'Estado' => 'required|string|in:ACEPTADO,RECHAZADO,PENDIENTE',
+            'CodRet' => ['required', 'string', Rule::in(['000', '001', '002'])],
+            'Estado' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    $codRet = request()->input('CodRet');
+                    $estadoPermitido = match($codRet) {
+                        '000' => 'ACEPTADO',
+                        '001' => 'RECHAZADO',
+                        '002' => 'PENDIENTE',
+                        default => null,
+                    };
+        
+                    if ($value !== $estadoPermitido) {
+                        $fail("El {$attribute} no es válido para el código de retorno proporcionado.");
+                    }
+                },
+            ],
             'mpfin' => 'required|array',
             'mpfin.IDTRX' => 'required|numeric|digits_between:1,20',
             'mpfin.CODRET' => 'required|string|in:00,001,002',
@@ -27,5 +46,5 @@ class RedirectRequest extends CustomFormRequest
         $mpfinArray = json_decode(json_encode(simplexml_load_string($mpfinXml)), true);
         $this->merge(['mpfin' => $mpfinArray]);
     }
-
+    
 }

@@ -144,7 +144,7 @@ class WebhookController extends Controller
                 $cart->update(['car_status' => $status]);
                 $cart->update(['car_authorization_uuid' => $mpfin['IDTRX']]);
                 CartStatus::saveCurrentStatus($cart);
-                
+
                 $apiLog->updateLog($response, 200);
             }else{
                 $apiLog = ApiLog::storeLog(
@@ -152,7 +152,6 @@ class WebhookController extends Controller
                     $urlActual,
                     $validated
                 );
-                
                 $response=response()->json(["error"=> 404,"message" => "Id de carro inexistente"], 404);
                 return $response;
             }
