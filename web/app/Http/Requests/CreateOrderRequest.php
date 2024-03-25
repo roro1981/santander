@@ -21,7 +21,7 @@ class CreateOrderRequest extends CustomFormRequest
             'order.method_id' => self::REQUIRED. "|integer|digits_between:1,11",
             'order.url_confirmation' => self::REQUIRED . '|' . self::STRING . '|' . self::URL . '|' . self::MAX_255,
             'order.url_return' => self::REQUIRED . '|' . self::STRING . '|' . self::URL . '|' . self::MAX_255,
-            'order.attempt_number' => self::REQUIRED. "|integer|digits_between:1,11",
+            'order.attempt_number' => self::REQUIRED. "|integer|digits_between:1,11|min:1",
             'order.amount' => $this->getAmountRules($params[Constants::PARAM_ORDER_MIN_AMOUNT], $params[Constants::PARAM_ORDER_MAX_AMOUNT]) ,
             'order.subject' => self::REQUIRED . '|' . self::STRING . '|' . self::MAX_255,
             'order.expiration' => self::REQUIRED . '|'. self::NUMERIC . '|' . '| between:1,2147483647',

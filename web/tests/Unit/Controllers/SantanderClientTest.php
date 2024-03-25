@@ -57,7 +57,7 @@ class SantanderClientTest extends TestCase
         $this->assertEquals('test_token', $token['access_token']);
 
     }
-
+     
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled

@@ -52,8 +52,6 @@ class SantanderClient
                     return $responseToken;
                 }elseif($response->failed()){
                     throw new \App\Exceptions\InscriptionException('Servicio Santander retorna error', 500);
-                }else{
-                    throw new \App\Exceptions\InscriptionException('Error al obtener bearer token', 500);
                 }
 
             } catch (Exception $e) {
