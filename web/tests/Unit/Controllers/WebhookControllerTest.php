@@ -277,7 +277,73 @@ class WebhookControllerTest extends TestCase
         $this->assertEquals($response->getContent(), $result->getContent());
 
     }
-    
+    public function testRedirectFailedOp()
+    {
+        Queue::fake();
+        $order = Cart::factory()->create();
+        $this->requestRedirect['CodRet']='001';
+        $this->requestRedirect['Estado']='RECHAZADO';
+        $requestMock = Mockery::mock(RedirectRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestRedirect);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(RedirectRequest::class, $requestMock);
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andReturnUsing(function ($cart) {
+            return new CartStatus([
+                'car_id' => $cart->car_id,
+                'cas_status' => $cart->car_status
+            ]);
+        });
+        $this->instance(CartStatus::class, $this->mockCartStatus);
+
+        $response = Response::json(['code' => '001', 'message' => 'RECHAZADO'], 200);
+        $controller = new WebhookController();
+        $result = $controller->redirect($requestMock);
+        
+        $this->assertEquals($response->getContent(), $result->getContent());
+
+    }
+    public function testRedirectFailedSign()
+    {
+        Queue::fake();
+        $order = Cart::factory()->create();
+        $this->requestRedirect['CodRet']='002';
+        $this->requestRedirect['Estado']='PENDIENTE';
+        $requestMock = Mockery::mock(RedirectRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestRedirect);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(RedirectRequest::class, $requestMock);
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andReturnUsing(function ($cart) {
+            return new CartStatus([
+                'car_id' => $cart->car_id,
+                'cas_status' => $cart->car_status
+            ]);
+        });
+        $this->instance(CartStatus::class, $this->mockCartStatus);
+
+        $response = Response::json(['code' => '002', 'message' => 'PENDIENTE'], 200);
+        $controller = new WebhookController();
+        $result = $controller->redirect($requestMock);
+        
+        $this->assertEquals($response->getContent(), $result->getContent());
+    }
+    public function testRedirectException()
+    {
+        Queue::fake();
+        $order = Cart::factory()->create();
+        $requestMock = Mockery::mock(RedirectRequest::class);
+        $requestMock->shouldReceive('validated')->andReturn($this->requestRedirect);
+        $requestMock->shouldReceive('url')->andReturn('https://example.com/notify');
+        $this->app->instance(RedirectRequest::class, $requestMock);
+        $this->mockCartStatus->shouldReceive('saveCurrentStatus')->andThrow('Exception', 'Test error');
+        $this->instance(CartStatus::class, $this->mockCartStatus);
+
+        $controller = new WebhookController();
+        $result = $controller->redirect($requestMock);
+        
+        $this->assertNotNull($result);
+        $this->assertEquals(500, $result->status());
+
+    }
     public function testMontoInconsistenteRedirect()
     {
         $requestMock = Mockery::mock(RedirectRequest::class);
