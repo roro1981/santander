@@ -19,7 +19,6 @@ use phpseclib3\Net\SFTP;
 class FtpConciliationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, SftpConnectionTrait;
-    private $fechaPagos;
     private $fileName;
     private $sftpConnection = null;
 
@@ -30,71 +29,68 @@ class FtpConciliationJob implements ShouldQueue
 
     public function handle(): void
     {
-       
-            $sftp = $this->sftpConnection ?? $this->testConnection();
-            $fileList = $sftp->nlist('/');
-            $dataToInsert = [];
-      
-            foreach ($fileList as $fileName) {
+        $sftp = $this->sftpConnection ?? $this->testConnection();
+        $fileList = $sftp->nlist('/');
+        $dataToInsert = [];
+    
+        foreach ($fileList as $fileName) {
+            
+            if ($fileName === '.' || $fileName === '..') {
+                continue;
+            }
+
+            try {    
                 
-                if ($fileName === '.' || $fileName === '..') {
+                $this->fileName=$fileName;
+
+                if($this->fileNameProcess($this->fileName)){
+                    Log::error("Archivo ya fue procesado ".$this->fileName);
                     continue;
                 }
+                $fileContent = $sftp->get($fileName);
+                $xml = simplexml_load_string($fileContent);
+                $totalizador=$xml->totalizadorPagos;
 
-                try {    
-                    
-                    $this->fileName=$fileName;
-
-                    if($this->fileNameProcess($this->fileName)){
-                        Log::error("Archivo ya fue procesado ".$this->fileName);
-                        continue;
-                    }
-                    $fileContent = $sftp->get($fileName);
-                    $xml = simplexml_load_string($fileContent);
-                    $totalizador=$xml->totalizadorPagos;
-
-                    if($totalizador->numeroPagos==0 && $totalizador->montoTotal==0){
-                        Log::error("Archivo sin pagos ".$this->fileName);
-                        continue;
-                    }
-                    $xml = simplexml_load_string($fileContent);
-                  
-                    foreach ($xml->detallePagos as $detallePago) {
-                        $fechahoraOperacion = Carbon::createFromFormat('d/m/Y H:i:s', (string) $detallePago->fechahoraOperacion)->format('Y-m-d H:i:s');
-                        $dataToInsert[]= [
-                            'con_cart_id' => (string) $detallePago->idCarro,
-                            'con_agreement_id' => (string) $detallePago->idConvenio,
-                            'con_product_number' => isset($detallePago->numeroProducto) ? (string) $detallePago->numeroProducto : '-',
-                            'con_customer_number' => isset($detallePago->numeroCliente) ? (string) $detallePago->numeroCliente : '-',
-                            'con_product_expiration' => !empty($detallePago->expiracionProducto) ? (string) $detallePago->expiracionProducto : null,
-                            'con_product_description' => (string) $detallePago->descProducto,
-                            'con_product_amount' => (string) $detallePago->montoProducto,
-                            'con_operation_number' => isset($detallePago->numeroOperacion) ? (int) $detallePago->numeroOperacion : 0,
-                            'con_operation_date' => (string) $fechahoraOperacion
-                        ];
-                    }   
-      
-                    if(!$this->fileRename($this->fileName,$sftp)){
-                        Log::error("Problema al renombrar archivo: ".$this->fileName);
-                    }else{
-                        Log::info("Archivo procesado: ".$this->fileName);
-                    }
-                    
-                } catch (\Exception $e) {
-                    Log::error("Error en lectura de SFTP: ".$this->fileName." Error: ".$e->getMessage());
+                if($totalizador->numeroPagos==0 && $totalizador->montoTotal==0){
+                    Log::error("Archivo sin pagos ".$this->fileName);
+                    continue;
+                }
+                $xml = simplexml_load_string($fileContent);
+                
+                foreach ($xml->detallePagos as $detallePago) {
+                    $fechahoraOperacion = Carbon::createFromFormat('d/m/Y H:i:s', (string) $detallePago->fechahoraOperacion)->format('Y-m-d H:i:s');
+                    $dataToInsert[]= [
+                        'con_cart_id' => (string) $detallePago->idCarro,
+                        'con_agreement_id' => (string) $detallePago->idConvenio,
+                        'con_product_number' => isset($detallePago->numeroProducto) ? (string) $detallePago->numeroProducto : '-',
+                        'con_customer_number' => isset($detallePago->numeroCliente) ? (string) $detallePago->numeroCliente : '-',
+                        'con_product_expiration' => !empty($detallePago->expiracionProducto) ? (string) $detallePago->expiracionProducto : null,
+                        'con_product_description' => (string) $detallePago->descProducto,
+                        'con_product_amount' => (string) $detallePago->montoProducto,
+                        'con_operation_number' => isset($detallePago->numeroOperacion) ? (int) $detallePago->numeroOperacion : 0,
+                        'con_operation_date' => (string) $fechahoraOperacion
+                    ];
+                }   
+    
+                if(!$this->fileRename($this->fileName,$sftp)){
+                    Log::error("Problema al renombrar archivo: ".$this->fileName);
+                }else{
+                    Log::info("Archivo procesado: ".$this->fileName);
                 }
                 
-            }
+            } catch (\Exception $e) {
+                Log::error("Error en lectura de SFTP: ".$this->fileName." Error: ".$e->getMessage());
+            } 
+        }
 
-            if(!empty($dataToInsert)){
-                Log::info ($dataToInsert);
-                $this->insertData($dataToInsert);
-                Log::info("Transacciones SFTP grabadas en base de datos");
-                $this->conciliationProcess();
-            }
-            
+        if(!empty($dataToInsert)){
+            Log::info ($dataToInsert);
+            $this->insertData($dataToInsert);
+            Log::info("Transacciones SFTP grabadas en base de datos");
+            $this->conciliationProcess();
+        }
     }
-
+    
     static function insertData($array){
         try {
             DB::beginTransaction();
@@ -179,8 +175,8 @@ class FtpConciliationJob implements ShouldQueue
                     Log::info("Proceso de conciliación finalizado");
                 } catch (\Exception $e) {
                     DB::rollBack();
-                    throw $e;
                     Log::error("Error en el proceso de conciliacion: ".$e->getMessage());
+                    throw $e;
                 }
             }
         });
